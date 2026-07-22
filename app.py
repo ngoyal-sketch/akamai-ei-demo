@@ -66,6 +66,7 @@ st.markdown(f"""
 # 2. MOCK DATABASES (Split into Delivery & Security)
 # ==========================================
 MOCK_DELIVERY = {
+    "Select Configuration...": "",
     "authentication.akamai.com (Auth & Identity)": """{
   "propertyName": "authentication.akamai.com",
   "propertyId": "prp_753664",
@@ -92,6 +93,7 @@ MOCK_DELIVERY = {
 }
 
 MOCK_SECURITY = {
+    "Select Configuration...": "",
     "No Security Configured (Empty)": """{
   "configId": 0,
   "securityPolicies": []
@@ -160,19 +162,20 @@ def generate_pitch_and_code(issue_lower, target_host, prop_name):
 
 
 def run_track_1_analysis(raw_delivery, raw_security, business_issue):
-    """Deep-Insight Mode: Scans BOTH Delivery and Security JSON Configs."""
+    """Deep-Insight Mode: Scans provided Delivery and/or Security JSON Configs."""
     try:
-        delivery_data = json.loads(raw_delivery)
-        security_data = json.loads(raw_security) if raw_security else {}
+        # Gracefully handle empty or None inputs without throwing errors
+        delivery_data = json.loads(raw_delivery) if raw_delivery and raw_delivery.strip() else {}
+        security_data = json.loads(raw_security) if raw_security and raw_security.strip() else {}
     except Exception:
         return ["Invalid JSON format provided."], ["Please ensure valid configuration data."], "N/A", "N/A", ""
 
-    prop_name = delivery_data.get("propertyName", "Custom Property")
+    prop_name = delivery_data.get("propertyName", "Custom Configuration")
     behaviors_found = set()
     is_secure = True 
     origin_host = "Unknown Origin"
     
-    # Parse Delivery JSON
+    # Parse Delivery JSON (if provided)
     def traverse_delivery(node):
         nonlocal is_secure, origin_host
         if isinstance(node, dict):
@@ -188,14 +191,16 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
                 for c in node["children"]: traverse_delivery(c)
             if "rules" in node: traverse_delivery(node["rules"])
             
-    traverse_delivery(delivery_data)
+    if delivery_data:
+        traverse_delivery(delivery_data)
     
-    # Parse Security JSON (String parsing for robust mock handling)
-    sec_string = json.dumps(security_data).lower()
-    if "webapplicationfirewall" in sec_string and '"enabled": true' in sec_string:
-        behaviors_found.add("webapplicationfirewall")
-    if "botmanagement" in sec_string and '"enabled": true' in sec_string:
-        behaviors_found.add("botmanager")
+    # Parse Security JSON (if provided)
+    if security_data:
+        sec_string = json.dumps(security_data).lower()
+        if "webapplicationfirewall" in sec_string and '"enabled": true' in sec_string:
+            behaviors_found.add("webapplicationfirewall")
+        if "botmanagement" in sec_string and '"enabled": true' in sec_string:
+            behaviors_found.add("botmanager")
     
     # Feature Mapping
     FEATURE_MAP = {
@@ -218,9 +223,16 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
                 active_features[category].append(mappings[b])
 
     issue_lower = business_issue.lower()
-    observations = [f"Analyzed combined delivery & security footprint for **{prop_name}** routing to origin `{origin_host}`."]
     
-    if not is_secure: 
+    # Adjust observation phrasing based on what was provided
+    if delivery_data and security_data:
+        observations = [f"Analyzed combined delivery & security footprint for **{prop_name}** routing to origin `{origin_host}`."]
+    elif delivery_data:
+        observations = [f"Analyzed delivery configuration footprint for **{prop_name}** routing to origin `{origin_host}`."]
+    else:
+        observations = ["Analyzed security configuration footprint."]
+    
+    if delivery_data and not is_secure: 
         observations.append("CRITICAL: The is_secure flag is set to false, permitting unencrypted HTTP edge traffic.")
     
     active_summary = []
@@ -229,12 +241,12 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
             active_summary.append(f"<b>{category}:</b> " + ", ".join(items))
     
     if active_summary:
-        observations.append("<b>Active Capabilities Detected Across Delivery/Security:</b><br>" + "<br>".join(active_summary))
+        observations.append("<b>Active Capabilities Detected:</b><br>" + "<br>".join(active_summary))
     else:
         observations.append("WARNING: Minimal configuration detected.")
         
     if "botmanager" not in behaviors_found: 
-        observations.append("WARNING: Security configurations indicate zero active Layer-7 Bot Management protections.")
+        observations.append("WARNING: Active configurations indicate zero Layer-7 Bot Management protections.")
     
     recommendations = []
     if any(keyword in issue_lower for keyword in ["ddos", "attack", "security", "waf", "hack"]):
@@ -304,7 +316,7 @@ else:
         st.markdown("<hr style='margin: 10px 0; border: none; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
         
         if "Track 1" in track_choice:
-            st.info("Delivery configurations alone do not contain full security rules. Please provide both Property and AppSec data.")
+            st.info("Provide Delivery and/or Security configurations for analysis.")
             input_method = st.radio("Configuration Source:", ["Select from Catalog", "Paste Custom JSON (PAPI/AppSec)"], horizontal=True)
             
             if input_method == "Select from Catalog":
@@ -336,19 +348,20 @@ else:
     with col2:
         if run_scan and issue_input:
             
-            if "Track 1" in track_choice and final_del_payload and final_sec_payload:
+            # Logic Update: Using OR instead of AND
+            if "Track 1" in track_choice and (final_del_payload or final_sec_payload):
                 observations, recommendations, product, pitch, tf_code = run_track_1_analysis(final_del_payload, final_sec_payload, issue_input)
             elif "Track 2" in track_choice:
                 observations, recommendations, product, pitch, tf_code = run_track_2_analysis(industry_input, region_input, issue_input)
             else:
-                st.error("Please provide both configuration datasets.")
+                st.error("Please provide at least one configuration dataset (Delivery or Security).")
                 st.stop()
             
             st.markdown('<div class="akamai-card">', unsafe_allow_html=True)
             st.markdown('<div class="akamai-card-title">Diagnostic Report</div>', unsafe_allow_html=True)
             
             st.markdown('<div class="section-header">1. Current State Observations</div>', unsafe_allow_html=True)
-            if "Track 1" in track_choice: st.info("Based on the combined Delivery and Security configurations, I observed the following:")
+            if "Track 1" in track_choice: st.info("Based on the provided configuration footprint, I observed the following:")
             
             obs_html = "<ul>" + "".join([f"<li>{obs}</li>" for obs in observations]) + "</ul>"
             st.markdown(obs_html, unsafe_allow_html=True)

@@ -94,6 +94,7 @@ MOCK_ENVIRONMENTS = {
 def generate_pitch_and_code(issue_lower, target_host, prop_name):
     """Generates the Pillar C 90% Pre-Configured Artifact."""
     
+    # 1. DDOS & WAF USE CASES 
     if any(keyword in issue_lower for keyword in ["ddos", "attack", "security", "waf", "hack"]):
         product = "Akamai App & API Protector (AAP)"
         pitch = "AAP provides industry-leading Web Application Firewall and DDoS protection, instantly absorbing volumetric attacks and blocking malicious requests at the edge before they can overwhelm your origin servers."
@@ -105,6 +106,7 @@ resource "akamai_appsec_security_policy" "ei_trial_ddos_shield" {{
   create_from_security_policy = "sp_default"
 }}"""
 
+    # 2. BOT & SCRAPER USE CASES
     elif any(keyword in issue_lower for keyword in ["bot", "scraper", "stuffing"]) or "auth" in prop_name.lower():
         product = "Akamai App & API Protector (AAP) + Bot Manager"
         pitch = "This bundles Web Application Firewall and Bot Management into a unified edge deployment, consolidating security controls while mitigating credential stuffing and scraping."
@@ -118,6 +120,29 @@ resource "akamai_botman_bot_management_settings" "ei_trial_shield" {{
   execution_mode     = "EXECUTION_MODE_MONITOR"
 }}"""
 
+    # 3. MEDIA & IMAGE USE CASES
+    elif any(keyword in issue_lower for keyword in ["image", "video", "media", "picture", "format", "visual"]):
+        product = "Akamai Image & Video Manager (IVM)"
+        pitch = "Image & Video Manager automatically optimizes and resizes visual content at the edge, drastically reducing payload sizes and improving perceived load times across all devices without sacrificing quality."
+        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
+# Mode: Shadow / Monitor-Only (Zero Production Impact)
+resource "akamai_property_image_video_manager" "ei_ivm_trial" {{
+  config_id  = "auto_detected_config"
+  policy_set = "staging_evaluation"
+}}"""
+
+    # 4. DELIVERY & PERFORMANCE USE CASES
+    elif any(keyword in issue_lower for keyword in ["cache", "speed", "delivery", "accelerate", "load time"]):
+        product = "Akamai Ion"
+        pitch = "Akamai Ion provides intelligent performance optimizations, advanced caching, and SureRoute to dynamically accelerate your web and API delivery while offloading your origin infrastructure."
+        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
+# Mode: Shadow / Monitor-Only (Zero Production Impact)
+resource "akamai_property_activation" "ei_ion_trial" {{
+  property_id = "auto_detected_config"
+  network     = "STAGING"
+}}"""
+
+    # 5. EDGE COMPUTE (Default for offload/custom logic)
     else:
         product = "Akamai EdgeWorkers"
         pitch = "EdgeWorkers intercepts requests and executes custom operational logic directly at the edge proxy, drastically reducing origin dependency and latency."
@@ -161,45 +186,71 @@ def run_track_1_analysis(raw_json, business_issue):
             
     traverse(data)
     
-    # Exhaustive Feature Mapping based on user requirements
+    # Exhaustive Feature Mapping based on extensive Akamai behaviors
     FEATURE_MAP = {
         "Security": {
             "webapplicationfirewall": "Web Application Firewall (WAF)",
-            "botmanagement": "Bot Manager",
+            "botmanager": "Bot Manager",
             "contentprotector": "Content Protector (CPR)",
             "apisecurity": "API Security",
             "clientreputation": "Client Reputation",
-            "ratecontrol": "Rate Controls & Throttling",
-            "securityconnector": "Security Connector",
-            "denyaccess": "Access Control (Deny/Allow Rules)",
-            "hsts": "Enhanced TLS (HSTS Enforced)"
+            "requestcontrol": "Request Control (Deny/Allow)",
+            "enhancedtls": "Enhanced TLS (HSTS)",
+            "ddosprotection": "DDoS Protection",
+            "securityconnector": "Security Connector"
         },
         "Delivery & Performance": {
             "caching": "Advanced Caching",
-            "origin": "Origin Selection / Characteristics",
-            "failover": "Failover / Backup Origin",
-            "edgeredirector": "Edge Redirector",
-            "sureroute": "SureRoute (Advanced Routing)",
+            "origin": "Origin Definition",
+            "sureroute": "SureRoute",
+            "cpcode": "CP Codes",
             "prefetch": "Prefetching",
-            "gzipresponse": "Compression (Gzip)",
-            "modifyincomingrequestheader": "Request/Response Modifiers",
-            "modifyoutgoingresponseheader": "Request/Response Modifiers",
-            "cpcode": "CP Codes (Reporting & Billing)",
-            "adaptivemediadelivery": "Adaptive Media Delivery",
-            "objectdelivery": "Object Delivery"
+            "compression": "Compression",
+            "modifyoutgoingrequestheader": "Request/Response Modifiers",
+            "modifyincomingresponseheader": "Request/Response Modifiers",
+            "redirect": "Edge Redirect",
+            "forwardrewrite": "Forward Rewrite",
+            "ratecontrol": "Rate Control",
+            "accesscontrol": "Access Control",
+            "tls": "TLS Enforcement",
+            "origincharacteristics": "Origin Characteristics",
+            "requestvalidation": "Request Validation",
+            "setvariable": "Variable Management",
+            "variableredirect": "Variable Management",
+            "variablerewrite": "Variable Management",
+            "variablemodifyheader": "Variable Management",
+            "variablecachekey": "Variable Management",
+            "variableorigin": "Variable Management",
+            "variablecpcode": "Variable Management",
+            "variableprefetch": "Variable Management",
+            "variablecompression": "Variable Management",
+            "variableratecontrol": "Variable Management",
+            "variablecloudlet": "Variable Management",
+            "variableimagemanager": "Variable Management",
+            "variablevideomanager": "Variable Management",
+            "setcookie": "Cookie Management",
+            "removecookie": "Cookie Management",
+            "variablesetcookie": "Cookie Management",
+            "variableremovecookie": "Cookie Management"
         },
         "Edge Compute & Cloudlets": {
-            "edgeworkers": "EdgeWorkers (Serverless Compute)",
-            "cloudletsapplicationloadbalancer": "Cloudlets Application Load Balancer",
-            "cloudletsaudiencesegmentation": "Cloudlets Audience Segmentation",
-            "cloudletsphasedrelease": "Cloudlets Phased Release",
-            "apigateway": "API Gateway"
+            "edgeworkers": "EdgeWorkers",
+            "edgekv": "EdgeKV",
+            "apigateway": "API Gateway",
+            "cloudlets": "Cloudlets General",
+            "phasedrelease": "Phased Release Cloudlet",
+            "applicationloadbalancer": "ALB Cloudlet",
+            "audiencesegmentation": "Audience Segmentation Cloudlet",
+            "visitorprioritization": "Visitor Prioritization Cloudlet",
+            "edgeredirector": "Edge Redirector Cloudlet"
         },
         "Media & Data": {
-            "imagevideomanager": "Image & Video Manager",
-            "datastream": "DataStream (Custom Logging)",
-            "logdeliveryservice": "Log Delivery Service",
-            "netstorage": "NetStorage (Origin Storage)"
+            "imagemanager": "Image Manager",
+            "videomanager": "Video Manager",
+            "netstorage": "NetStorage",
+            "customlogging": "Custom Logging",
+            "datastream": "DataStream",
+            "logdeliveryservice": "Log Delivery Service"
         }
     }
 
@@ -207,7 +258,6 @@ def run_track_1_analysis(raw_json, business_issue):
     for b in behaviors_found:
         for category, mappings in FEATURE_MAP.items():
             if b in mappings:
-                # Avoid appending duplicate display names (e.g., Request Modifiers)
                 if mappings[b] not in active_features[category]:
                     active_features[category].append(mappings[b])
 
@@ -227,7 +277,7 @@ def run_track_1_analysis(raw_json, business_issue):
     else:
         observations.append("WARNING: No advanced Security, Media, or Edge Compute features detected in this rule tree.")
         
-    if "botmanagement" not in behaviors_found: 
+    if "botmanager" not in behaviors_found: 
         observations.append("WARNING: There are zero active Layer-7 Bot Management behaviors attached to this rule tree.")
     
     recommendations = []
@@ -235,12 +285,12 @@ def run_track_1_analysis(raw_json, business_issue):
         recommendations.append("Deploy robust Layer-7 Web Application Firewall and volumetric DDoS mitigation to absorb attacks at the edge.")
     elif any(keyword in issue_lower for keyword in ["bot", "scraper", "stuffing"]) or "auth" in prop_name.lower():
         recommendations.append("Implement behavior-based bot mitigation at the edge proxy to filter automated threats before origin impact.")
-    
-    if "slow" in issue_lower or "performance" in issue_lower or "offload" in issue_lower:
-        recommendations.append("Offload dynamic routing logic or token validation to serverless edge compute to reduce origin latency.")
-        
-    if not recommendations:
-        recommendations.append("Apply Layer-7 application security controls and optimize edge delivery caching rules.")
+    elif any(keyword in issue_lower for keyword in ["image", "video", "media", "picture", "format", "visual"]):
+        recommendations.append("Implement automated edge-based media optimization to dynamically compress and format visual assets based on client device capabilities.")
+    elif any(keyword in issue_lower for keyword in ["cache", "speed", "delivery", "accelerate", "load time"]):
+        recommendations.append("Enhance edge caching policies and enable dynamic routing to accelerate delivery and offload origin infrastructure.")
+    else:
+        recommendations.append("Offload dynamic routing logic or custom configurations to serverless edge compute to reduce origin latency.")
 
     product, pitch, tf_code = generate_pitch_and_code(issue_lower, origin_host, prop_name)
     return observations, recommendations, product, pitch, tf_code

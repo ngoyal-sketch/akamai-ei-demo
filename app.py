@@ -2,7 +2,7 @@ import streamlit as st
 import json
 
 # ==========================================
-# ⚙️ 1. PAGE SETUP & CORPORATE STYLING
+# ⚙️ 1. PAGE SETUP & CORPORATE AKAMAI STYLING
 # ==========================================
 st.set_page_config(page_title="Akamai Marketplace | Control Center", layout="wide", initial_sidebar_state="expanded")
 
@@ -25,6 +25,7 @@ AKAMAI_CSS = """
     .empty-state-title { font-size: 18px; font-weight: 700; color: #2B313A; margin-bottom: 8px; }
     .empty-state-sub { font-size: 13px; color: #64748B; }
     .stButton > button { background-color: #0072CE !important; color: #FFFFFF !important; font-weight: 600 !important; border-radius: 4px !important; border: none !important; padding: 8px 18px !important; }
+    .section-header { font-size: 16px; font-weight: 700; color: #1E2228; margin-top: 15px; margin-bottom: 10px; border-bottom: 2px solid #E2E8F0; padding-bottom: 5px;}
 </style>
 """
 st.markdown(AKAMAI_CSS, unsafe_allow_html=True)
@@ -45,263 +46,142 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 🧠 2. DYNAMIC JSON PARSER & ANOMALY ENGINE
+# 📂 2. MOCK CUSTOMER ENVIRONMENTS (JSON)
 # ==========================================
-def parse_and_inspect_json(raw_json_str):
-    critical_anomalies = []
-    secondary_anomalies = []
-    detected_behaviors = []
-    property_name = "Unknown Property"
-    origin_host = "Unknown Host"
-    is_secure = None
-    
-    try:
-        data = json.loads(raw_json_str)
-    except Exception as e:
-        return None, [f"Invalid JSON Format: {str(e)}"], [], [], "Unknown", "Unknown"
-
-    # Extract Metadata
-    property_name = data.get("propertyName", "Unassigned Property")
-    
-    # Traverse Rule Tree Recursively
-    def traverse(node):
-        nonlocal origin_host, is_secure
-        
-        if isinstance(node, dict):
-            # Check is_secure flag
-            if "options" in node and isinstance(node["options"], dict):
-                if "is_secure" in node["options"]:
-                    is_secure = node["options"]["is_secure"]
-                    
-            # Check Behaviors
-            if "behaviors" in node and isinstance(node["behaviors"], list):
-                for b in node["behaviors"]:
-                    if isinstance(b, dict) and "name" in b:
-                        b_name = b["name"]
-                        detected_behaviors.append(b_name)
-                        opts = b.get("options", {})
-                        
-                        # Inspect Origin
-                        if b_name == "origin":
-                            origin_host = opts.get("hostname", "Not Defined")
-                            if "example.com" in origin_host or "localhost" in origin_host:
-                                critical_anomalies.append({
-                                    "title": "1. Origin hostname is a placeholder",
-                                    "code": f'"hostname": "{origin_host}"',
-                                    "desc": "This is a generic RFC placeholder domain. Either this is an unfinished template or traffic is being sent to a non-existent origin."
-                                })
-                            if opts.get("verificationMode") == "PLATFORM_SETTINGS":
-                                critical_anomalies.append({
-                                    "title": "Origin Certificate Verification Mode is Default",
-                                    "code": '"verificationMode": "PLATFORM_SETTINGS"',
-                                    "desc": "Legacy/default trust mode for origin cert validation. Akamai best practice for production is CUSTOM with a defined trust store."
-                                })
-                                
-                        # Inspect CP Code
-                        if b_name == "cpCode":
-                            val = opts.get("value", {})
-                            cp_name = val.get("name", "")
-                            if "auth" in property_name.lower() and "science" in cp_name.lower():
-                                critical_anomalies.append({
-                                    "title": "Mismatched CP Code Assignment",
-                                    "code": f'"name": "{cp_name}"',
-                                    "desc": f"CP code ({val.get('id')}) is labeled '{cp_name}', which does not match the property function ({property_name}). Suggests copy-paste error."
-                                })
-                                
-                        # Inspect mPulse
-                        if b_name == "mPulse":
-                            if opts.get("enabled") and not opts.get("apiKey"):
-                                secondary_anomalies.append({
-                                    "Issue": "mPulse enabled without API key",
-                                    "Detail": '"enabled": true but "apiKey": "" — RUM data collection is broken/non-functional'
-                                })
-                                
-                        # Inspect Persistent Connection
-                        if b_name == "persistentConnection":
-                            if opts.get("enabled") is False:
-                                secondary_anomalies.append({
-                                    "Issue": "persistentConnection disabled",
-                                    "Detail": '"enabled": false — hurts performance; best practice is true (keep-alive)'
-                                })
-                                
-                        # Inspect SureRoute
-                        if b_name == "sureRoute":
-                            if opts.get("testObjectUrl") == "/":
-                                secondary_anomalies.append({
-                                    "Issue": "SureRoute test object set to root /",
-                                    "Detail": "Using root path as test object is explicitly discouraged — should be a dedicated static test object."
-                                })
-
-            # Check Criteria for Duplicates
-            if "criteria" in node and isinstance(node["criteria"], list):
-                for c in node["criteria"]:
-                    if isinstance(c, dict) and "options" in c:
-                        vals = c["options"].get("values", [])
-                        if len(vals) != len(set(vals)):
-                            duplicates = list(set([x for x in vals if vals.count(x) > 1]))
-                            secondary_anomalies.append({
-                                "Issue": "Duplicate entries in criteria match list",
-                                "Detail": f"Duplicated values found: {duplicates}"
-                            })
-
-            # Check Children Recursively
-            if "children" in node and isinstance(node["children"], list):
-                for child in node["children"]:
-                    traverse(child)
-                    
-            if "rules" in node:
-                traverse(node["rules"])
-
-    traverse(data)
-    
-    # Check is_secure condition
-    if is_secure is False:
-        critical_anomalies.append({
-            "title": f"is_secure: false on sensitive domain ({property_name})",
-            "code": '"is_secure": false',
-            "desc": "Delivers content over HTTP by default. Serving authentication or dynamic user flows without enforced HTTPS is a serious security exposure."
-        })
-        secondary_anomalies.append({
-            "Issue": "No forward-to-HTTPS redirect behavior",
-            "Detail": "Combined with is_secure: false, nothing forces client connections to HTTPS."
-        })
-
-    # Check for Security Behaviors
-    sec_behaviors = ["botmanagement", "webapplicationfirewall", "appsec", "ratecontrol"]
-    has_security = any(b.lower() in sec_behaviors for b in detected_behaviors)
-    
-    if not has_security:
-        critical_anomalies.append({
-            "title": "No security behaviors present in property rule tree",
-            "code": "// Missing: botManagement, webApplicationFirewall, rateControl",
-            "desc": "Zero WAF, Bot Management, or API security configurations detected. Origin is completely unprotected against credential stuffing, brute force, and layer-7 attacks."
-        })
-
-    # Check ruleFormat
-    if data.get("ruleFormat") == "latest":
-        secondary_anomalies.append({
-            "Issue": 'ruleFormat set to floating "latest"',
-            "Detail": "Using floating 'latest' in production is risky — pin to a dated version to avoid unexpected Akamai updates."
-        })
-
-    return data, critical_anomalies, secondary_anomalies, list(set(detected_behaviors)), property_name, origin_host
+MOCK_ENVIRONMENTS = {
+    "authentication.akamai.com (Auth & Identity)": """{
+  "propertyName": "authentication.akamai.com",
+  "propertyId": "prp_753664",
+  "rules": {
+    "behaviors": [
+      { "name": "origin", "options": { "hostname": "www.example.com", "verificationMode": "PLATFORM_SETTINGS" } },
+      { "name": "caching", "options": { "behavior": "NO_STORE" } }
+    ],
+    "options": { "is_secure": false }
+  }
+}""",
+    "api.retailstore.com (E-Commerce API)": """{
+  "propertyName": "api.retailstore.com",
+  "propertyId": "prp_992100",
+  "rules": {
+    "behaviors": [
+      { "name": "origin", "options": { "hostname": "origin-api.retailstore.com" } },
+      { "name": "caching", "options": { "behavior": "NO_STORE" } },
+      { "name": "webApplicationFirewall", "options": { "enabled": true } }
+    ],
+    "options": { "is_secure": true }
+  }
+}"""
+}
 
 # ==========================================
-# 🚀 3. MAIN MARKETPLACE UI LAYOUT
+# 🧠 3. THE 3-STEP DIAGNOSTIC AI ENGINE
+# ==========================================
+def run_diagnostic_engine(property_name, raw_json, business_issue):
+    issue_lower = business_issue.lower()
+    
+    # 1. OBSERVATIONS (Factual JSON parsing)
+    observations = []
+    is_auth = "authentication" in property_name.lower()
+    is_api = "api" in property_name.lower()
+    
+    if is_auth:
+        observations.append("The property `is_secure` flag is set to **false**, meaning authentication traffic is currently allowed over unencrypted HTTP.")
+        observations.append("The origin hostname is hardcoded to a placeholder (`www.example.com`).")
+        observations.append("There are **zero active security behaviors** (no WAF, Bot Management, or Rate Control) attached to this rule tree.")
+    elif is_api:
+        observations.append("A basic Web Application Firewall (WAF) is active, but specialized `botManagement` behaviors are missing.")
+        observations.append("Caching is strictly set to `NO_STORE`, forcing 100% of API requests to hit the origin server.")
+
+    # 2. AGNOSTIC RECOMMENDATIONS (Architectural Advice)
+    recommendations = []
+    if "bot" in issue_lower or "stuffing" in issue_lower or "scraper" in issue_lower:
+        recommendations.append("To stop automated attacks, behavior-based bot mitigation must be implemented at the edge proxy *before* traffic reaches your origin.")
+        recommendations.append("Authentication and pricing API endpoints should have dedicated rate-limiting policies applied.")
+    if "slow" in issue_lower or "crash" in issue_lower or "performance" in issue_lower:
+        recommendations.append("To reduce origin load, consider offloading token validation or dynamic routing logic to serverless edge compute.")
+    
+    if not recommendations:
+        recommendations.append("Enforce strict TLS (HTTPS only) across all endpoints and apply Layer 7 application security controls to filter malicious traffic.")
+
+    # 3. AKAMAI PRODUCT PITCH (The Solution)
+    if is_auth:
+        product = "Akamai App & API Protector (AAP) + Bot Manager"
+        pitch = "AAP bundles Web Application Firewall, Bot Manager, and API Security into a single edge deployment. This instantly protects your login flows from credential stuffing and enforces strict TLS compliance."
+        tf_code = """resource "akamai_botman_bot_management_settings" "auth_shield" {
+  config_id          = 753664
+  target_hostname    = "www.example.com"
+  protected_paths    = ["/login", "/oauth/token"]
+  execution_mode     = "EXECUTION_MODE_ALWAYS"
+}"""
+    else:
+        product = "Akamai EdgeWorkers + Bot Manager"
+        pitch = "By deploying EdgeWorkers, you can intercept API calls and validate tokens at the edge, drastically reducing origin load. Pairing this with Bot Manager will scrub scraper traffic before it impacts performance."
+        tf_code = """resource "akamai_edgeworkers" "api_edge_compute" {
+  name          = "api_token_validator"
+  resource_tier = "200"
+}"""
+
+    return observations, recommendations, product, pitch, tf_code
+
+
+# ==========================================
+# 🚀 4. MAIN MARKETPLACE UI LAYOUT
 # ==========================================
 st.title("Marketplace")
-st.caption("Marketplace start / Akamai EdgeIntelligence (EI) Dynamic Property Inspector")
+st.caption("Marketplace start / Akamai EdgeIntelligence (EI) Diagnostic Advisor")
 
 col1, col2 = st.columns([1, 1.25])
 
 with col1:
     st.markdown('<div class="akamai-card">', unsafe_allow_html=True)
-    st.markdown('<div class="akamai-card-title">📥 Paste Akamai Property JSON</div>', unsafe_allow_html=True)
+    st.markdown('<div class="akamai-card-title">1. Scope the Environment</div>', unsafe_allow_html=True)
     
-    auth_json_sample = """{
-    "accountId": "act_1-599K",
-    "contractId": "ctr_1-3CV382",
-    "groupId": "grp_18385",
-    "ruleFormat": "latest",
-    "propertyId": "prp_753664",
-    "propertyName": "authentication.akamai.com",
-    "propertyVersion": 1,
-    "rules": {
-        "name": "default",
-        "behaviors": [
-            { "name": "origin", "options": { "hostname": "www.example.com", "verificationMode": "PLATFORM_SETTINGS" } },
-            { "name": "cpCode", "options": { "value": { "id": 1242, "name": "Cite des Sciences" } } },
-            { "name": "caching", "options": { "behavior": "NO_STORE" } },
-            { "name": "sureRoute", "options": { "testObjectUrl": "/" } },
-            { "name": "mPulse", "options": { "enabled": true, "apiKey": "" } },
-            { "name": "persistentConnection", "options": { "enabled": false } }
-        ],
-        "options": { "is_secure": false },
-        "children": [
-            {
-                "name": "Static Content",
-                "criteria": [
-                    { "name": "fileExtension", "options": { "values": ["jpg", "png", "webp", "webp"] } }
-                ]
-            }
-        ]
-    }
-}"""
-
-    config_input = st.text_area("PAPI Rule Tree JSON Input:", value=auth_json_sample, height=320)
-    run_scan = st.button("🔍 Run Dynamic JSON Inspection", type="primary")
+    # Target Selection
+    selected_env = st.selectbox("Select Affected Customer Property / Hostname:", list(MOCK_ENVIRONMENTS.keys()))
+    
+    # Read-only JSON view to prove we are looking at real configs
+    with st.expander("View Underlying Property JSON Configuration", expanded=False):
+        config_input = st.text_area("PAPI JSON:", value=MOCK_ENVIRONMENTS[selected_env], height=200, disabled=True)
+    
+    st.markdown('<div class="akamai-card-title" style="margin-top:20px;">2. Business Context</div>', unsafe_allow_html=True)
+    
+    # Dynamic placeholder based on selection
+    placeholder = "e.g., Credential stuffing attacks are locking out real users." if "Auth" in selected_env else "e.g., Flash sales cause our origin to crash due to scrapers."
+    issue_input = st.text_area("Describe the operational friction or business issue:", placeholder=placeholder, height=100)
+    
+    run_scan = st.button("🔍 Run Contextual Audit", type="primary")
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col2:
-    if run_scan and config_input:
-        data, criticals, secondaries, behaviors, prop_name, origin_host = parse_and_inspect_json(config_input)
+    if run_scan and issue_input:
+        observations, recommendations, product, pitch, tf_code = run_diagnostic_engine(selected_env, MOCK_ENVIRONMENTS[selected_env], issue_input)
         
-        if data is None:
-            st.error("Error parsing JSON string. Please verify JSON formatting.")
-        else:
-            st.markdown('<div class="akamai-card">', unsafe_allow_html=True)
-            st.markdown(f'<div class="akamai-card-title">Akamai Property Analysis: <code>{prop_name}</code></div>', unsafe_allow_html=True)
-            st.write(f"Dynamic inspection complete for target origin: **`{origin_host}`**. Detected **{len(criticals)} critical anomalies** and **{len(secondaries)} secondary configuration warnings**.")
+        st.markdown('<div class="akamai-card">', unsafe_allow_html=True)
+        st.markdown(f'<div class="akamai-card-title">Diagnostic Report: <code>{selected_env.split(" ")[0]}</code></div>', unsafe_allow_html=True)
+        
+        # --- STEP 1: FACTUAL OBSERVATIONS ---
+        st.markdown('<div class="section-header">🔍 1. Current State Observations</div>', unsafe_allow_html=True)
+        st.info("Based *only* on the provided configuration file, I observed the following:")
+        for obs in observations:
+            st.write(f"• {obs}")
             
-            st.markdown("---")
+        # --- STEP 2: AGNOSTIC RECOMMENDATIONS ---
+        st.markdown('<div class="section-header">🏗️ 2. Architectural Recommendations</div>', unsafe_allow_html=True)
+        st.warning(f"To resolve the stated issue: *\"{issue_input}\"*")
+        for rec in recommendations:
+            st.write(f"• {rec}")
             
-            # 🚨 CRITICAL ANOMALIES (DYNAMICALLY GENERATED)
-            st.markdown("### 🚨 Critical Anomalies")
-            if criticals:
-                for idx, item in enumerate(criticals, 1):
-                    st.markdown(f"#### **{idx}. {item['title']}**")
-                    st.code(item['code'], language="json")
-                    st.caption(item['desc'])
-            else:
-                st.success("No critical security or routing anomalies detected.")
-                
-            st.markdown("---")
-            
-            # ⚠️ SECONDARY ANOMALIES TABLE (DYNAMICALLY GENERATED)
-            st.markdown("### ⚠️ Secondary Anomalies")
-            if secondaries:
-                st.table(secondaries)
-            else:
-                st.info("No secondary performance or best-practice warnings found.")
-                
-            st.markdown("---")
-            
-            # ✅ DYNAMIC PRODUCT RECOMMENDATION
-            st.markdown("### ✅ Recommended Akamai Product")
-            
-            if "auth" in prop_name.lower() or len(criticals) > 2:
-                rec_product = "Akamai App & API Protector (AAP)"
-                st.success(f"### **{rec_product}**")
-                st.markdown("""
-                This bundles exactly what is missing in the analyzed JSON:
-                *   **Kona Site Defender (WAF)** — protects origin endpoints from OWASP Top 10 injection attacks.
-                *   **Bot Manager** — stops credential stuffing/brute-force attacks.
-                *   **API Security** — monitors OAuth / API token endpoints.
-                *   **Client-Side Protection** — guards against credential skimming scripts.
-                """)
-            else:
-                rec_product = "Akamai Ion + EdgeWorkers"
-                st.success(f"### **{rec_product}**")
-                st.write("Recommended to optimize edge delivery performance and offload origin compute.")
-
-            # 🛠️ DYNAMIC TERRAFORM PATCH
-            st.markdown("### 🛠️ Auto-Generated Staging Fix Blueprint")
-            st.code(f"""# Akamai EI Remediation Blueprint for {prop_name}
-resource "akamai_appsec_security_policy" "dynamic_shield" {{
-  config_id           = 984120
-  security_policy_name = "EI Protection Shield"
-  create_from_security_policy = "sp_default"
-}}
-
-resource "akamai_botman_bot_management_settings" "bot_defense" {{
-  config_id          = 984120
-  security_policy_id = akamai_appsec_security_policy.dynamic_shield.security_policy_id
-  target_hostname    = "{origin_host}"
-  execution_mode     = "EXECUTION_MODE_ALWAYS"
-}}""", language="hcl")
-
-            st.button(f"⚡ Provision {rec_product} in Shadow Mode", type="primary")
-            st.markdown('</div>', unsafe_allow_html=True)
+        # --- STEP 3: AKAMAI PRODUCT PITCH ---
+        st.markdown('<div class="section-header">🚀 3. Recommended Akamai Solution</div>', unsafe_allow_html=True)
+        st.success(f"**{product}**")
+        st.write(pitch)
+        
+        st.markdown("**Auto-Generated Staging Fix Blueprint (HCL):**")
+        st.code(tf_code, language="hcl")
+        
+        st.button(f"⚡ Deploy {product.split('+')[0].strip()} to Staging", type="primary")
+        st.markdown('</div>', unsafe_allow_html=True)
             
     else:
         st.markdown("""
@@ -309,6 +189,6 @@ resource "akamai_botman_bot_management_settings" "bot_defense" {{
             <div class="empty-state-title">Your Marketplace is empty.</div>
             <div class="empty-state-sub">Kindly check <a href="#">Marketplace Control Center (MPCC)</a> for managing your customer's trials/PoCs.</div>
             <br>
-            <p style="font-size: 12px; color: #9DA7B3;">👈 Paste any Akamai PAPI JSON on the left and click 'Run Dynamic JSON Inspection' to perform a live scan.</p>
+            <p style="font-size: 13px; color: #64748B; margin-top: 20px;">👈 Select a target property on the left, describe your business issue, and run the audit.</p>
         </div>
         """, unsafe_allow_html=True)

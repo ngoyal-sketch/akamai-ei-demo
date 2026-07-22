@@ -2,7 +2,7 @@ import streamlit as st
 import json
 
 # ==========================================
-# ⚙️ 1. PAGE SETUP & CORPORATE AKAMAI STYLING
+# 1. PAGE SETUP & CORPORATE AKAMAI STYLING
 # ==========================================
 st.set_page_config(page_title="Akamai Marketplace | Control Center", layout="wide", initial_sidebar_state="expanded")
 
@@ -80,7 +80,8 @@ MOCK_ENVIRONMENTS = {
   "rules": {
     "behaviors": [
       { "name": "origin", "options": { "hostname": "origin-api.retailstore.com" } },
-      { "name": "caching", "options": { "behavior": "NO_STORE" } }
+      { "name": "caching", "options": { "behavior": "NO_STORE" } },
+      { "name": "sureRoute", "options": { "enabled": true } }
     ],
     "options": { "is_secure": true }
   }
@@ -88,12 +89,12 @@ MOCK_ENVIRONMENTS = {
 }
 
 # ==========================================
-# 🧠 3. PILLAR A, B & C: DIAGNOSTIC ENGINE
+# 2. DIAGNOSTIC ENGINE & LOGIC
 # ==========================================
 def generate_pitch_and_code(issue_lower, target_host, prop_name):
     """Generates the Pillar C 90% Pre-Configured Artifact."""
     
-    # 1. DDOS & WAF USE CASES 
+    # DDOS & WAF USE CASES 
     if any(keyword in issue_lower for keyword in ["ddos", "attack", "security", "waf", "hack"]):
         product = "Akamai App & API Protector (AAP)"
         pitch = "AAP provides industry-leading Web Application Firewall and DDoS protection, instantly absorbing volumetric attacks and blocking malicious requests at the edge before they can overwhelm your origin servers."
@@ -105,7 +106,7 @@ resource "akamai_appsec_security_policy" "ei_trial_ddos_shield" {{
   create_from_security_policy = "sp_default"
 }}"""
 
-    # 2. BOT & SCRAPER USE CASES
+    # BOT & SCRAPER USE CASES
     elif any(keyword in issue_lower for keyword in ["bot", "scraper", "stuffing"]) or "auth" in prop_name.lower():
         product = "Akamai App & API Protector (AAP) + Bot Manager"
         pitch = "This bundles Web Application Firewall and Bot Management into a unified edge deployment, consolidating security controls while mitigating credential stuffing and scraping."
@@ -119,7 +120,7 @@ resource "akamai_botman_bot_management_settings" "ei_trial_shield" {{
   execution_mode     = "EXECUTION_MODE_MONITOR"
 }}"""
 
-    # 3. PERFORMANCE & LATENCY USE CASES (Default)
+    # PERFORMANCE & LATENCY USE CASES
     else:
         product = "Akamai EdgeWorkers"
         pitch = "EdgeWorkers intercepts requests and executes custom operational logic directly at the edge proxy, drastically reducing origin dependency and latency."
@@ -135,17 +136,18 @@ resource "akamai_edgeworkers" "ei_trial_compute" {{
 
 
 def run_track_1_analysis(raw_json, business_issue):
-    """Deep-Insight Mode: Scans the JSON Config."""
+    """Deep-Insight Mode: Scans the JSON Config for all Akamai Products."""
     try:
         data = json.loads(raw_json)
     except Exception:
         return ["Invalid JSON format provided."], ["Please ensure valid configuration data."], "N/A", "N/A", ""
 
     prop_name = data.get("propertyName", "Custom Property")
-    behaviors = []
+    behaviors_found = set()
     is_secure = True 
     origin_host = "Unknown Origin"
     
+    # Parse JSON
     def traverse(node):
         nonlocal is_secure, origin_host
         if isinstance(node, dict):
@@ -154,21 +156,70 @@ def run_track_1_analysis(raw_json, business_issue):
             if "behaviors" in node and isinstance(node["behaviors"], list):
                 for b in node["behaviors"]:
                     if "name" in b:
-                        behaviors.append(b["name"].lower())
+                        behaviors_found.add(b["name"].lower())
                         if b["name"] == "origin" and "options" in b:
                             origin_host = b["options"].get("hostname", origin_host)
             if "children" in node:
                 for c in node["children"]: traverse(c)
             if "rules" in node: traverse(node["rules"])
+            
     traverse(data)
     
+    # Comprehensive Feature Mapping
+    FEATURE_MAP = {
+        "Security": {
+            "webapplicationfirewall": "Web Application Firewall (WAF)",
+            "botmanagement": "Bot Manager",
+            "ratecontrol": "Rate Controls & Throttling",
+            "clientreputation": "Client Reputation",
+            "apisecurity": "API Security"
+        },
+        "Delivery & Performance": {
+            "caching": "Advanced Caching",
+            "sureroute": "SureRoute (Advanced Routing)",
+            "prefetch": "Prefetching",
+            "gzipresponse": "Compression (Gzip/Brotli)"
+        },
+        "Edge Compute & Cloudlets": {
+            "edgeworkers": "EdgeWorkers (Serverless Compute)",
+            "cloudletsapplicationloadbalancer": "Cloudlets Application Load Balancer",
+            "cloudletsaudiencesegmentation": "Cloudlets Audience Segmentation",
+            "apigateway": "API Gateway"
+        },
+        "Media & Data": {
+            "imagevideomanager": "Image & Video Manager (IVM)",
+            "datastream": "DataStream (Custom Logging)"
+        }
+    }
+
+    active_features = {"Security": [], "Delivery & Performance": [], "Edge Compute & Cloudlets": [], "Media & Data": []}
+    for b in behaviors_found:
+        for category, mappings in FEATURE_MAP.items():
+            if b in mappings:
+                active_features[category].append(mappings[b])
+
     issue_lower = business_issue.lower()
-    observations = [f"Analyzed configuration for **{prop_name}** routing to origin `{origin_host}`."]
-    if not is_secure: observations.append("The `is_secure` flag is set to false, permitting unencrypted HTTP edge traffic.")
-    if "botmanagement" not in behaviors: observations.append("There are zero active Layer-7 Bot Management behaviors attached to this rule tree.")
+    observations = [f"Analyzed configuration for {prop_name} routing to origin {origin_host}."]
     
+    if not is_secure: 
+        observations.append("CRITICAL: The is_secure flag is set to false, permitting unencrypted HTTP edge traffic.")
+    
+    # Active Capabilities Detection formatting
+    active_summary = []
+    for category, items in active_features.items():
+        if items:
+            active_summary.append(f"<b>{category}:</b> " + ", ".join(items))
+    
+    if active_summary:
+        observations.append("<b>Active Akamai Capabilities Detected:</b><br>" + "<br>".join(active_summary))
+    else:
+        observations.append("WARNING: No advanced Security, Media, or Edge Compute features detected in this rule tree.")
+        
+    if "botmanagement" not in behaviors_found: 
+        observations.append("WARNING: There are zero active Layer-7 Bot Management behaviors attached to this rule tree.")
+    
+    # Recommendations
     recommendations = []
-    
     if any(keyword in issue_lower for keyword in ["ddos", "attack", "security", "waf", "hack"]):
         recommendations.append("Deploy robust Layer-7 Web Application Firewall and volumetric DDoS mitigation to absorb attacks at the edge.")
     elif any(keyword in issue_lower for keyword in ["bot", "scraper", "stuffing"]) or "auth" in prop_name.lower():
@@ -189,7 +240,7 @@ def run_track_2_analysis(industry, region, business_issue):
     issue_lower = business_issue.lower()
     
     observations = [
-        f"Data Privacy Track 2 Active: Internal configurations were bypassed. Analysis is based on **{industry}** sector telemetry in **{region}**.",
+        f"Data Privacy Track 2 Active: Internal configurations were bypassed. Analysis is based on {industry} sector telemetry in {region}.",
         f"Akamai Global Intelligence indicates that 63% of operational friction in {industry} networks stems from automated API abuse and credential stuffing.",
         "Regional baseline data shows a high volume of distributed scraping attacks originating from unmitigated edge connections."
     ]
@@ -204,8 +255,9 @@ def run_track_2_analysis(industry, region, business_issue):
     
     return observations, recommendations, product, pitch, tf_code
 
+
 # ==========================================
-# 🚀 4. MAIN UI LAYOUT
+# 3. MAIN UI LAYOUT
 # ==========================================
 st.title("Marketplace")
 st.caption("Akamai EI - Akamai EdgeIntelligence Marketplace")
@@ -216,7 +268,6 @@ with col1:
     st.markdown('<div class="akamai-card">', unsafe_allow_html=True)
     st.markdown('<div class="akamai-card-title">1. Scope the Environment</div>', unsafe_allow_html=True)
     
-    # PILLAR B: THE DUAL-TRACK PRIVACY CHOICE
     st.markdown("<span style='font-size: 14px; font-weight: 600; color: #1E2228;'>Data Privacy & Analysis Track:</span>", unsafe_allow_html=True)
     track_choice = st.radio("Privacy Track", [
         "Track 1: Deep-Insight Mode (Automated Config Scan)", 
@@ -225,7 +276,6 @@ with col1:
     
     st.markdown("<hr style='margin: 10px 0; border: none; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
     
-    # Track 1 Inputs
     if "Track 1" in track_choice:
         input_method = st.radio("Configuration Source:", ["Select from Catalog", "Paste Custom JSON (PAPI)"], horizontal=True, label_visibility="collapsed")
         if input_method == "Select from Catalog":
@@ -235,10 +285,8 @@ with col1:
                 st.code(final_payload, language="json")
         else:
             final_payload = st.text_area("Paste your raw Akamai Property Manager JSON here:", height=150)
-    
-    # Track 2 Inputs (No JSON)
     else:
-        st.info("ℹ️ **Deep-Insight Scanning Disabled.** Analysis will be performed using Akamai Global Intelligence benchmarks.")
+        st.info("Deep-Insight Scanning Disabled. Analysis will be performed using Akamai Global Intelligence benchmarks.")
         col_ind, col_reg = st.columns(2)
         with col_ind: industry_input = st.selectbox("Industry Sector:", ["Financial Services", "Retail & E-Commerce", "Media & Entertainment", "Public Sector"])
         with col_reg: region_input = st.selectbox("Primary Region:", ["North America", "EMEA", "Asia Pacific", "LATAM"])
@@ -253,7 +301,6 @@ with col1:
 with col2:
     if run_scan and issue_input:
         
-        # Execute appropriate track logic
         if "Track 1" in track_choice and final_payload:
             observations, recommendations, product, pitch, tf_code = run_track_1_analysis(final_payload, issue_input)
         elif "Track 2" in track_choice:

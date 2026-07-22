@@ -94,7 +94,6 @@ MOCK_ENVIRONMENTS = {
 def generate_pitch_and_code(issue_lower, target_host, prop_name):
     """Generates the Pillar C 90% Pre-Configured Artifact."""
     
-    # DDOS & WAF USE CASES 
     if any(keyword in issue_lower for keyword in ["ddos", "attack", "security", "waf", "hack"]):
         product = "Akamai App & API Protector (AAP)"
         pitch = "AAP provides industry-leading Web Application Firewall and DDoS protection, instantly absorbing volumetric attacks and blocking malicious requests at the edge before they can overwhelm your origin servers."
@@ -106,7 +105,6 @@ resource "akamai_appsec_security_policy" "ei_trial_ddos_shield" {{
   create_from_security_policy = "sp_default"
 }}"""
 
-    # BOT & SCRAPER USE CASES
     elif any(keyword in issue_lower for keyword in ["bot", "scraper", "stuffing"]) or "auth" in prop_name.lower():
         product = "Akamai App & API Protector (AAP) + Bot Manager"
         pitch = "This bundles Web Application Firewall and Bot Management into a unified edge deployment, consolidating security controls while mitigating credential stuffing and scraping."
@@ -120,7 +118,6 @@ resource "akamai_botman_bot_management_settings" "ei_trial_shield" {{
   execution_mode     = "EXECUTION_MODE_MONITOR"
 }}"""
 
-    # PERFORMANCE & LATENCY USE CASES
     else:
         product = "Akamai EdgeWorkers"
         pitch = "EdgeWorkers intercepts requests and executes custom operational logic directly at the edge proxy, drastically reducing origin dependency and latency."
@@ -136,7 +133,7 @@ resource "akamai_edgeworkers" "ei_trial_compute" {{
 
 
 def run_track_1_analysis(raw_json, business_issue):
-    """Deep-Insight Mode: Scans the JSON Config for all Akamai Products."""
+    """Deep-Insight Mode: Scans the JSON Config for ALL Akamai Products."""
     try:
         data = json.loads(raw_json)
     except Exception:
@@ -147,7 +144,6 @@ def run_track_1_analysis(raw_json, business_issue):
     is_secure = True 
     origin_host = "Unknown Origin"
     
-    # Parse JSON
     def traverse(node):
         nonlocal is_secure, origin_host
         if isinstance(node, dict):
@@ -165,30 +161,45 @@ def run_track_1_analysis(raw_json, business_issue):
             
     traverse(data)
     
-    # Comprehensive Feature Mapping
+    # Exhaustive Feature Mapping based on user requirements
     FEATURE_MAP = {
         "Security": {
             "webapplicationfirewall": "Web Application Firewall (WAF)",
             "botmanagement": "Bot Manager",
-            "ratecontrol": "Rate Controls & Throttling",
+            "contentprotector": "Content Protector (CPR)",
+            "apisecurity": "API Security",
             "clientreputation": "Client Reputation",
-            "apisecurity": "API Security"
+            "ratecontrol": "Rate Controls & Throttling",
+            "securityconnector": "Security Connector",
+            "denyaccess": "Access Control (Deny/Allow Rules)",
+            "hsts": "Enhanced TLS (HSTS Enforced)"
         },
         "Delivery & Performance": {
             "caching": "Advanced Caching",
+            "origin": "Origin Selection / Characteristics",
+            "failover": "Failover / Backup Origin",
+            "edgeredirector": "Edge Redirector",
             "sureroute": "SureRoute (Advanced Routing)",
             "prefetch": "Prefetching",
-            "gzipresponse": "Compression (Gzip/Brotli)"
+            "gzipresponse": "Compression (Gzip)",
+            "modifyincomingrequestheader": "Request/Response Modifiers",
+            "modifyoutgoingresponseheader": "Request/Response Modifiers",
+            "cpcode": "CP Codes (Reporting & Billing)",
+            "adaptivemediadelivery": "Adaptive Media Delivery",
+            "objectdelivery": "Object Delivery"
         },
         "Edge Compute & Cloudlets": {
             "edgeworkers": "EdgeWorkers (Serverless Compute)",
             "cloudletsapplicationloadbalancer": "Cloudlets Application Load Balancer",
             "cloudletsaudiencesegmentation": "Cloudlets Audience Segmentation",
+            "cloudletsphasedrelease": "Cloudlets Phased Release",
             "apigateway": "API Gateway"
         },
         "Media & Data": {
-            "imagevideomanager": "Image & Video Manager (IVM)",
-            "datastream": "DataStream (Custom Logging)"
+            "imagevideomanager": "Image & Video Manager",
+            "datastream": "DataStream (Custom Logging)",
+            "logdeliveryservice": "Log Delivery Service",
+            "netstorage": "NetStorage (Origin Storage)"
         }
     }
 
@@ -196,7 +207,9 @@ def run_track_1_analysis(raw_json, business_issue):
     for b in behaviors_found:
         for category, mappings in FEATURE_MAP.items():
             if b in mappings:
-                active_features[category].append(mappings[b])
+                # Avoid appending duplicate display names (e.g., Request Modifiers)
+                if mappings[b] not in active_features[category]:
+                    active_features[category].append(mappings[b])
 
     issue_lower = business_issue.lower()
     observations = [f"Analyzed configuration for {prop_name} routing to origin {origin_host}."]
@@ -204,7 +217,6 @@ def run_track_1_analysis(raw_json, business_issue):
     if not is_secure: 
         observations.append("CRITICAL: The is_secure flag is set to false, permitting unencrypted HTTP edge traffic.")
     
-    # Active Capabilities Detection formatting
     active_summary = []
     for category, items in active_features.items():
         if items:
@@ -218,7 +230,6 @@ def run_track_1_analysis(raw_json, business_issue):
     if "botmanagement" not in behaviors_found: 
         observations.append("WARNING: There are zero active Layer-7 Bot Management behaviors attached to this rule tree.")
     
-    # Recommendations
     recommendations = []
     if any(keyword in issue_lower for keyword in ["ddos", "attack", "security", "waf", "hack"]):
         recommendations.append("Deploy robust Layer-7 Web Application Firewall and volumetric DDoS mitigation to absorb attacks at the edge.")

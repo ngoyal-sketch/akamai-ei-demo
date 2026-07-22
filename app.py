@@ -131,7 +131,8 @@ def run_track_1_analysis(raw_json, business_issue):
     if not recommendations:
         recommendations.append("Apply Layer-7 application security controls and optimize edge delivery caching rules.")
 
-    return generate_pitch_and_code(issue_lower, origin_host, prop_name)
+    product, pitch, tf_code = generate_pitch_and_code(issue_lower, origin_host, prop_name)
+    return observations, recommendations, product, pitch, tf_code
 
 def run_track_2_analysis(industry, region, business_issue):
     """Contextual-Match Mode: Uses Industry Benchmarks (No Scan)."""
@@ -148,7 +149,10 @@ def run_track_2_analysis(industry, region, business_issue):
         "Implement heuristic bot profiling to distinguish between legitimate customer traffic and advanced persistent bots."
     ]
     
-    return generate_pitch_and_code(issue_lower, f"api.{industry.lower().replace(' ', '')}.internal", "Enterprise API")
+    target_host = f"api.{industry.lower().replace(' ', '')}.internal"
+    product, pitch, tf_code = generate_pitch_and_code(issue_lower, target_host, "Enterprise API")
+    
+    return observations, recommendations, product, pitch, tf_code
 
 def generate_pitch_and_code(issue_lower, target_host, prop_name):
     """Generates the Pillar C 90% Pre-Configured Artifact."""
@@ -174,7 +178,7 @@ resource "akamai_edgeworkers" "ei_trial_compute" {{
   resource_tier   = "200"
   activation_mode = "STAGING_ONLY"
 }}"""
-    return observations, recommendations, product, pitch, tf_code
+    return product, pitch, tf_code
 
 
 # ==========================================
@@ -200,7 +204,7 @@ with col1:
     
     # Track 1 Inputs
     if "Track 1" in track_choice:
-        input_method = st.radio("Configuration Source:", ["Select from Catalog", "Paste Custom JSON (PAPI)"], horizontal=True)
+        input_method = st.radio("Configuration Source:", ["Select from Catalog", "Paste Custom JSON (PAPI)"], horizontal=True, label_visibility="collapsed")
         if input_method == "Select from Catalog":
             selected_env = st.selectbox("Select Affected Customer Property / Hostname:", list(MOCK_ENVIRONMENTS.keys()))
             final_payload = MOCK_ENVIRONMENTS[selected_env]

@@ -46,7 +46,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 📂 2. MOCK CUSTOMER ENVIRONMENTS (JSON)
+# 📂 2. MOCK CATALOG (For Dropdown)
 # ==========================================
 MOCK_ENVIRONMENTS = {
     "authentication.akamai.com (Auth & Identity)": """{
@@ -75,58 +75,87 @@ MOCK_ENVIRONMENTS = {
 }
 
 # ==========================================
-# 🧠 3. THE 3-STEP DIAGNOSTIC AI ENGINE
+# 🧠 3. DYNAMIC AI DIAGNOSTIC ENGINE
 # ==========================================
-def run_diagnostic_engine(property_name, raw_json, business_issue):
+def analyze_json_and_context(raw_json, business_issue):
+    # 1. Safely Parse JSON
+    try:
+        data = json.loads(raw_json)
+    except Exception:
+        return ["❌ Invalid JSON format provided. Cannot parse rule tree."], ["Please ensure the pasted configuration is valid JSON."], "N/A", "N/A", ""
+
+    prop_name = data.get("propertyName", "Custom PAPI Property")
+    behaviors = []
+    is_secure = True 
+    origin_host = "Unknown Origin"
+    
+    # 2. Extract Data dynamically
+    def traverse(node):
+        nonlocal is_secure, origin_host
+        if isinstance(node, dict):
+            if "options" in node and "is_secure" in node["options"]:
+                is_secure = node["options"]["is_secure"]
+            if "behaviors" in node and isinstance(node["behaviors"], list):
+                for b in node["behaviors"]:
+                    if "name" in b:
+                        behaviors.append(b["name"].lower())
+                        if b["name"] == "origin" and "options" in b:
+                            origin_host = b["options"].get("hostname", origin_host)
+            if "children" in node:
+                for c in node["children"]: traverse(c)
+            if "rules" in node: traverse(node["rules"])
+
+    traverse(data)
     issue_lower = business_issue.lower()
     
-    # 1. OBSERVATIONS (Factual JSON parsing)
+    # --- STEP 1: FACTUAL OBSERVATIONS ---
     observations = []
-    is_auth = "authentication" in property_name.lower()
-    is_api = "api" in property_name.lower()
+    observations.append(f"Analyzed configuration for **{prop_name}** routing to origin `{origin_host}`.")
+    if not is_secure:
+        observations.append("🚨 The `is_secure` flag is set to **false**, meaning edge traffic is currently permitted over unencrypted HTTP.")
     
-    if is_auth:
-        observations.append("The property `is_secure` flag is set to **false**, meaning authentication traffic is currently allowed over unencrypted HTTP.")
-        observations.append("The origin hostname is hardcoded to a placeholder (`www.example.com`).")
-        observations.append("There are **zero active security behaviors** (no WAF, Bot Management, or Rate Control) attached to this rule tree.")
-    elif is_api:
-        observations.append("A basic Web Application Firewall (WAF) is active, but specialized `botManagement` behaviors are missing.")
-        observations.append("Caching is strictly set to `NO_STORE`, forcing 100% of API requests to hit the origin server.")
-
-    # 2. AGNOSTIC RECOMMENDATIONS (Architectural Advice)
+    has_bot = "botmanagement" in behaviors
+    has_waf = "webapplicationfirewall" in behaviors or "appsec" in behaviors
+    
+    if not has_waf and not has_bot:
+        observations.append("⚠️ There are **zero active Layer-7 security behaviors** (WAF, Bot Management) attached to this property rule tree.")
+    elif has_waf and not has_bot:
+        observations.append("✅ A Web Application Firewall (WAF) is active, but specialized `botManagement` protections are missing.")
+    
+    # --- STEP 2: AGNOSTIC RECOMMENDATIONS ---
     recommendations = []
-    if "bot" in issue_lower or "stuffing" in issue_lower or "scraper" in issue_lower:
-        recommendations.append("To stop automated attacks, behavior-based bot mitigation must be implemented at the edge proxy *before* traffic reaches your origin.")
-        recommendations.append("Authentication and pricing API endpoints should have dedicated rate-limiting policies applied.")
-    if "slow" in issue_lower or "crash" in issue_lower or "performance" in issue_lower:
-        recommendations.append("To reduce origin load, consider offloading token validation or dynamic routing logic to serverless edge compute.")
-    
+    if "bot" in issue_lower or "stuffing" in issue_lower or "scraper" in issue_lower or "auth" in prop_name.lower():
+        recommendations.append("To stop automated attacks, behavior-based bot mitigation must be implemented at the edge proxy *before* traffic hits the origin.")
+    if "slow" in issue_lower or "crash" in issue_lower or "performance" in issue_lower or "enhance" in issue_lower:
+        recommendations.append("To reduce origin load and enhance performance, consider offloading token validation or dynamic routing logic to serverless edge compute.")
+    if not is_secure:
+        recommendations.append("Enforce strict TLS (HTTPS only) across all endpoints to secure data in transit.")
+        
     if not recommendations:
-        recommendations.append("Enforce strict TLS (HTTPS only) across all endpoints and apply Layer 7 application security controls to filter malicious traffic.")
+        recommendations.append("Apply Layer 7 application security controls to filter malicious traffic and review caching rules to optimize edge delivery.")
 
-    # 3. AKAMAI PRODUCT PITCH (The Solution)
-    if is_auth:
+    # --- STEP 3: AKAMAI PRODUCT PITCH ---
+    if not has_bot and ("bot" in issue_lower or "auth" in prop_name.lower() or "scraper" in issue_lower):
         product = "Akamai App & API Protector (AAP) + Bot Manager"
-        pitch = "AAP bundles Web Application Firewall, Bot Manager, and API Security into a single edge deployment. This instantly protects your login flows from credential stuffing and enforces strict TLS compliance."
-        tf_code = """resource "akamai_botman_bot_management_settings" "auth_shield" {
-  config_id          = 753664
-  target_hostname    = "www.example.com"
-  protected_paths    = ["/login", "/oauth/token"]
+        pitch = "AAP bundles Web Application Firewall, Bot Manager, and API Security into a single edge deployment. This instantly protects your endpoints from credential stuffing, scraping, and enforces strict security compliance."
+        tf_code = f"""resource "akamai_botman_bot_management_settings" "ei_shield" {{
+  config_id          = 123456
+  target_hostname    = "{origin_host}"
   execution_mode     = "EXECUTION_MODE_ALWAYS"
-}"""
+}}"""
     else:
-        product = "Akamai EdgeWorkers + Bot Manager"
-        pitch = "By deploying EdgeWorkers, you can intercept API calls and validate tokens at the edge, drastically reducing origin load. Pairing this with Bot Manager will scrub scraper traffic before it impacts performance."
-        tf_code = """resource "akamai_edgeworkers" "api_edge_compute" {
-  name          = "api_token_validator"
+        product = "Akamai EdgeWorkers + App & API Protector"
+        pitch = "By deploying EdgeWorkers, you can intercept requests and run custom logic at the edge, drastically reducing origin load. Pairing this with AAP secures the enhanced API flows."
+        tf_code = f"""resource "akamai_edgeworkers" "edge_compute" {{
+  name          = "edge_logic_router"
   resource_tier = "200"
-}"""
+}}"""
 
     return observations, recommendations, product, pitch, tf_code
 
 
 # ==========================================
-# 🚀 4. MAIN MARKETPLACE UI LAYOUT
+# 🚀 4. MAIN UI LAYOUT
 # ==========================================
 st.title("Marketplace")
 st.caption("Marketplace start / Akamai EdgeIntelligence (EI) Diagnostic Advisor")
@@ -137,28 +166,31 @@ with col1:
     st.markdown('<div class="akamai-card">', unsafe_allow_html=True)
     st.markdown('<div class="akamai-card-title">1. Scope the Environment</div>', unsafe_allow_html=True)
     
-    # Target Selection
-    selected_env = st.selectbox("Select Affected Customer Property / Hostname:", list(MOCK_ENVIRONMENTS.keys()))
+    # Toggle Input Method
+    input_method = st.radio("Configuration Source:", ["Select from Catalog", "Paste Custom JSON (PAPI)"], horizontal=True)
     
-    # Read-only JSON view to prove we are looking at real configs
-    with st.expander("View Underlying Property JSON Configuration", expanded=False):
-        config_input = st.text_area("PAPI JSON:", value=MOCK_ENVIRONMENTS[selected_env], height=200, disabled=True)
+    if input_method == "Select from Catalog":
+        selected_env = st.selectbox("Select Affected Customer Property / Hostname:", list(MOCK_ENVIRONMENTS.keys()))
+        final_json_payload = MOCK_ENVIRONMENTS[selected_env]
+        with st.expander("View Underlying Property JSON Configuration", expanded=False):
+            st.code(final_json_payload, language="json")
+    else:
+        final_json_payload = st.text_area("Paste your raw Akamai Property Manager JSON here:", height=200)
     
     st.markdown('<div class="akamai-card-title" style="margin-top:20px;">2. Business Context</div>', unsafe_allow_html=True)
     
-    # Dynamic placeholder based on selection
-    placeholder = "e.g., Credential stuffing attacks are locking out real users." if "Auth" in selected_env else "e.g., Flash sales cause our origin to crash due to scrapers."
-    issue_input = st.text_area("Describe the operational friction or business issue:", placeholder=placeholder, height=100)
+    # Updated text label per your request
+    issue_input = st.text_area("Describe what you are looking to enhance or any issues you are currently facing:", placeholder="e.g., Credential stuffing attacks are locking out real users, or looking to reduce origin latency.", height=80)
     
     run_scan = st.button("🔍 Run Contextual Audit", type="primary")
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col2:
-    if run_scan and issue_input:
-        observations, recommendations, product, pitch, tf_code = run_diagnostic_engine(selected_env, MOCK_ENVIRONMENTS[selected_env], issue_input)
+    if run_scan and final_json_payload and issue_input:
+        observations, recommendations, product, pitch, tf_code = analyze_json_and_context(final_json_payload, issue_input)
         
         st.markdown('<div class="akamai-card">', unsafe_allow_html=True)
-        st.markdown(f'<div class="akamai-card-title">Diagnostic Report: <code>{selected_env.split(" ")[0]}</code></div>', unsafe_allow_html=True)
+        st.markdown('<div class="akamai-card-title">Diagnostic Report</div>', unsafe_allow_html=True)
         
         # --- STEP 1: FACTUAL OBSERVATIONS ---
         st.markdown('<div class="section-header">🔍 1. Current State Observations</div>', unsafe_allow_html=True)
@@ -168,19 +200,21 @@ with col2:
             
         # --- STEP 2: AGNOSTIC RECOMMENDATIONS ---
         st.markdown('<div class="section-header">🏗️ 2. Architectural Recommendations</div>', unsafe_allow_html=True)
-        st.warning(f"To resolve the stated issue: *\"{issue_input}\"*")
+        st.warning(f"To address the context: *\"{issue_input}\"*")
         for rec in recommendations:
             st.write(f"• {rec}")
             
         # --- STEP 3: AKAMAI PRODUCT PITCH ---
-        st.markdown('<div class="section-header">🚀 3. Recommended Akamai Solution</div>', unsafe_allow_html=True)
-        st.success(f"**{product}**")
-        st.write(pitch)
+        if product != "N/A":
+            st.markdown('<div class="section-header">🚀 3. Recommended Akamai Solution</div>', unsafe_allow_html=True)
+            st.success(f"**{product}**")
+            st.write(pitch)
+            
+            st.markdown("**Auto-Generated Staging Fix Blueprint (HCL):**")
+            st.code(tf_code, language="hcl")
+            
+            st.button(f"⚡ Deploy {product.split('+')[0].strip()} to Staging", type="primary")
         
-        st.markdown("**Auto-Generated Staging Fix Blueprint (HCL):**")
-        st.code(tf_code, language="hcl")
-        
-        st.button(f"⚡ Deploy {product.split('+')[0].strip()} to Staging", type="primary")
         st.markdown('</div>', unsafe_allow_html=True)
             
     else:
@@ -189,6 +223,6 @@ with col2:
             <div class="empty-state-title">Your Marketplace is empty.</div>
             <div class="empty-state-sub">Kindly check <a href="#">Marketplace Control Center (MPCC)</a> for managing your customer's trials/PoCs.</div>
             <br>
-            <p style="font-size: 13px; color: #64748B; margin-top: 20px;">👈 Select a target property on the left, describe your business issue, and run the audit.</p>
+            <p style="font-size: 13px; color: #64748B; margin-top: 20px;">👈 Provide a configuration on the left, describe your enhancement goal or issue, and run the audit.</p>
         </div>
         """, unsafe_allow_html=True)

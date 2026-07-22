@@ -63,7 +63,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. MOCK DATABASES (Split into Delivery & Security)
+# 2. MOCK DATABASES
 # ==========================================
 MOCK_DELIVERY = {
     "Select Configuration...": "",
@@ -114,7 +114,6 @@ MOCK_SECURITY = {
 # 3. DIAGNOSTIC ENGINE & LOGIC
 # ==========================================
 def generate_pitch_and_code(issue_lower, target_host, prop_name):
-    """Generates the Pillar C 90% Pre-Configured Artifact."""
     if any(keyword in issue_lower for keyword in ["ddos", "attack", "security", "waf", "hack"]):
         product = "Akamai App & API Protector (AAP)"
         pitch = "AAP provides industry-leading Web Application Firewall and DDoS protection, instantly absorbing volumetric attacks and blocking malicious requests at the edge before they can overwhelm your origin servers."
@@ -123,7 +122,6 @@ def generate_pitch_and_code(issue_lower, target_host, prop_name):
   security_policy_name = "EI DDoS and WAF Shield"
   create_from_security_policy = "sp_default"
 }}"""
-
     elif any(keyword in issue_lower for keyword in ["bot", "scraper", "stuffing"]) or "auth" in prop_name.lower():
         product = "Akamai App & API Protector (AAP) + Bot Manager"
         pitch = "This bundles Web Application Firewall and Bot Management into a unified edge deployment, consolidating security controls while mitigating credential stuffing and scraping."
@@ -132,7 +130,6 @@ def generate_pitch_and_code(issue_lower, target_host, prop_name):
   target_hostname    = "{target_host}"
   execution_mode     = "EXECUTION_MODE_MONITOR"
 }}"""
-
     elif any(keyword in issue_lower for keyword in ["image", "video", "media", "picture", "format", "visual"]):
         product = "Akamai Image & Video Manager (IVM)"
         pitch = "Image & Video Manager automatically optimizes and resizes visual content at the edge, drastically reducing payload sizes and improving perceived load times across all devices without sacrificing quality."
@@ -140,7 +137,6 @@ def generate_pitch_and_code(issue_lower, target_host, prop_name):
   config_id  = "auto_detected_config"
   policy_set = "staging_evaluation"
 }}"""
-
     elif any(keyword in issue_lower for keyword in ["cache", "speed", "delivery", "accelerate", "load time"]):
         product = "Akamai Ion"
         pitch = "Akamai Ion provides intelligent performance optimizations, advanced caching, and SureRoute to dynamically accelerate your web and API delivery while offloading your origin infrastructure."
@@ -148,7 +144,6 @@ def generate_pitch_and_code(issue_lower, target_host, prop_name):
   property_id = "auto_detected_config"
   network     = "STAGING"
 }}"""
-
     else:
         product = "Akamai EdgeWorkers"
         pitch = "EdgeWorkers intercepts requests and executes custom operational logic directly at the edge proxy, drastically reducing origin dependency and latency."
@@ -157,14 +152,11 @@ def generate_pitch_and_code(issue_lower, target_host, prop_name):
   resource_tier   = "200"
   activation_mode = "STAGING_ONLY"
 }}"""
-        
     return product, pitch, tf_code
 
 
 def run_track_1_analysis(raw_delivery, raw_security, business_issue):
-    """Deep-Insight Mode: Scans provided Delivery and/or Security JSON Configs."""
     try:
-        # Gracefully handle empty or None inputs without throwing errors
         delivery_data = json.loads(raw_delivery) if raw_delivery and raw_delivery.strip() else {}
         security_data = json.loads(raw_security) if raw_security and raw_security.strip() else {}
     except Exception:
@@ -175,7 +167,6 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
     is_secure = True 
     origin_host = "Unknown Origin"
     
-    # Parse Delivery JSON (if provided)
     def traverse_delivery(node):
         nonlocal is_secure, origin_host
         if isinstance(node, dict):
@@ -194,7 +185,6 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
     if delivery_data:
         traverse_delivery(delivery_data)
     
-    # Parse Security JSON (if provided)
     if security_data:
         sec_string = json.dumps(security_data).lower()
         if "webapplicationfirewall" in sec_string and '"enabled": true' in sec_string:
@@ -202,7 +192,6 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
         if "botmanagement" in sec_string and '"enabled": true' in sec_string:
             behaviors_found.add("botmanager")
     
-    # Feature Mapping
     FEATURE_MAP = {
         "Security": {
             "webapplicationfirewall": "Web Application Firewall (WAF)",
@@ -224,7 +213,6 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
 
     issue_lower = business_issue.lower()
     
-    # Adjust observation phrasing based on what was provided
     if delivery_data and security_data:
         observations = [f"Analyzed combined delivery & security footprint for **{prop_name}** routing to origin `{origin_host}`."]
     elif delivery_data:
@@ -263,7 +251,6 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
 
 
 def run_track_2_analysis(industry, region, business_issue):
-    """Contextual-Match Mode."""
     issue_lower = business_issue.lower()
     observations = [
         f"Data Privacy Track 2 Active: Internal configurations were bypassed. Analysis is based on {industry} sector telemetry in {region}.",
@@ -283,6 +270,20 @@ def run_track_2_analysis(industry, region, business_issue):
 # ==========================================
 st.title("Marketplace")
 st.caption("Akamai EI - Akamai EdgeIntelligence Marketplace")
+
+# 🔥 NEW LIMITED AVAILABILITY / PRODUCT ANNOUNCEMENT BANNER
+st.markdown("""
+<div style="background-color: #E6F4EA; border-left: 4px solid #137333; padding: 15px; margin-bottom: 25px; border-radius: 4px;">
+    <h4 style="margin-top: 0; margin-bottom: 10px; color: #137333;">✨ Early Access: Explore Akamai's Latest Innovations</h4>
+    <p style="font-size: 13px; color: #2B313A; margin-bottom: 10px;">Discover our newest LA (Limited Availability) products designed to protect and optimize your environment in the AI era.</p>
+    <ul style="font-size: 13px; color: #2B313A; padding-left: 20px; margin-bottom: 0;">
+        <li style="margin-bottom: 8px;"><b>AI Brand Presence:</b> AI Brand Presence ensures a brand's content is accurately represented and discoverable across AI-driven experiences and agentic workflows. It optimizes how AI systems access, interpret, and present content, preserving brand integrity and visibility as AI increasingly intermediates user interactions. <a href="#">Read or initiate try here!</a></li>
+        <li style="margin-bottom: 8px;"><b>Akamai Guardicore Segmentation:</b> Akamai Guardicore Segmentation is the first AI-powered segmentation platform with built-in Exposure Analysis & Response capabilities. By understanding asset and application exposure, detecting real threats, and automatically enforcing containment that continuously reduces risk, we help customers stay ahead of the AI-accelerated threat landscape. We've operationalized Zero Trust as a continuous risk containment platform, delivering measurable attack surface reduction, faster response, and durable protection across hybrid enterprise environments. <a href="#">Read or initiate try here!</a></li>
+        <li style="margin-bottom: 8px;"><b>API Security:</b> Protect APIs throughout their entire lifecycle to reduce the risk of data breaches. <a href="#">Read or initiate try here!</a></li>
+        <li style="margin-bottom: 0;"><b>Brand Guardian:</b> Brand Guardian is Akamai's new, AI-powered solution for protecting organizations from modern, AI-driven brand abuse. It continuously detects and takes down threats across the digital ecosystem, including phishing, impersonation, fraudulent domains, fake social profiles and malicious content. Brand Guardian goes beyond alerting to actively disrupt and remove abuse, helping reduce risk, protect customers and preserve brand trust at scale. <a href="#">Read or initiate try here!</a></li>
+    </ul>
+</div>
+""", unsafe_allow_html=True)
 
 # GATEWAY QUESTION
 gateway_choice = st.radio(
@@ -348,7 +349,6 @@ else:
     with col2:
         if run_scan and issue_input:
             
-            # Logic Update: Using OR instead of AND
             if "Track 1" in track_choice and (final_del_payload or final_sec_payload):
                 observations, recommendations, product, pitch, tf_code = run_track_1_analysis(final_del_payload, final_sec_payload, issue_input)
             elif "Track 2" in track_choice:

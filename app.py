@@ -31,7 +31,7 @@ AKAMAI_CSS = """
         font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 10px; border: 2px solid #1E2228;
     }
     
-    /* 3. Spacious Cards and Empty State */
+    /* 3. Spacious Cards */
     .akamai-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
     .akamai-card-title { font-size: 18px; font-weight: 700; color: #1E2228; margin-bottom: 16px; }
     
@@ -41,15 +41,20 @@ AKAMAI_CSS = """
     
     .stButton > button { background-color: #0072CE !important; color: #FFFFFF !important; font-weight: 600 !important; border-radius: 4px !important; border: none !important; padding: 8px 18px !important; font-size: 14px !important; }
     
-    /* 4. Executive Metric Cards (Inspired by Azure Advisor, adapted for Akamai) */
-    .exec-metric-card {
-        background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 4px; padding: 12px 16px; text-align: left;
+    /* 4. Three-Pillar Azure-Style Status Cards */
+    .azure-card {
+        background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 16px; text-align: left;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02); height: 100%;
     }
-    .exec-metric-title { font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; }
-    .exec-metric-val { font-size: 18px; font-weight: 800; color: #1E2228; margin-top: 4px; }
-    .exec-metric-sub { font-size: 11px; color: #475569; margin-top: 2px; }
+    .azure-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .azure-title { font-size: 14px; font-weight: 700; color: #1E2228; text-transform: uppercase; letter-spacing: 0.5px; }
+    .azure-count { font-size: 18px; font-weight: 800; }
+    .azure-sub { font-size: 11px; color: #64748B; margin-bottom: 12px; font-weight: 600;}
+    .azure-hr { border: none; border-top: 1px solid #E2E8F0; margin: 10px 0; }
+    .azure-section { font-size: 12px; color: #2B313A; margin-bottom: 8px; line-height: 1.4; }
+    .azure-section b { color: #1E2228; font-weight: 700; display: block; margin-bottom: 2px;}
 
-    .section-header { font-size: 15px; font-weight: 700; color: #1E2228; margin-top: 18px; margin-bottom: 10px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;}
+    .section-header { font-size: 15px; font-weight: 700; color: #1E2228; margin-top: 24px; margin-bottom: 10px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;}
     ul { margin-top: 10px; padding-left: 20px; color: #2B313A; font-size: 14px; margin-bottom: 12px; }
     li { margin-bottom: 6px; }
     p { font-size: 14px; margin-bottom: 10px; }
@@ -130,13 +135,18 @@ MOCK_SECURITY = {
 # 3. DIAGNOSTIC ENGINE & LOGIC
 # ==========================================
 def generate_pitch_and_code(issue_lower, target_host, prop_name):
+    # Determine dynamic 3-Pillar Data based on user context
+    pillars = {
+        "Security": {"color": "#0072CE", "count": 1, "beh": "Enforce strict rate limits", "setup": "Enable active threat intelligence feeds", "prod": "App & API Protector"},
+        "Reliability": {"color": "#0072CE", "count": 1, "beh": "Configure Origin Health Checks", "setup": "Automate DNS failover routing", "prod": "Global Traffic Management"},
+        "Performance": {"color": "#0072CE", "count": 1, "beh": "Enable dynamic content caching", "setup": "Optimize edge cache keys", "prod": "Akamai Ion"}
+    }
+
     if any(keyword in issue_lower for keyword in ["lateral", "segmentation", "ransomware", "internal server", "hybrid cloud"]):
         product = "Akamai Guardicore Segmentation"
         pitch = "Guardicore is an AI-powered segmentation platform that understands asset exposure and automatically enforces containment, keeping your internal servers safe from lateral movement and ransomware across hybrid environments."
-        metrics = {"high_gaps": 1, "med_gaps": 1, "resources": "1 Internal Cluster", "est_impact": "Zero-Trust Isolation"}
-        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
-# Mode: Shadow / Monitor-Only (Zero Production Impact)
-resource "akamai_guardicore_policy" "ei_trial_segmentation" {{
+        pillars["Security"] = {"color": "#D93025", "count": 3, "beh": "Block unauthorized lateral traffic", "setup": "Deploy software-based microsegmentation agents", "prod": "Akamai Guardicore"}
+        tf_code = f"""resource "akamai_guardicore_policy" "ei_trial_segmentation" {{
   policy_name = "Block_Lateral_Movement"
   status      = "MONITOR_ONLY"
   rules       = ["isolate_critical_databases"]
@@ -145,10 +155,8 @@ resource "akamai_guardicore_policy" "ei_trial_segmentation" {{
     elif any(keyword in issue_lower for keyword in ["ddos", "attack", "security", "waf", "hack"]):
         product = "Akamai App & API Protector (AAP)"
         pitch = "AAP provides industry-leading Web Application Firewall and DDoS protection, instantly absorbing volumetric attacks and blocking malicious requests at the edge before they can overwhelm your origin servers."
-        metrics = {"high_gaps": 2, "med_gaps": 0, "resources": "1 Exposed Host", "est_impact": "100% Volumetric Scrubbing"}
-        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
-# Mode: Shadow / Monitor-Only (Zero Production Impact)
-resource "akamai_appsec_security_policy" "ei_trial_ddos_shield" {{
+        pillars["Security"] = {"color": "#D93025", "count": 2, "beh": "Enable volumetric attack scrubbing", "setup": "Deploy Layer 7 WAF rulesets", "prod": "App & API Protector (AAP)"}
+        tf_code = f"""resource "akamai_appsec_security_policy" "ei_trial_ddos_shield" {{
   config_id           = "auto_detected_config"
   security_policy_name = "EI DDoS and WAF Shield"
   create_from_security_policy = "sp_default"
@@ -157,10 +165,8 @@ resource "akamai_appsec_security_policy" "ei_trial_ddos_shield" {{
     elif any(keyword in issue_lower for keyword in ["bot", "scraper", "stuffing"]) or "auth" in prop_name.lower():
         product = "Akamai App & API Protector (AAP) + Bot Manager"
         pitch = "This bundles Web Application Firewall and Bot Management into a unified edge deployment, consolidating security controls while mitigating credential stuffing and scraping."
-        metrics = {"high_gaps": 1, "med_gaps": 1, "resources": "2 Edge Endpoints", "est_impact": "85%+ Bot Traffic Filtered"}
-        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
-# Mode: Shadow / Monitor-Only (Zero Production Impact)
-resource "akamai_botman_bot_management_settings" "ei_trial_shield" {{
+        pillars["Security"] = {"color": "#D93025", "count": 3, "beh": "Analyze behavioral telemetry for bots", "setup": "Implement credential stuffing defense", "prod": "Bot Manager"}
+        tf_code = f"""resource "akamai_botman_bot_management_settings" "ei_trial_shield" {{
   config_id          = "auto_detected_config"
   target_hostname    = "{target_host}"
   execution_mode     = "EXECUTION_MODE_MONITOR"
@@ -169,10 +175,8 @@ resource "akamai_botman_bot_management_settings" "ei_trial_shield" {{
     elif any(keyword in issue_lower for keyword in ["image", "video", "media", "picture", "format", "visual"]):
         product = "Akamai Image & Video Manager (IVM)"
         pitch = "Image & Video Manager automatically optimizes and resizes visual content at the edge, drastically reducing payload sizes and improving perceived load times across all devices without sacrificing quality."
-        metrics = {"high_gaps": 0, "med_gaps": 2, "resources": "3 Visual Assets Rules", "est_impact": "~60% Payload Size Reduction"}
-        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
-# Mode: Shadow / Monitor-Only (Zero Production Impact)
-resource "akamai_property_image_video_manager" "ei_ivm_trial" {{
+        pillars["Performance"] = {"color": "#F59E0B", "count": 2, "beh": "Auto-convert next-gen image formats", "setup": "Set perceptual quality thresholds", "prod": "Image & Video Manager (IVM)"}
+        tf_code = f"""resource "akamai_property_image_video_manager" "ei_ivm_trial" {{
   config_id  = "auto_detected_config"
   policy_set = "staging_evaluation"
 }}"""
@@ -180,10 +184,8 @@ resource "akamai_property_image_video_manager" "ei_ivm_trial" {{
     elif any(keyword in issue_lower for keyword in ["cache", "speed", "delivery", "accelerate", "load time"]):
         product = "Akamai Ion"
         pitch = "Akamai Ion provides intelligent performance optimizations, advanced caching, and SureRoute to dynamically accelerate your web and API delivery while offloading your origin infrastructure."
-        metrics = {"high_gaps": 0, "med_gaps": 2, "resources": "1 Property Host", "est_impact": "Up to 90% Origin Offload"}
-        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
-# Mode: Shadow / Monitor-Only (Zero Production Impact)
-resource "akamai_property_activation" "ei_ion_trial" {{
+        pillars["Performance"] = {"color": "#F59E0B", "count": 2, "beh": "Enable SureRoute & Brotli Compression", "setup": "Expand static asset TTLs", "prod": "Akamai Ion"}
+        tf_code = f"""resource "akamai_property_activation" "ei_ion_trial" {{
   property_id = "auto_detected_config"
   network     = "STAGING"
 }}"""
@@ -191,16 +193,14 @@ resource "akamai_property_activation" "ei_ion_trial" {{
     else:
         product = "Akamai EdgeWorkers"
         pitch = "EdgeWorkers intercepts requests and executes custom operational logic directly at the edge proxy, drastically reducing origin dependency and latency."
-        metrics = {"high_gaps": 0, "med_gaps": 1, "resources": "1 Dynamic Route", "est_impact": "~120ms Latency Reduction"}
-        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
-# Mode: Shadow / Monitor-Only (Zero Production Impact)
-resource "akamai_edgeworkers" "ei_trial_compute" {{
+        pillars["Performance"] = {"color": "#10B981", "count": 1, "beh": "Offload dynamic routing to edge", "setup": "Deploy edge compute scripts", "prod": "Akamai EdgeWorkers"}
+        tf_code = f"""resource "akamai_edgeworkers" "ei_trial_compute" {{
   name            = "edge_logic_accelerator"
   resource_tier   = "200"
   activation_mode = "STAGING_ONLY"
 }}"""
         
-    return product, pitch, tf_code, metrics
+    return product, pitch, tf_code, pillars
 
 
 def run_track_1_analysis(raw_delivery, raw_security, business_issue):
@@ -277,27 +277,17 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
             active_summary.append(f"<b>{category}:</b> " + ", ".join(items))
     
     if active_summary:
-        observations.append("<b>Active Capabilities Detected Across Delivery/Security:</b><br>" + "<br>".join(active_summary))
+        observations.append("<b>Active Capabilities Detected:</b><br>" + "<br>".join(active_summary))
     else:
         observations.append("WARNING: Minimal configuration detected.")
         
     if "botmanager" not in behaviors_found: 
         observations.append("WARNING: Active configurations indicate zero Layer-7 Bot Management protections.")
     
-    recommendations = []
-    if any(keyword in issue_lower for keyword in ["ddos", "attack", "security", "waf", "hack"]):
-        recommendations.append("Deploy robust Layer-7 Web Application Firewall and volumetric DDoS mitigation.")
-    elif any(keyword in issue_lower for keyword in ["bot", "scraper", "stuffing"]) or "auth" in prop_name.lower():
-        recommendations.append("Implement behavior-based bot mitigation to filter automated threats before origin impact.")
-    elif any(keyword in issue_lower for keyword in ["image", "video", "media"]):
-        recommendations.append("Implement automated edge-based media optimization.")
-    elif any(keyword in issue_lower for keyword in ["lateral", "segmentation", "internal server"]):
-        recommendations.append("Implement software-defined microsegmentation to block lateral threat movement within hybrid environments.")
-    else:
-        recommendations.append("Enhance edge caching policies and enable dynamic routing to accelerate delivery.")
+    recommendations = ["Refer to the Three-Pillar diagnostic cards above for specific behavioral and product recommendations."]
 
-    product, pitch, tf_code, metrics = generate_pitch_and_code(issue_lower, origin_host, prop_name)
-    return observations, recommendations, product, pitch, tf_code, metrics
+    product, pitch, tf_code, pillars = generate_pitch_and_code(issue_lower, origin_host, prop_name)
+    return observations, recommendations, product, pitch, tf_code, pillars
 
 
 def run_track_2_analysis(industry, region, business_issue):
@@ -306,13 +296,10 @@ def run_track_2_analysis(industry, region, business_issue):
         f"Data Privacy Track 2 Active: Internal configurations were bypassed. Analysis is based on {industry} sector telemetry in {region}.",
         f"Akamai Global Intelligence indicates that 63% of operational friction in {industry} networks stems from automated API abuse and credential stuffing."
     ]
-    recommendations = [
-        "Adopt a Zero-Trust architecture by shifting API and login authentication validation to the CDN edge.",
-        "Implement heuristic bot profiling to distinguish between legitimate customer traffic and advanced persistent bots."
-    ]
+    recommendations = ["Refer to the Three-Pillar diagnostic cards above for specific behavioral and product recommendations."]
     target_host = f"api.{industry.lower().replace(' ', '')}.internal"
-    product, pitch, tf_code, metrics = generate_pitch_and_code(issue_lower, target_host, "Enterprise API")
-    return observations, recommendations, product, pitch, tf_code, metrics
+    product, pitch, tf_code, pillars = generate_pitch_and_code(issue_lower, target_host, "Enterprise API")
+    return observations, recommendations, product, pitch, tf_code, pillars
 
 
 # ==========================================
@@ -407,62 +394,80 @@ else:
         if run_scan and issue_input:
             
             if "Track 1" in track_choice and (final_del_payload or final_sec_payload):
-                observations, recommendations, product, pitch, tf_code, metrics = run_track_1_analysis(final_del_payload, final_sec_payload, issue_input)
+                observations, recommendations, product, pitch, tf_code, pillars = run_track_1_analysis(final_del_payload, final_sec_payload, issue_input)
             elif "Track 2" in track_choice:
-                observations, recommendations, product, pitch, tf_code, metrics = run_track_2_analysis(industry_input, region_input, issue_input)
+                observations, recommendations, product, pitch, tf_code, pillars = run_track_2_analysis(industry_input, region_input, issue_input)
             else:
                 st.error("Please provide at least one configuration dataset (Delivery or Security).")
                 st.stop()
             
-            st.markdown('<div class="akamai-card">', unsafe_allow_html=True)
+            st.markdown('<div class="akamai-card" style="padding-bottom: 10px;">', unsafe_allow_html=True)
             st.markdown('<div class="akamai-card-title">Diagnostic Report</div>', unsafe_allow_html=True)
             
-            # 🔥 AZURE ADVISOR INSPIRED EXECUTIVE DASHBOARD SNAPSHOT
-            st.markdown('<div style="margin-bottom: 20px;">', unsafe_allow_html=True)
-            m_col1, m_col2, m_col3 = st.columns(3)
-            with m_col1:
+            # 🔥 THREE-PILLAR STATUS CARDS (Security, Reliability, Performance)
+            p_col1, p_col2, p_col3 = st.columns(3)
+            
+            # 1. SECURITY PILLAR
+            with p_col1:
                 st.markdown(f"""
-                <div class="exec-metric-card">
-                    <div class="exec-metric-title">Detected Exposure</div>
-                    <div class="exec-metric-val" style="color:#D93025;">{metrics.get('high_gaps', 1)} High Impact</div>
-                    <div class="exec-metric-sub">{metrics.get('med_gaps', 0)} Medium Impact Gaps</div>
+                <div class="azure-card" style="border-top: 4px solid {pillars['Security']['color']};">
+                    <div class="azure-header">
+                        <span class="azure-title">🛡️ Security</span>
+                    </div>
+                    <div class="azure-count" style="color: {pillars['Security']['color']};">{pillars['Security']['count']} Recs</div>
+                    <div class="azure-sub">Impact & Mitigation</div>
+                    <hr class="azure-hr">
+                    <div class="azure-section"><b>Behaviors:</b> {pillars['Security']['beh']}</div>
+                    <div class="azure-section"><b>Setup:</b> {pillars['Security']['setup']}</div>
+                    <div class="azure-section"><b>Recommended Product:</b> {pillars['Security']['prod']}</div>
                 </div>
                 """, unsafe_allow_html=True)
-            with m_col2:
+                
+            # 2. RELIABILITY PILLAR
+            with p_col2:
                 st.markdown(f"""
-                <div class="exec-metric-card">
-                    <div class="exec-metric-title">Evaluated Footprint</div>
-                    <div class="exec-metric-val">{metrics.get('resources', '1 Asset')}</div>
-                    <div class="exec-metric-sub">Active Telemetry Scanned</div>
+                <div class="azure-card" style="border-top: 4px solid {pillars['Reliability']['color']};">
+                    <div class="azure-header">
+                        <span class="azure-title">⚙️ Reliability</span>
+                    </div>
+                    <div class="azure-count" style="color: {pillars['Reliability']['color']};">{pillars['Reliability']['count']} Recs</div>
+                    <div class="azure-sub">Availability & Failover</div>
+                    <hr class="azure-hr">
+                    <div class="azure-section"><b>Behaviors:</b> {pillars['Reliability']['beh']}</div>
+                    <div class="azure-section"><b>Setup:</b> {pillars['Reliability']['setup']}</div>
+                    <div class="azure-section"><b>Recommended Product:</b> {pillars['Reliability']['prod']}</div>
                 </div>
                 """, unsafe_allow_html=True)
-            with m_col3:
+                
+            # 3. PERFORMANCE PILLAR
+            with p_col3:
                 st.markdown(f"""
-                <div class="exec-metric-card">
-                    <div class="exec-metric-title">Est. AI Solution Gain</div>
-                    <div class="exec-metric-val" style="color:#0072CE;">{metrics.get('est_impact', 'High ROI')}</div>
-                    <div class="exec-metric-sub">Target Outcome</div>
+                <div class="azure-card" style="border-top: 4px solid {pillars['Performance']['color']};">
+                    <div class="azure-header">
+                        <span class="azure-title">🚀 Performance</span>
+                    </div>
+                    <div class="azure-count" style="color: {pillars['Performance']['color']};">{pillars['Performance']['count']} Recs</div>
+                    <div class="azure-sub">Speed & Optimization</div>
+                    <hr class="azure-hr">
+                    <div class="azure-section"><b>Behaviors:</b> {pillars['Performance']['beh']}</div>
+                    <div class="azure-section"><b>Setup:</b> {pillars['Performance']['setup']}</div>
+                    <div class="azure-section"><b>Recommended Product:</b> {pillars['Performance']['prod']}</div>
                 </div>
                 """, unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
 
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            st.markdown('<div class="akamai-card">', unsafe_allow_html=True)
             # 1. OBSERVATIONS
-            st.markdown('<div class="section-header">1. Current State Observations</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header" style="margin-top: 5px;">Current State Observations</div>', unsafe_allow_html=True)
             if "Track 1" in track_choice: st.info("Based on the provided configuration footprint, I observed the following:")
             
             obs_html = "<ul>" + "".join([f"<li>{obs}</li>" for obs in observations]) + "</ul>"
             st.markdown(obs_html, unsafe_allow_html=True)
                 
-            # 2. RECOMMENDATIONS
-            st.markdown('<div class="section-header">2. Architectural Recommendations</div>', unsafe_allow_html=True)
-            st.warning(f"To address the context: \"{issue_input}\"")
-            
-            rec_html = "<ul>" + "".join([f"<li>{rec}</li>" for rec in recommendations]) + "</ul>"
-            st.markdown(rec_html, unsafe_allow_html=True)
-                
-            # 3. SOLUTION & TRIAL BLUEPRINT
+            # 2. SOLUTION & TRIAL BLUEPRINT
             if product != "N/A":
-                st.markdown('<div class="section-header">3. Recommended Akamai Solution</div>', unsafe_allow_html=True)
+                st.markdown('<div class="section-header">Primary Solution Provisioning</div>', unsafe_allow_html=True)
                 st.success(f"**{product}**")
                 st.write(pitch)
                 

@@ -80,7 +80,7 @@ SVG_HELP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="
 SVG_BELL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'
 SVG_ALERT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
 
-# Topbar
+# Topbar (Using Flat String for perfect rendering)
 topbar_html = (
     "<div class='akamai-topbar'>"
     "<div class='akamai-brand'>akamai</div>"
@@ -97,7 +97,7 @@ topbar_html = (
 st.markdown(topbar_html, unsafe_allow_html=True)
 
 # ==========================================
-# 2. MOCK CATALOG DATA
+# 2. MOCK CATALOG DATA (Trained on AAP)
 # ==========================================
 DELIVERY_CATALOG = [
     "api.retailstore.com (E-Commerce API)",
@@ -106,73 +106,73 @@ DELIVERY_CATALOG = [
 ]
 
 SECURITY_CATALOG = [
-    "WAF Enabled (No Bot Protection)",
-    "Standard Security Base (Legacy)",
-    "No Security Configured (Empty)"
+    "AAP Baseline Security",
+    "App & API Protector (No Bot Protection)",
+    "Legacy WAF Ruleset"
 ]
 
 # ==========================================
-# 3. DIAGNOSTIC ENGINE LOGIC
+# 3. AAP-SPECIFIC DIAGNOSTIC ENGINE LOGIC
 # ==========================================
 def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
-    """Simulates a background scan identifying used vs unused modules based on Track."""
+    """Simulates a background scan identifying used vs unused App & API Protector modules."""
     
     # Text changes dynamically if Track 2 is selected (no config scan)
     if track == "Track 1":
-        sec_issue = "Config Scan: Basic rate limits are inactive on your selected policy, leaving endpoints exposed."
-        rel_issue = "Config Scan: No active health checks configured for the primary origin in your property."
-        perf_issue = "Config Scan: Static assets in your delivery property lack edge compression."
+        sec_issue = "Config Scan: Essential Adaptive Rate Controls and Bot Visibility are inactive on this policy."
+        rel_issue = "Config Scan: No Site Failover or Site Shield origin cloaking configured for the primary backend."
+        perf_issue = "Config Scan: Edge caching and SureRoute optimizations are severely underutilized."
     else:
-        sec_issue = f"Industry Benchmark: 72% of {industry} in {region} face Layer-7 exposure without rate limits."
-        rel_issue = f"Industry Benchmark: Failover latency for {industry} requires advanced health checks."
-        perf_issue = f"Industry Benchmark: {region} mobile users experience high LCP without edge compression."
+        sec_issue = f"Industry Benchmark: 72% of {industry} in {region} suffer without Adaptive Rate Controls and Bot Visibility."
+        rel_issue = f"Industry Benchmark: Failover latency for {industry} requires advanced Site Failover topologies."
+        perf_issue = f"Industry Benchmark: {region} users experience high latency without SureRoute and optimal caching."
 
     pillars = {
         "Security": {
             "icon": "🛡️", "color": "#0072CE",
             "free_issue": sec_issue,
-            "free_enh": "Enabling these contracted modules instantly sheds junk traffic and reduces unnecessary origin compute costs.",
-            "free_unused": ["Rate Controls", "Slow POST Protection", "IP Geo-Blocking"],
-            "addon_name": "Bot Manager Premier",
-            "addon_issue": "High volume of automated credential stuffing detected bypassing standard WAF.",
-            "addon_desc": "Upgrading adds behavioral anomaly detection to intercept sophisticated scrapers and botnets."
+            "free_enh": "Enabling these contracted AAP features will instantly map bot traffic and mitigate volumetric spikes.",
+            "free_unused": ["Adaptive Rate Controls", "Bot Visibility and Mitigation", "IP Deny"],
+            "addon_name": "Malware Protection (Add-on)",
+            "addon_issue": "Vulnerability to malicious file uploads detected at the edge.",
+            "addon_desc": "Malware Protection seamlessly integrates with AAP to intercept and block malicious files from reaching your backend."
         },
         "Reliability": {
             "icon": "⚙️", "color": "#10B981",
             "free_issue": rel_issue,
-            "free_enh": "Activating these modules prevents dropped connections by gracefully handling timeout spikes.",
-            "free_unused": ["Origin Health Checks", "Advanced Retry Logic", "Stale-While-Revalidate"],
-            "addon_name": "Global Traffic Management (GTM)",
-            "addon_issue": "Single point of failure identified at primary origin data center.",
-            "addon_desc": "GTM provides DNS-level load balancing to automatically failover traffic during regional outages."
+            "free_enh": "Activating these AAP modules cloaks your origin from direct internet attacks and gracefully handles timeout spikes.",
+            "free_unused": ["Site Failover", "SureRoute for Failover", "Site Shield"],
+            "addon_name": "DataStream (Add-on)",
+            "addon_issue": "Lack of real-time operational visibility into Edge events during critical outages.",
+            "addon_desc": "DataStream provides near real-time log delivery to your SIEM/analytics endpoints for rapid reliability incident response."
         },
         "Performance": {
             "icon": "🚀", "color": "#F59E0B",
             "free_issue": perf_issue,
-            "free_enh": "Enabling these configurations will actively bypass internet congestion and reduce overall delivery time.",
-            "free_unused": ["Brotli Compression", "SureRoute Advanced", "Predictive Prefetching"],
-            "addon_name": "Image & Video Manager (IVM)",
-            "addon_issue": "Heavy unoptimized visual payloads are severely impacting Core Web Vitals (LCP).",
-            "addon_desc": "IVM automatically converts and scales media to next-gen formats (WebP/AVIF) at the edge."
+            "free_enh": "Applying these included features actively bypasses internet congestion and maximizes origin offload.",
+            "free_unused": ["Caching", "SureRoute for Performance", "TCP Optimization"],
+            "addon_name": "API Acceleration (Add-on)",
+            "addon_issue": "Heavy dynamic API payloads are experiencing severe delivery latency.",
+            "addon_desc": "API Acceleration specifically optimizes routing and delivery for non-cacheable, heavy API traffic."
         }
     }
 
     bundle = {
-        "name": "Akamai App & API Protector Advanced (AAP)",
-        "desc": "Consolidate your security posture. This bundle upgrades your legacy WAF, includes Bot Manager natively, and activates premium API discovery tools in a single contract."
+        "name": "AAP Ultimate Extension Bundle",
+        "desc": "Maximize your App & API Protector deployment. This bundle unlocks API Acceleration, DataStream visibility, and Malware Protection in a single unified contract extension."
     }
 
     context_insight = None
     if context.strip():
         c_lower = context.lower()
-        if any(k in c_lower for k in ["segment", "lateral", "internal", "ransomware", "hybrid"]):
-            context_insight = ("Guardicore Microsegmentation", "Based on your context regarding internal hybrid protection, Guardicore will map asset exposure and enforce Zero-Trust containment to prevent lateral threat movement without network changes.")
+        if any(k in c_lower for k in ["file", "upload", "malware", "virus"]):
+            context_insight = ("Malware Protection Add-on", "Based on your context regarding file uploads, Malware Protection will scan all inbound user-generated content at the edge before it reaches your servers.")
         elif any(k in c_lower for k in ["api", "data breach", "shadow"]):
-            context_insight = ("API Security", "To address your API concerns, Akamai API Security will continuously discover shadow APIs and analyze behavior to protect them throughout their lifecycle.")
-        elif any(k in c_lower for k in ["compute", "latency", "logic", "custom"]):
-            context_insight = ("Akamai EdgeWorkers", "To resolve origin latency, EdgeWorkers allows you to offload your custom routing and validation logic directly to the edge proxy.")
+            context_insight = ("API Protections - Basic", "To address your API concerns, ensure the 'API Protections - Basic' module (included in your current AAP contract) is fully configured for endpoint enforcement.")
+        elif any(k in c_lower for k in ["bot", "scraper", "credential"]):
+            context_insight = ("Bot Visibility and Mitigation", "Your current AAP contract includes 'Bot Visibility'. Enabling this will immediately provide actionable intelligence on the credential stuffing you are facing.")
         else:
-            context_insight = ("Architect AI Recommendation", "Based on your specific use case, our AI recommends reviewing your caching hierarchies and enabling Zero-Trust application access to secure your evolving architecture.")
+            context_insight = ("Architect AI Recommendation", "Based on your specific use case, our AI recommends reviewing your active AAP ruleset and ensuring Adaptive Security Engine (ASE) is in automatic mode.")
 
     return pillars, bundle, context_insight
 
@@ -201,7 +201,6 @@ with col1:
     
     st.markdown("<p style='font-size: 12px; color: #475569; margin-bottom: 10px; font-weight: 600;'>Select Privacy & Analysis Track:</p>", unsafe_allow_html=True)
     
-    # 🔥 RE-ADDED THE DUAL TRACK RADIO BUTTON
     track_choice = st.radio("Privacy Track", [
         "Track 1: Deep-Insight Mode (Config Scan)", 
         "Track 2: Contextual-Match Mode (Industry Benchmark)"
@@ -215,7 +214,7 @@ with col1:
     region_input = None
 
     if "Track 1" in track_choice:
-        st.markdown("<p style='font-size: 12px; color: #0072CE; margin-bottom: 10px;'>Select active configurations from your catalog for deep analysis.</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 12px; color: #0072CE; margin-bottom: 10px;'>Select active App & API Protector configurations for deep analysis.</p>", unsafe_allow_html=True)
         del_env = st.selectbox("Delivery Property:", DELIVERY_CATALOG)
         sec_env = st.selectbox("Security Policy (AppSec):", SECURITY_CATALOG)
     else:
@@ -253,8 +252,8 @@ with col2:
                     # Contracted / Free Section
                     f"<div class='section-label' style='color:#166534;'>✅ Contracted (Enable for Free)</div>"
                     f"<div class='info-box free'>"
-                    f"<div class='info-issue free-text'>Result: {data['free_issue']}</div>"
-                    f"<div class='info-desc free-text'>Enhancement: {data['free_enh']}</div>"
+                    f"<div class='info-issue free-text'>{data['free_issue']}</div>"
+                    f"<div class='info-desc free-text'><b>Enhancement:</b> {data['free_enh']}</div>"
                     f"<ul class='free-list'>{free_items_html}</ul>"
                     f"</div>"
                     
@@ -275,18 +274,18 @@ with col2:
         btn_col1, btn_col2, btn_col3 = st.columns([1.5, 1.5, 2.5])
         with btn_col1:
             st.markdown('<div class="btn-primary">', unsafe_allow_html=True)
-            st.button("1-Click Try/Buy", use_container_width=True)
+            st.button("1-Click Try/Buy Recommended Add-ons", use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
         with btn_col2:
             st.markdown('<div class="btn-secondary">', unsafe_allow_html=True)
-            st.button("Ask IAT", use_container_width=True)
+            st.button("Ask IAT for Assistance", use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
         # 3. BUNDLED UPGRADE RECOMMENDATION
         bundle_html = (
             "<div class='bundle-box'>"
             "<div class='bundle-text'>"
-            f"<h4>📦 Recommended Architecture Upgrade: {bundle['name']}</h4>"
+            f"<h4>📦 Contract Consolidation: {bundle['name']}</h4>"
             f"<p>{bundle['desc']}</p>"
             "</div>"
             "<div>"

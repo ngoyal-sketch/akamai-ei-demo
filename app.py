@@ -7,16 +7,16 @@ st.set_page_config(page_title="Akamai Marketplace | Control Center", layout="wid
 
 AKAMAI_CSS = """
 <style>
-    /* 1. Precise Padding & Fluid Container */
-    .block-container { padding: 3rem 2rem 1rem 2rem !important; max-width: 100% !important; }
+    /* 1. Lifted Padding to pull everything up into one view */
+    .block-container { padding: 2.5rem 2rem 1rem 2rem !important; max-width: 100% !important; }
     header { display: none !important; }
     
     .stApp { background-color: #F4F6F9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     
-    /* 2. Topbar (Fixed margins to prevent squeezing) */
+    /* 2. Topbar (Adjusted margins to match lifted container) */
     .akamai-topbar {
         background-color: #1E2228; color: #FFFFFF; padding: 12px 24px; 
-        margin-top: -3rem; margin-left: -2rem; margin-right: -2rem; margin-bottom: 20px;
+        margin-top: -2.5rem; margin-left: -2rem; margin-right: -2rem; margin-bottom: 15px;
         display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2B313A;
     }
     .akamai-brand { font-weight: 800; font-size: 18px; letter-spacing: 0.5px; color: #0072CE; white-space: nowrap; }
@@ -30,11 +30,11 @@ AKAMAI_CSS = """
     }
     
     /* 3. Base Cards */
-    .akamai-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 16px 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    .akamai-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 16px 20px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
     .akamai-card-title { font-size: 16px; font-weight: 700; color: #1E2228; margin-bottom: 12px; }
     
-    /* 4. Three-Pillar Status Cards (Fixed Heights) */
-    .pillar-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 16px; height: 100%; min-height: 480px; display: flex; flex-direction: column; }
+    /* 4. Three-Pillar Status Cards (Height reduced to pull bottom buttons up) */
+    .pillar-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 16px; height: 100%; min-height: 440px; display: flex; flex-direction: column; }
     .pillar-header { font-size: 14px; font-weight: 700; color: #1E2228; text-transform: uppercase; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px; margin-bottom: 12px; }
     
     .section-label { font-size: 11px; font-weight: 800; color: #0072CE; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
@@ -56,12 +56,12 @@ AKAMAI_CSS = """
     .free-list li { margin-bottom: 3px; }
     
     /* 5. Bundled Product Box */
-    .bundle-box { background-color: #F0F7FF; border: 1px solid #CCE3FD; border-radius: 4px; padding: 12px 16px; margin-top: 5px; display: flex; align-items: center; justify-content: space-between; }
+    .bundle-box { background-color: #F0F7FF; border: 1px solid #CCE3FD; border-radius: 4px; padding: 12px 16px; margin-top: 10px; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between; }
     .bundle-text h4 { margin: 0 0 4px 0; color: #0072CE; font-size: 14px; }
     .bundle-text p { margin: 0; font-size: 12px; color: #2B313A; }
 
     /* 6. Context Insight Box */
-    .context-box { background-color: #F4F6F8; border-left: 4px solid #10B981; padding: 12px 16px; margin-top: 15px; border-radius: 4px; }
+    .context-box { background-color: #F4F6F8; border-left: 4px solid #10B981; padding: 12px 16px; margin-top: 10px; border-radius: 4px; }
     .context-box h4 { margin: 0 0 4px 0; color: #10B981; font-size: 13px; }
     .context-box p { margin: 0; font-size: 12px; color: #2B313A; }
 
@@ -80,7 +80,7 @@ SVG_HELP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="
 SVG_BELL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'
 SVG_ALERT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
 
-# Topbar (Using Flat String for perfect rendering)
+# Topbar
 topbar_html = (
     "<div class='akamai-topbar'>"
     "<div class='akamai-brand'>akamai</div>"
@@ -117,7 +117,6 @@ SECURITY_CATALOG = [
 def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
     """Simulates a background scan identifying used vs unused App & API Protector modules."""
     
-    # Text changes dynamically if Track 2 is selected (no config scan)
     if track == "Track 1":
         sec_issue = "Config Scan: Essential Adaptive Rate Controls and Bot Visibility are inactive on this policy."
         rel_issue = "Config Scan: No Site Failover or Site Shield origin cloaking configured for the primary backend."
@@ -184,7 +183,7 @@ st.markdown("<h2 style='margin-top:-20px; margin-bottom: 10px; color:#1E2228;'>A
 
 # Compact LA Banner
 banner_html = (
-    "<div style='background-color: #E6F4EA; border-left: 3px solid #137333; padding: 8px 12px; margin-bottom: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;'>"
+    "<div style='background-color: #E6F4EA; border-left: 3px solid #137333; padding: 8px 12px; margin-bottom: 12px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;'>"
     "<span style='font-size: 12px; color: #137333; font-weight: 600;'>✨ New Solutions Available:</span>"
     "<span style='font-size: 12px; color: #2B313A; margin-left: 10px; flex-grow: 1;'>Explore our latest AI-era defenses including <b>Brand Guardian</b>, <b>AI Brand Presence</b>, and <b>Guardicore Segmentation</b>.</span>"
     "<a href='#' style='font-size: 12px; font-weight: 600; color: #137333; text-decoration: none; white-space: nowrap;'>View Catalog →</a>"
@@ -225,7 +224,7 @@ with col1:
     st.markdown('<div class="akamai-card-title" style="margin-top:20px;">2. Business Context <span style="font-size:12px; color:#64748B; font-weight:normal;">(Optional)</span></div>', unsafe_allow_html=True)
     issue_input = st.text_area("Describe specific issues or use cases:", placeholder="e.g., We need to stop automated credential stuffing on our login endpoints...", height=80, label_visibility="collapsed")
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    # Removed unnecessary <br> to pull button up
     run_scan = st.button("Analyze Infrastructure", type="primary", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -235,8 +234,8 @@ with col2:
         track_str = "Track 1" if "Track 1" in track_choice else "Track 2"
         pillars, bundle, context_insight = analyze_infrastructure(track_str, del_env, sec_env, industry_input, region_input, issue_input)
         
-        st.markdown('<div class="akamai-card" style="background-color: #FAFAFA;">', unsafe_allow_html=True)
-        st.markdown(f'<div class="akamai-card-title">Infrastructure Gap Analysis ({track_str})</div>', unsafe_allow_html=True)
+        st.markdown('<div class="akamai-card" style="background-color: #FAFAFA; padding-bottom: 12px;">', unsafe_allow_html=True)
+        st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Infrastructure Gap Analysis ({track_str})</div>', unsafe_allow_html=True)
         
         # 1. THREE-PILLAR STATUS CARDS
         p_cols = st.columns(3)
@@ -244,12 +243,10 @@ with col2:
             with p_cols[idx]:
                 free_items_html = "".join([f"<li>{item}</li>" for item in data['free_unused']])
                 
-                # Construct entire card as one flat string
                 card_html = (
                     f"<div class='pillar-card' style='border-top: 4px solid {data['color']};'>"
                     f"<div class='pillar-header'>{data['icon']} {pillar_name}</div>"
                     
-                    # Contracted / Free Section
                     f"<div class='section-label' style='color:#166534;'>✅ Contracted (Enable for Free)</div>"
                     f"<div class='info-box free'>"
                     f"<div class='info-issue free-text'>{data['free_issue']}</div>"
@@ -257,20 +254,17 @@ with col2:
                     f"<ul class='free-list'>{free_items_html}</ul>"
                     f"</div>"
                     
-                    # Recommended Add-on Section
                     f"<div class='section-label' style='color:#D93025; margin-top: 5px;'>🚀 Recommended Add-on</div>"
                     f"<div class='info-box addon'>"
                     f"<div class='info-title'>{data['addon_name']}</div>"
                     f"<div class='info-issue addon-text'>Issue: {data['addon_issue']}</div>"
                     f"<div class='info-desc addon-text'>{data['addon_desc']}</div>"
                     f"</div>"
-                    
                     f"</div>"
                 )
                 st.markdown(card_html, unsafe_allow_html=True)
                 
-        # 2. SINGLE ROW OF ACTION BUTTONS
-        st.markdown("<br>", unsafe_allow_html=True)
+        # 2. SINGLE ROW OF ACTION BUTTONS (Removed top margin to pull them flush with cards)
         btn_col1, btn_col2, btn_col3 = st.columns([1.5, 1.5, 2.5])
         with btn_col1:
             st.markdown('<div class="btn-primary">', unsafe_allow_html=True)

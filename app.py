@@ -2,18 +2,22 @@ import streamlit as st
 import json
 
 # ==========================================
-# 1. PAGE SETUP & CORPORATE AKAMAI STYLING
+# ⚙️ 1. PAGE SETUP & SPACIOUS AKAMAI STYLING
 # ==========================================
 st.set_page_config(page_title="Akamai Marketplace | Control Center", layout="wide", initial_sidebar_state="expanded")
 
 AKAMAI_CSS = """
 <style>
-    .block-container { padding-top: 2rem !important; }
+    /* 1. Normal, spacious padding on the main block */
+    .block-container { padding-top: 2rem !important; padding-left: 2rem !important; padding-right: 2rem !important; }
     header { display: none !important; }
     
     .stApp { background-color: #F4F6F9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    
+    /* 2. Topbar with comfortable vertical padding */
     .akamai-topbar {
-        background-color: #1E2228; color: #FFFFFF; padding: 10px 24px; margin-top: -60px; margin-left: -60px; margin-right: -60px; margin-bottom: 25px;
+        background-color: #1E2228; color: #FFFFFF; padding: 12px 24px; 
+        margin-top: -60px; margin-left: -60px; margin-right: -60px; margin-bottom: 25px;
         display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2B313A;
     }
     .akamai-brand { font-weight: 800; font-size: 20px; letter-spacing: 0.5px; color: #0072CE; }
@@ -27,16 +31,21 @@ AKAMAI_CSS = """
         font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 10px; border: 2px solid #1E2228;
     }
     
+    /* 3. Spacious Cards and Empty State */
     .akamai-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
     .akamai-card-title { font-size: 18px; font-weight: 700; color: #1E2228; margin-bottom: 16px; }
+    
     .empty-state-box { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 60px 20px; text-align: center; margin-top: 10px; }
     .empty-state-title { font-size: 16px; font-weight: 700; color: #2B313A; margin-bottom: 8px; }
     .empty-state-sub { font-size: 13px; color: #64748B; }
-    .stButton > button { background-color: #0072CE !important; color: #FFFFFF !important; font-weight: 600 !important; border-radius: 4px !important; border: none !important; padding: 8px 18px !important; }
-    .section-header { font-size: 15px; font-weight: 700; color: #1E2228; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;}
     
-    ul { margin-top: 10px; padding-left: 20px; color: #2B313A; font-size: 14px; }
-    li { margin-bottom: 8px; }
+    .stButton > button { background-color: #0072CE !important; color: #FFFFFF !important; font-weight: 600 !important; border-radius: 4px !important; border: none !important; padding: 8px 18px !important; font-size: 14px !important; }
+    
+    /* 4. Tighter (but still spacious) headers and lists */
+    .section-header { font-size: 15px; font-weight: 700; color: #1E2228; margin-top: 18px; margin-bottom: 10px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;}
+    ul { margin-top: 10px; padding-left: 20px; color: #2B313A; font-size: 14px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+    p { font-size: 14px; margin-bottom: 10px; }
 </style>
 """
 st.markdown(AKAMAI_CSS, unsafe_allow_html=True)
@@ -114,49 +123,87 @@ MOCK_SECURITY = {
 # 3. DIAGNOSTIC ENGINE & LOGIC
 # ==========================================
 def generate_pitch_and_code(issue_lower, target_host, prop_name):
-    if any(keyword in issue_lower for keyword in ["ddos", "attack", "security", "waf", "hack"]):
+    """Generates the Pillar C 90% Pre-Configured Artifact."""
+    
+    # 0. GUARDICORE SEGMENTATION (Pillar A example match!)
+    if any(keyword in issue_lower for keyword in ["lateral", "segmentation", "ransomware", "internal server", "hybrid cloud"]):
+        product = "Akamai Guardicore Segmentation"
+        pitch = "Guardicore is an AI-powered segmentation platform that understands asset exposure and automatically enforces containment, keeping your internal servers safe from lateral movement and ransomware across hybrid environments."
+        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
+# Mode: Shadow / Monitor-Only (Zero Production Impact)
+resource "akamai_guardicore_policy" "ei_trial_segmentation" {{
+  policy_name = "Block_Lateral_Movement"
+  status      = "MONITOR_ONLY"
+  rules       = ["isolate_critical_databases"]
+}}"""
+
+    # 1. DDOS & WAF USE CASES 
+    elif any(keyword in issue_lower for keyword in ["ddos", "attack", "security", "waf", "hack"]):
         product = "Akamai App & API Protector (AAP)"
         pitch = "AAP provides industry-leading Web Application Firewall and DDoS protection, instantly absorbing volumetric attacks and blocking malicious requests at the edge before they can overwhelm your origin servers."
-        tf_code = f"""resource "akamai_appsec_security_policy" "ei_trial_ddos_shield" {{
+        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
+# Mode: Shadow / Monitor-Only (Zero Production Impact)
+resource "akamai_appsec_security_policy" "ei_trial_ddos_shield" {{
   config_id           = "auto_detected_config"
   security_policy_name = "EI DDoS and WAF Shield"
   create_from_security_policy = "sp_default"
 }}"""
+
+    # 2. BOT & SCRAPER USE CASES
     elif any(keyword in issue_lower for keyword in ["bot", "scraper", "stuffing"]) or "auth" in prop_name.lower():
         product = "Akamai App & API Protector (AAP) + Bot Manager"
         pitch = "This bundles Web Application Firewall and Bot Management into a unified edge deployment, consolidating security controls while mitigating credential stuffing and scraping."
-        tf_code = f"""resource "akamai_botman_bot_management_settings" "ei_trial_shield" {{
+        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
+# Mode: Shadow / Monitor-Only (Zero Production Impact)
+resource "akamai_botman_bot_management_settings" "ei_trial_shield" {{
   config_id          = "auto_detected_config"
   target_hostname    = "{target_host}"
+  
+  # Non-blocking activation for safe evaluation
   execution_mode     = "EXECUTION_MODE_MONITOR"
 }}"""
+
+    # 3. MEDIA & IMAGE USE CASES
     elif any(keyword in issue_lower for keyword in ["image", "video", "media", "picture", "format", "visual"]):
         product = "Akamai Image & Video Manager (IVM)"
         pitch = "Image & Video Manager automatically optimizes and resizes visual content at the edge, drastically reducing payload sizes and improving perceived load times across all devices without sacrificing quality."
-        tf_code = f"""resource "akamai_property_image_video_manager" "ei_ivm_trial" {{
+        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
+# Mode: Shadow / Monitor-Only (Zero Production Impact)
+resource "akamai_property_image_video_manager" "ei_ivm_trial" {{
   config_id  = "auto_detected_config"
   policy_set = "staging_evaluation"
 }}"""
+
+    # 4. DELIVERY & PERFORMANCE USE CASES
     elif any(keyword in issue_lower for keyword in ["cache", "speed", "delivery", "accelerate", "load time"]):
         product = "Akamai Ion"
         pitch = "Akamai Ion provides intelligent performance optimizations, advanced caching, and SureRoute to dynamically accelerate your web and API delivery while offloading your origin infrastructure."
-        tf_code = f"""resource "akamai_property_activation" "ei_ion_trial" {{
+        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
+# Mode: Shadow / Monitor-Only (Zero Production Impact)
+resource "akamai_property_activation" "ei_ion_trial" {{
   property_id = "auto_detected_config"
   network     = "STAGING"
 }}"""
+
+    # 5. EDGE COMPUTE (Default)
     else:
         product = "Akamai EdgeWorkers"
         pitch = "EdgeWorkers intercepts requests and executes custom operational logic directly at the edge proxy, drastically reducing origin dependency and latency."
-        tf_code = f"""resource "akamai_edgeworkers" "ei_trial_compute" {{
+        tf_code = f"""# 90% Pre-Configured Trial Blueprint (Pillar C)
+# Mode: Shadow / Monitor-Only (Zero Production Impact)
+resource "akamai_edgeworkers" "ei_trial_compute" {{
   name            = "edge_logic_accelerator"
   resource_tier   = "200"
   activation_mode = "STAGING_ONLY"
 }}"""
+        
     return product, pitch, tf_code
 
 
 def run_track_1_analysis(raw_delivery, raw_security, business_issue):
+    """Deep-Insight Mode: Scans provided Delivery and/or Security JSON Configs."""
     try:
+        # Gracefully handle empty or None inputs without throwing errors
         delivery_data = json.loads(raw_delivery) if raw_delivery and raw_delivery.strip() else {}
         security_data = json.loads(raw_security) if raw_security and raw_security.strip() else {}
     except Exception:
@@ -167,6 +214,7 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
     is_secure = True 
     origin_host = "Unknown Origin"
     
+    # Parse Delivery JSON (if provided)
     def traverse_delivery(node):
         nonlocal is_secure, origin_host
         if isinstance(node, dict):
@@ -185,6 +233,7 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
     if delivery_data:
         traverse_delivery(delivery_data)
     
+    # Parse Security JSON (if provided)
     if security_data:
         sec_string = json.dumps(security_data).lower()
         if "webapplicationfirewall" in sec_string and '"enabled": true' in sec_string:
@@ -192,6 +241,7 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
         if "botmanagement" in sec_string and '"enabled": true' in sec_string:
             behaviors_found.add("botmanager")
     
+    # Feature Mapping
     FEATURE_MAP = {
         "Security": {
             "webapplicationfirewall": "Web Application Firewall (WAF)",
@@ -213,6 +263,7 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
 
     issue_lower = business_issue.lower()
     
+    # Adjust observation phrasing based on what was provided
     if delivery_data and security_data:
         observations = [f"Analyzed combined delivery & security footprint for **{prop_name}** routing to origin `{origin_host}`."]
     elif delivery_data:
@@ -229,7 +280,7 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
             active_summary.append(f"<b>{category}:</b> " + ", ".join(items))
     
     if active_summary:
-        observations.append("<b>Active Capabilities Detected:</b><br>" + "<br>".join(active_summary))
+        observations.append("<b>Active Capabilities Detected Across Delivery/Security:</b><br>" + "<br>".join(active_summary))
     else:
         observations.append("WARNING: Minimal configuration detected.")
         
@@ -243,6 +294,8 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
         recommendations.append("Implement behavior-based bot mitigation to filter automated threats before origin impact.")
     elif any(keyword in issue_lower for keyword in ["image", "video", "media"]):
         recommendations.append("Implement automated edge-based media optimization.")
+    elif any(keyword in issue_lower for keyword in ["lateral", "segmentation", "internal server"]):
+        recommendations.append("Implement software-defined microsegmentation to block lateral threat movement within hybrid environments.")
     else:
         recommendations.append("Enhance edge caching policies and enable dynamic routing to accelerate delivery.")
 
@@ -251,6 +304,7 @@ def run_track_1_analysis(raw_delivery, raw_security, business_issue):
 
 
 def run_track_2_analysis(industry, region, business_issue):
+    """Contextual-Match Mode."""
     issue_lower = business_issue.lower()
     observations = [
         f"Data Privacy Track 2 Active: Internal configurations were bypassed. Analysis is based on {industry} sector telemetry in {region}.",
@@ -269,12 +323,12 @@ def run_track_2_analysis(industry, region, business_issue):
 # 4. MAIN UI LAYOUT
 # ==========================================
 st.title("Marketplace")
-st.caption("Akamai EI - Akamai EdgeIntelligence Marketplace")
+st.markdown("<p style='font-size: 14px; margin-top: -20px; margin-bottom: 20px; color: #64748B;'>Akamai EI - Akamai EdgeIntelligence Marketplace</p>", unsafe_allow_html=True)
 
 # 🔥 NEW LIMITED AVAILABILITY / PRODUCT ANNOUNCEMENT BANNER
 st.markdown("""
 <div style="background-color: #E6F4EA; border-left: 4px solid #137333; padding: 15px; margin-bottom: 25px; border-radius: 4px;">
-    <h4 style="margin-top: 0; margin-bottom: 10px; color: #137333;">✨ Early Access: Explore Akamai's Latest Innovations</h4>
+    <h4 style="margin-top: 0; margin-bottom: 10px; color: #137333; font-size: 16px;">✨ Early Access: Explore Akamai's Latest Innovations</h4>
     <p style="font-size: 13px; color: #2B313A; margin-bottom: 10px;">Discover our newest LA (Limited Availability) products designed to protect and optimize your environment in the AI era.</p>
     <ul style="font-size: 13px; color: #2B313A; padding-left: 20px; margin-bottom: 0;">
         <li style="margin-bottom: 8px;"><b>AI Brand Presence:</b> AI Brand Presence ensures a brand's content is accurately represented and discoverable across AI-driven experiences and agentic workflows. It optimizes how AI systems access, interpret, and present content, preserving brand integrity and visibility as AI increasingly intermediates user interactions. <a href="#">Read or initiate try here!</a></li>
@@ -302,7 +356,7 @@ if gateway_choice == "I know which Akamai product I want to buy or trial.":
     st.markdown('</div>', unsafe_allow_html=True)
 
 else:
-    col1, col2 = st.columns([1, 1.25])
+    col1, col2 = st.columns([1, 1.25], gap="large")
 
     with col1:
         st.markdown('<div class="akamai-card">', unsafe_allow_html=True)
@@ -310,14 +364,14 @@ else:
         
         st.markdown("<span style='font-size: 14px; font-weight: 600; color: #1E2228;'>Data Privacy & Analysis Track:</span>", unsafe_allow_html=True)
         
-        # Adding captions (acting as a 1-line explainer under each option) and a help tooltip (the "i")
+        # 🔥 Restore the original captions and help tooltips with spacious radio buttons
         track_choice = st.radio("Privacy Track", [
             "Track 1: Deep-Insight Mode (Automated Config Scan)", 
             "Track 2: Contextual-Match Mode (Industry Benchmarks Only)"
         ], 
         captions=[
-            "AI securely parses your active configurations to provide hyper-personalized recommendations.",
-            "No config scan. AI suggests products based on external global industry and regional threat benchmarks."
+            "AI securely parses your active configurations to provide personalized recommendations.",
+            "No config scan. AI suggests products based on external global industry benchmarks."
         ],
         help="Choose Track 1 for personalized insights based on your configuration, or Track 2 to maintain strict data privacy while utilizing global benchmarks.",
         label_visibility="collapsed")
@@ -326,7 +380,7 @@ else:
         
         if "Track 1" in track_choice:
             st.info("Provide Delivery and/or Security configurations for analysis.")
-            input_method = st.radio("Configuration Source:", ["Select from Catalog", "Paste Custom JSON (PAPI/AppSec)"], horizontal=True)
+            input_method = st.radio("Configuration Source:", ["Select from Catalog", "Paste Custom JSON (PAPI/AppSec)"], horizontal=True, label_visibility="collapsed")
             
             if input_method == "Select from Catalog":
                 st.markdown("**Delivery Property Configuration:**")
@@ -349,15 +403,16 @@ else:
             final_sec_payload = None
 
         st.markdown('<div class="akamai-card-title" style="margin-top:20px;">2. Business Context (Copilot)</div>', unsafe_allow_html=True)
-        issue_input = st.text_area("Describe what you are looking to enhance or any issues you are currently facing:", placeholder="e.g., Credential stuffing attacks are locking out real users, or looking to reduce origin latency.", height=80)
+        issue_input = st.text_area("Describe what you are looking to enhance or any issues you are currently facing:", placeholder="e.g., We are migrating our inventory databases to a hybrid cloud and need to ensure our internal servers are safe from lateral attacks.", height=80)
         
-        # Text update to "Scan my configs"
+        # 🔥 Change button to "Scan my configs"
         run_scan = st.button("Scan my configs", type="primary")
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
         if run_scan and issue_input:
             
+            # Logic Update: Accept Delivery OR Security JSON
             if "Track 1" in track_choice and (final_del_payload or final_sec_payload):
                 observations, recommendations, product, pitch, tf_code = run_track_1_analysis(final_del_payload, final_sec_payload, issue_input)
             elif "Track 2" in track_choice:
@@ -389,7 +444,7 @@ else:
                 st.markdown("**Auto-Generated 90% Pre-Configured Trial Blueprint (HCL):**")
                 st.code(tf_code, language="hcl")
                 
-                # Adding the 3 action buttons horizontally
+                # 🔥 Show 3 options at the bottom of the report horizontally
                 st.markdown("<br>", unsafe_allow_html=True)
                 b1, b2, b3 = st.columns(3)
                 with b1:

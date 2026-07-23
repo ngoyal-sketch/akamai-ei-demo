@@ -7,23 +7,23 @@ st.set_page_config(page_title="Akamai Marketplace | Control Center", layout="wid
 
 AKAMAI_CSS = """
 <style>
-    /* 1. Ultra-Compact Padding for Zero-Scroll Experience */
-    .block-container { padding: 1.5rem 2rem 1rem 2rem !important; }
+    /* 1. Precise Padding & Fluid Container */
+    .block-container { padding: 3rem 2rem 1rem 2rem !important; max-width: 100% !important; }
     header { display: none !important; }
     
     .stApp { background-color: #F4F6F9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     
-    /* 2. Topbar */
+    /* 2. Topbar (Fixed margins to prevent squeezing) */
     .akamai-topbar {
-        background-color: #1E2228; color: #FFFFFF; padding: 10px 24px; 
-        margin-top: -60px; margin-left: -60px; margin-right: -60px; margin-bottom: 15px;
+        background-color: #1E2228; color: #FFFFFF; padding: 12px 24px; 
+        margin-top: -3rem; margin-left: -2rem; margin-right: -2rem; margin-bottom: 20px;
         display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2B313A;
     }
-    .akamai-brand { font-weight: 800; font-size: 18px; letter-spacing: 0.5px; color: #0072CE; }
-    .akamai-search-box { background-color: #2B313A; border: 1px solid #3A424D; border-radius: 4px; padding: 4px 16px; color: #C0C7D0; width: 350px; font-size: 12px; }
-    .akamai-top-right { display: flex; align-items: center; gap: 16px; font-size: 12px; color: #E2E8F0; }
+    .akamai-brand { font-weight: 800; font-size: 18px; letter-spacing: 0.5px; color: #0072CE; white-space: nowrap; }
+    .akamai-search-box { background-color: #2B313A; border: 1px solid #3A424D; border-radius: 4px; padding: 6px 16px; color: #C0C7D0; width: 30vw; min-width: 250px; max-width: 400px; font-size: 12px; }
+    .akamai-top-right { display: flex; align-items: center; gap: 20px; font-size: 12px; color: #E2E8F0; white-space: nowrap; }
     
-    .icon-container { position: relative; display: flex; align-items: center; justify-content: center; }
+    .icon-container { position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .notification-badge { 
         position: absolute; top: -5px; right: -6px; background-color: #D93025; color: white; 
         font-size: 8px; font-weight: 700; padding: 2px 4px; border-radius: 10px; border: 2px solid #1E2228;
@@ -33,31 +33,40 @@ AKAMAI_CSS = """
     .akamai-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 16px 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
     .akamai-card-title { font-size: 16px; font-weight: 700; color: #1E2228; margin-bottom: 12px; }
     
-    /* 4. Three-Pillar Status Cards */
-    .pillar-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px; height: 100%; display: flex; flex-direction: column; }
-    .pillar-header { font-size: 14px; font-weight: 700; color: #1E2228; text-transform: uppercase; border-bottom: 2px solid #E2E8F0; padding-bottom: 6px; margin-bottom: 10px; }
+    /* 4. Three-Pillar Status Cards (Fixed Heights) */
+    .pillar-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 16px; height: 100%; min-height: 480px; display: flex; flex-direction: column; }
+    .pillar-header { font-size: 14px; font-weight: 700; color: #1E2228; text-transform: uppercase; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px; margin-bottom: 12px; }
     
-    .section-label { font-size: 11px; font-weight: 700; color: #0072CE; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
-    .free-list { margin: 0 0 12px 0; padding-left: 18px; font-size: 12px; color: #2B313A; }
-    .free-list li { margin-bottom: 2px; }
+    .section-label { font-size: 11px; font-weight: 800; color: #0072CE; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
     
-    .addon-box { background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 4px; padding: 8px; margin-bottom: 10px; flex-grow: 1; }
-    .addon-title { font-size: 13px; font-weight: 700; color: #1E2228; margin-bottom: 4px; }
-    .addon-issue { font-size: 11px; color: #D93025; font-weight: 600; margin-bottom: 2px; }
-    .addon-desc { font-size: 11px; color: #475569; line-height: 1.3; }
+    /* Info Boxes inside Cards */
+    .info-box { border-radius: 4px; padding: 10px; margin-bottom: 12px; border: 1px solid transparent; flex-grow: 1; }
+    .info-box.free { background-color: #F0FDF4; border-color: #BBF7D0; }
+    .info-box.addon { background-color: #F8FAFC; border-color: #E2E8F0; }
+    
+    .info-title { font-size: 13px; font-weight: 700; color: #1E2228; margin-bottom: 4px; }
+    .info-issue { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+    .info-issue.free-text { color: #166534; }
+    .info-issue.addon-text { color: #D93025; }
+    .info-desc { font-size: 11px; line-height: 1.4; margin-bottom: 8px; }
+    .info-desc.free-text { color: #15803D; }
+    .info-desc.addon-text { color: #475569; }
 
+    .free-list { margin: 0; padding-left: 18px; font-size: 11px; color: #166534; font-weight: 600; }
+    .free-list li { margin-bottom: 3px; }
+    
     /* 5. Bundled Product Box */
     .bundle-box { background-color: #F0F7FF; border: 1px solid #CCE3FD; border-radius: 4px; padding: 12px 16px; margin-top: 5px; display: flex; align-items: center; justify-content: space-between; }
-    .bundle-text h4 { margin: 0 0 4px 0; color: #0072CE; font-size: 15px; }
+    .bundle-text h4 { margin: 0 0 4px 0; color: #0072CE; font-size: 14px; }
     .bundle-text p { margin: 0; font-size: 12px; color: #2B313A; }
 
     /* 6. Context Insight Box */
     .context-box { background-color: #F4F6F8; border-left: 4px solid #10B981; padding: 12px 16px; margin-top: 15px; border-radius: 4px; }
-    .context-box h4 { margin: 0 0 4px 0; color: #10B981; font-size: 14px; }
+    .context-box h4 { margin: 0 0 4px 0; color: #10B981; font-size: 13px; }
     .context-box p { margin: 0; font-size: 12px; color: #2B313A; }
 
     /* Streamlit overrides for tighter buttons */
-    .stButton > button { font-size: 11px !important; padding: 4px 8px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
+    .stButton > button { font-size: 12px !important; padding: 6px 12px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
     .btn-primary > button { background-color: #0072CE !important; color: white !important; border: none !important; }
     .btn-secondary > button { background-color: white !important; color: #0072CE !important; border: 1px solid #0072CE !important; }
     
@@ -67,21 +76,21 @@ AKAMAI_CSS = """
 st.markdown(AKAMAI_CSS, unsafe_allow_html=True)
 
 # SVG Icons
-SVG_HELP = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
-SVG_BELL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'
-SVG_ALERT = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
+SVG_HELP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
+SVG_BELL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'
+SVG_ALERT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
 
-# Topbar
+# Topbar (Using Flat String for perfect rendering)
 topbar_html = (
     "<div class='akamai-topbar'>"
     "<div class='akamai-brand'>akamai</div>"
-    "<div class='akamai-search-box'>🔍 Search services, accounts, and more &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; All ⌄</div>"
+    "<div class='akamai-search-box'>🔍 Search services, accounts, and more &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; All ⌄</div>"
     "<div class='akamai-top-right'>"
-    "<div>+ Create</div>"
+    "<div style='cursor:pointer;'>+ Create</div>"
     f"<div class='icon-container'>{SVG_HELP}</div>"
     f"<div class='icon-container'>{SVG_BELL}<span class='notification-badge'>3</span></div>"
     f"<div class='icon-container'>{SVG_ALERT}<span class='notification-badge'>1</span></div>"
-    "<div style='text-align: right; margin-left: 5px;'><strong>Nikhil Goyal</strong><br><span style='font-size: 9px; color: #9DA7B3;'>AKAMAI TECHNOLOGIES - ASSETS ⌄</span></div>"
+    "<div style='text-align: right; margin-left: 10px;'><strong>Nikhil Goyal</strong><br><span style='font-size: 10px; color: #9DA7B3;'>AKAMAI TECHNOLOGIES - ASSETS ⌄</span></div>"
     "</div>"
     "</div>"
 )
@@ -111,6 +120,8 @@ def analyze_infrastructure(del_env, sec_env, context):
     pillars = {
         "Security": {
             "icon": "🛡️", "color": "#0072CE",
+            "free_issue": "Basic rate limits are inactive, leaving endpoints completely exposed to volumetric scraping.",
+            "free_enh": "Enabling these contracted modules instantly sheds junk traffic and reduces unnecessary origin compute costs.",
             "free_unused": ["Rate Controls", "Slow POST Protection", "IP Geo-Blocking"],
             "addon_name": "Bot Manager Premier",
             "addon_issue": "High volume of automated credential stuffing detected bypassing standard WAF.",
@@ -118,6 +129,8 @@ def analyze_infrastructure(del_env, sec_env, context):
         },
         "Reliability": {
             "icon": "⚙️", "color": "#10B981",
+            "free_issue": "No active health checks configured for the primary origin.",
+            "free_enh": "Activating these modules prevents dropped connections by gracefully handling timeout spikes.",
             "free_unused": ["Origin Health Checks", "Advanced Retry Logic", "Stale-While-Revalidate"],
             "addon_name": "Global Traffic Management (GTM)",
             "addon_issue": "Single point of failure identified at primary origin data center.",
@@ -125,6 +138,8 @@ def analyze_infrastructure(del_env, sec_env, context):
         },
         "Performance": {
             "icon": "🚀", "color": "#F59E0B",
+            "free_issue": "Static assets are missing edge compression, resulting in inflated payloads.",
+            "free_enh": "Enabling these configurations will actively bypass internet congestion and reduce overall delivery time.",
             "free_unused": ["Brotli Compression", "SureRoute Advanced", "Predictive Prefetching"],
             "addon_name": "Image & Video Manager (IVM)",
             "addon_issue": "Heavy unoptimized visual payloads are severely impacting Core Web Vitals (LCP).",
@@ -155,9 +170,9 @@ def analyze_infrastructure(del_env, sec_env, context):
 # ==========================================
 # 4. MAIN UI LAYOUT
 # ==========================================
-st.markdown("<h2 style='margin-top:-20px; margin-bottom: 10px; color:#1E2228;'>EdgeIntelligence Marketplace</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='margin-top:-20px; margin-bottom: 10px; color:#1E2228;'>Akamai EI - EdgeIntelligence Marketplace</h2>", unsafe_allow_html=True)
 
-# Compact LA Banner (Flat String)
+# Compact LA Banner
 banner_html = (
     "<div style='background-color: #E6F4EA; border-left: 3px solid #137333; padding: 8px 12px; margin-bottom: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;'>"
     "<span style='font-size: 12px; color: #137333; font-weight: 600;'>✨ New Solutions Available:</span>"
@@ -198,37 +213,46 @@ with col2:
         p_cols = st.columns(3)
         for idx, (pillar_name, data) in enumerate(pillars.items()):
             with p_cols[idx]:
-                # Generate list items as a single flat string
                 free_items_html = "".join([f"<li>{item}</li>" for item in data['free_unused']])
                 
-                # Construct entire card as one continuous string to defeat markdown parsing
+                # Construct entire card as one flat string
                 card_html = (
-                    f"<div class='pillar-card' style='border-top: 3px solid {data['color']};'>"
+                    f"<div class='pillar-card' style='border-top: 4px solid {data['color']};'>"
                     f"<div class='pillar-header'>{data['icon']} {pillar_name}</div>"
-                    f"<div class='section-label'>✅ Contracted (Enable for Free)</div>"
+                    
+                    # Contracted / Free Section
+                    f"<div class='section-label' style='color:#166534;'>✅ Contracted (Enable for Free)</div>"
+                    f"<div class='info-box free'>"
+                    f"<div class='info-issue free-text'>Scan Result: {data['free_issue']}</div>"
+                    f"<div class='info-desc free-text'>Enhancement: {data['free_enh']}</div>"
                     f"<ul class='free-list'>{free_items_html}</ul>"
-                    f"<div class='section-label' style='color:#D93025; margin-top: auto;'>🚀 Recommended Add-on</div>"
-                    f"<div class='addon-box'>"
-                    f"<div class='addon-title'>{data['addon_name']}</div>"
-                    f"<div class='addon-issue'>Issue: {data['addon_issue']}</div>"
-                    f"<div class='addon-desc'>{data['addon_desc']}</div>"
                     f"</div>"
+                    
+                    # Recommended Add-on Section
+                    f"<div class='section-label' style='color:#D93025; margin-top: 5px;'>🚀 Recommended Add-on</div>"
+                    f"<div class='info-box addon'>"
+                    f"<div class='info-title'>{data['addon_name']}</div>"
+                    f"<div class='info-issue addon-text'>Issue: {data['addon_issue']}</div>"
+                    f"<div class='info-desc addon-text'>{data['addon_desc']}</div>"
+                    f"</div>"
+                    
                     f"</div>"
                 )
                 st.markdown(card_html, unsafe_allow_html=True)
                 
-                # Render Action Buttons natively under the HTML box inside the same column
-                b_col1, b_col2 = st.columns(2)
-                with b_col1:
-                    st.markdown('<div class="btn-primary">', unsafe_allow_html=True)
-                    st.button("1-Click Try/Buy", key=f"buy_{pillar_name}", use_container_width=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
-                with b_col2:
-                    st.markdown('<div class="btn-secondary">', unsafe_allow_html=True)
-                    st.button("Ask IAT", key=f"iat_{pillar_name}", use_container_width=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
+        # 2. SINGLE ROW OF ACTION BUTTONS
+        st.markdown("<br>", unsafe_allow_html=True)
+        btn_col1, btn_col2, btn_col3 = st.columns([1.5, 1.5, 2.5])
+        with btn_col1:
+            st.markdown('<div class="btn-primary">', unsafe_allow_html=True)
+            st.button("1-Click Try/Buy", use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+        with btn_col2:
+            st.markdown('<div class="btn-secondary">', unsafe_allow_html=True)
+            st.button("Ask IAT", use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        # 2. BUNDLED UPGRADE RECOMMENDATION (Flat String)
+        # 3. BUNDLED UPGRADE RECOMMENDATION
         bundle_html = (
             "<div class='bundle-box'>"
             "<div class='bundle-text'>"
@@ -242,7 +266,7 @@ with col2:
         )
         st.markdown(bundle_html, unsafe_allow_html=True)
 
-        # 3. OPTIONAL BUSINESS CONTEXT INSIGHT (Flat String)
+        # 4. OPTIONAL BUSINESS CONTEXT INSIGHT
         if context_insight:
             insight_html = (
                 "<div class='context-box'>"

@@ -57,7 +57,7 @@ AKAMAI_CSS = """
     .context-box p { margin: 0; font-size: 12px; color: #2B313A; }
 
     /* Streamlit overrides for tighter buttons */
-    .stButton > button { font-size: 11px !important; padding: 4px 8px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important;}
+    .stButton > button { font-size: 11px !important; padding: 4px 8px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
     .btn-primary > button { background-color: #0072CE !important; color: white !important; border: none !important; }
     .btn-secondary > button { background-color: white !important; color: #0072CE !important; border: 1px solid #0072CE !important; }
     
@@ -71,19 +71,21 @@ SVG_HELP = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="
 SVG_BELL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'
 SVG_ALERT = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
 
-st.markdown(f"""
-<div class="akamai-topbar">
-    <div class="akamai-brand">akamai</div>
-    <div class="akamai-search-box">🔍 Search services, accounts, and more &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; All ⌄</div>
-    <div class="akamai-top-right">
-        <div>+ Create</div>
-        <div class="icon-container">{SVG_HELP}</div>
-        <div class="icon-container">{SVG_BELL}<span class="notification-badge">3</span></div>
-        <div class="icon-container">{SVG_ALERT}<span class="notification-badge">1</span></div>
-        <div style="text-align: right; margin-left: 5px;"><strong>Nikhil Goyal</strong><br><span style="font-size: 9px; color: #9DA7B3;">AKAMAI TECHNOLOGIES - ASSETS ⌄</span></div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+# Topbar
+topbar_html = (
+    "<div class='akamai-topbar'>"
+    "<div class='akamai-brand'>akamai</div>"
+    "<div class='akamai-search-box'>🔍 Search services, accounts, and more &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; All ⌄</div>"
+    "<div class='akamai-top-right'>"
+    "<div>+ Create</div>"
+    f"<div class='icon-container'>{SVG_HELP}</div>"
+    f"<div class='icon-container'>{SVG_BELL}<span class='notification-badge'>3</span></div>"
+    f"<div class='icon-container'>{SVG_ALERT}<span class='notification-badge'>1</span></div>"
+    "<div style='text-align: right; margin-left: 5px;'><strong>Nikhil Goyal</strong><br><span style='font-size: 9px; color: #9DA7B3;'>AKAMAI TECHNOLOGIES - ASSETS ⌄</span></div>"
+    "</div>"
+    "</div>"
+)
+st.markdown(topbar_html, unsafe_allow_html=True)
 
 # ==========================================
 # 2. MOCK CATALOG DATA
@@ -106,7 +108,6 @@ SECURITY_CATALOG = [
 def analyze_infrastructure(del_env, sec_env, context):
     """Simulates a background scan of selected configs to identify used vs unused modules."""
     
-    # 1. Generate Status Card Data
     pillars = {
         "Security": {
             "icon": "🛡️", "color": "#0072CE",
@@ -131,13 +132,11 @@ def analyze_infrastructure(del_env, sec_env, context):
         }
     }
 
-    # 2. Generate Bundled Upgrade Recommendation
     bundle = {
         "name": "Akamai App & API Protector Advanced (AAP)",
         "desc": "Consolidate your security posture. This bundle upgrades your legacy WAF, includes Bot Manager natively, and activates premium API discovery tools in a single contract."
     }
 
-    # 3. Generate Business Context Insight (Optional)
     context_insight = None
     if context.strip():
         c_lower = context.lower()
@@ -158,14 +157,15 @@ def analyze_infrastructure(del_env, sec_env, context):
 # ==========================================
 st.markdown("<h2 style='margin-top:-20px; margin-bottom: 10px; color:#1E2228;'>EdgeIntelligence Marketplace</h2>", unsafe_allow_html=True)
 
-# Compact LA Banner
-st.markdown("""
-<div style="background-color: #E6F4EA; border-left: 3px solid #137333; padding: 8px 12px; margin-bottom: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
-    <span style="font-size: 12px; color: #137333; font-weight: 600;">✨ New Solutions Available:</span>
-    <span style="font-size: 12px; color: #2B313A;">Explore our latest AI-era defenses including <b>Brand Guardian</b>, <b>AI Brand Presence</b>, and <b>Guardicore Segmentation</b>.</span>
-    <a href="#" style="font-size: 12px; font-weight: 600; color: #137333; text-decoration: none;">View Catalog →</a>
-</div>
-""", unsafe_allow_html=True)
+# Compact LA Banner (Flat String)
+banner_html = (
+    "<div style='background-color: #E6F4EA; border-left: 3px solid #137333; padding: 8px 12px; margin-bottom: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;'>"
+    "<span style='font-size: 12px; color: #137333; font-weight: 600;'>✨ New Solutions Available:</span>"
+    "<span style='font-size: 12px; color: #2B313A; margin-left: 10px; flex-grow: 1;'>Explore our latest AI-era defenses including <b>Brand Guardian</b>, <b>AI Brand Presence</b>, and <b>Guardicore Segmentation</b>.</span>"
+    "<a href='#' style='font-size: 12px; font-weight: 600; color: #137333; text-decoration: none; white-space: nowrap;'>View Catalog →</a>"
+    "</div>"
+)
+st.markdown(banner_html, unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 2.2], gap="medium")
 
@@ -198,24 +198,24 @@ with col2:
         p_cols = st.columns(3)
         for idx, (pillar_name, data) in enumerate(pillars.items()):
             with p_cols[idx]:
-                # Render Card HTML (Flush left to prevent markdown code block rendering)
-                st.markdown(f"""
-<div class="pillar-card" style="border-top: 3px solid {data['color']};">
-    <div class="pillar-header">{data['icon']} {pillar_name}</div>
-    
-    <div class="section-label">✅ Contracted (Enable for Free)</div>
-    <ul class="free-list">
-        {"".join([f"<li>{item}</li>" for item in data['free_unused']])}
-    </ul>
-    
-    <div class="section-label" style="color:#D93025; margin-top: auto;">🚀 Recommended Add-on</div>
-    <div class="addon-box">
-        <div class="addon-title">{data['addon_name']}</div>
-        <div class="addon-issue">Issue: {data['addon_issue']}</div>
-        <div class="addon-desc">{data['addon_desc']}</div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+                # Generate list items as a single flat string
+                free_items_html = "".join([f"<li>{item}</li>" for item in data['free_unused']])
+                
+                # Construct entire card as one continuous string to defeat markdown parsing
+                card_html = (
+                    f"<div class='pillar-card' style='border-top: 3px solid {data['color']};'>"
+                    f"<div class='pillar-header'>{data['icon']} {pillar_name}</div>"
+                    f"<div class='section-label'>✅ Contracted (Enable for Free)</div>"
+                    f"<ul class='free-list'>{free_items_html}</ul>"
+                    f"<div class='section-label' style='color:#D93025; margin-top: auto;'>🚀 Recommended Add-on</div>"
+                    f"<div class='addon-box'>"
+                    f"<div class='addon-title'>{data['addon_name']}</div>"
+                    f"<div class='addon-issue'>Issue: {data['addon_issue']}</div>"
+                    f"<div class='addon-desc'>{data['addon_desc']}</div>"
+                    f"</div>"
+                    f"</div>"
+                )
+                st.markdown(card_html, unsafe_allow_html=True)
                 
                 # Render Action Buttons natively under the HTML box inside the same column
                 b_col1, b_col2 = st.columns(2)
@@ -228,36 +228,39 @@ with col2:
                     st.button("Ask IAT", key=f"iat_{pillar_name}", use_container_width=True)
                     st.markdown('</div>', unsafe_allow_html=True)
 
-        # 2. BUNDLED UPGRADE RECOMMENDATION (Flush left to prevent markdown code block rendering)
-        st.markdown(f"""
-<div class="bundle-box">
-    <div class="bundle-text">
-        <h4>📦 Recommended Architecture Upgrade: {bundle['name']}</h4>
-        <p>{bundle['desc']}</p>
-    </div>
-    <div>
-        <button style="background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 12px; cursor: pointer;">Upgrade Contract</button>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+        # 2. BUNDLED UPGRADE RECOMMENDATION (Flat String)
+        bundle_html = (
+            "<div class='bundle-box'>"
+            "<div class='bundle-text'>"
+            f"<h4>📦 Recommended Architecture Upgrade: {bundle['name']}</h4>"
+            f"<p>{bundle['desc']}</p>"
+            "</div>"
+            "<div>"
+            "<button style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 12px; cursor: pointer; white-space: nowrap;'>Upgrade Contract</button>"
+            "</div>"
+            "</div>"
+        )
+        st.markdown(bundle_html, unsafe_allow_html=True)
 
-        # 3. OPTIONAL BUSINESS CONTEXT INSIGHT (Flush left to prevent markdown code block rendering)
+        # 3. OPTIONAL BUSINESS CONTEXT INSIGHT (Flat String)
         if context_insight:
-            st.markdown(f"""
-<div class="context-box">
-    <h4>🧠 Copilot Insight: {context_insight[0]}</h4>
-    <p>{context_insight[1]}</p>
-</div>
-""", unsafe_allow_html=True)
+            insight_html = (
+                "<div class='context-box'>"
+                f"<h4>🧠 Copilot Insight: {context_insight[0]}</h4>"
+                f"<p>{context_insight[1]}</p>"
+                "</div>"
+            )
+            st.markdown(insight_html, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
             
     else:
-        st.markdown("""
-<div class="akamai-card" style="height: 100%; display: flex; align-items: center; justify-content: center; background-color: #FAFAFA;">
-    <div style="text-align: center; padding: 60px 20px;">
-        <h4 style="color: #1E2228; margin-bottom: 8px;">Awaiting Configuration Selection</h4>
-        <p style="font-size: 13px; color: #64748B;">Select your properties on the left and run the scan to identify unused contract features and recommended add-ons.</p>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+        empty_state_html = (
+            "<div class='akamai-card' style='height: 100%; display: flex; align-items: center; justify-content: center; background-color: #FAFAFA;'>"
+            "<div style='text-align: center; padding: 60px 20px;'>"
+            "<h4 style='color: #1E2228; margin-bottom: 8px;'>Awaiting Configuration Selection</h4>"
+            "<p style='font-size: 13px; color: #64748B;'>Select your properties on the left and run the scan to identify unused contract features and recommended add-ons.</p>"
+            "</div>"
+            "</div>"
+        )
+        st.markdown(empty_state_html, unsafe_allow_html=True)

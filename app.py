@@ -198,24 +198,24 @@ with col2:
         p_cols = st.columns(3)
         for idx, (pillar_name, data) in enumerate(pillars.items()):
             with p_cols[idx]:
-                # Render Card HTML
+                # Render Card HTML (Flush left to prevent markdown code block rendering)
                 st.markdown(f"""
-                <div class="pillar-card" style="border-top: 3px solid {data['color']};">
-                    <div class="pillar-header">{data['icon']} {pillar_name}</div>
-                    
-                    <div class="section-label">✅ Contracted (Enable for Free)</div>
-                    <ul class="free-list">
-                        {"".join([f"<li>{item}</li>" for item in data['free_unused']])}
-                    </ul>
-                    
-                    <div class="section-label" style="color:#D93025; margin-top: auto;">🚀 Recommended Add-on</div>
-                    <div class="addon-box">
-                        <div class="addon-title">{data['addon_name']}</div>
-                        <div class="addon-issue">Issue: {data['addon_issue']}</div>
-                        <div class="addon-desc">{data['addon_desc']}</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+<div class="pillar-card" style="border-top: 3px solid {data['color']};">
+    <div class="pillar-header">{data['icon']} {pillar_name}</div>
+    
+    <div class="section-label">✅ Contracted (Enable for Free)</div>
+    <ul class="free-list">
+        {"".join([f"<li>{item}</li>" for item in data['free_unused']])}
+    </ul>
+    
+    <div class="section-label" style="color:#D93025; margin-top: auto;">🚀 Recommended Add-on</div>
+    <div class="addon-box">
+        <div class="addon-title">{data['addon_name']}</div>
+        <div class="addon-issue">Issue: {data['addon_issue']}</div>
+        <div class="addon-desc">{data['addon_desc']}</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
                 
                 # Render Action Buttons natively under the HTML box inside the same column
                 b_col1, b_col2 = st.columns(2)
@@ -228,36 +228,36 @@ with col2:
                     st.button("Ask IAT", key=f"iat_{pillar_name}", use_container_width=True)
                     st.markdown('</div>', unsafe_allow_html=True)
 
-        # 2. BUNDLED UPGRADE RECOMMENDATION
+        # 2. BUNDLED UPGRADE RECOMMENDATION (Flush left to prevent markdown code block rendering)
         st.markdown(f"""
-        <div class="bundle-box">
-            <div class="bundle-text">
-                <h4>📦 Recommended Architecture Upgrade: {bundle['name']}</h4>
-                <p>{bundle['desc']}</p>
-            </div>
-            <div>
-                <button style="background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 12px; cursor: pointer;">Upgrade Contract</button>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+<div class="bundle-box">
+    <div class="bundle-text">
+        <h4>📦 Recommended Architecture Upgrade: {bundle['name']}</h4>
+        <p>{bundle['desc']}</p>
+    </div>
+    <div>
+        <button style="background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 12px; cursor: pointer;">Upgrade Contract</button>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-        # 3. OPTIONAL BUSINESS CONTEXT INSIGHT
+        # 3. OPTIONAL BUSINESS CONTEXT INSIGHT (Flush left to prevent markdown code block rendering)
         if context_insight:
             st.markdown(f"""
-            <div class="context-box">
-                <h4>🧠 Copilot Insight: {context_insight[0]}</h4>
-                <p>{context_insight[1]}</p>
-            </div>
-            """, unsafe_allow_html=True)
+<div class="context-box">
+    <h4>🧠 Copilot Insight: {context_insight[0]}</h4>
+    <p>{context_insight[1]}</p>
+</div>
+""", unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
             
     else:
         st.markdown("""
-        <div class="akamai-card" style="height: 100%; display: flex; align-items: center; justify-content: center; background-color: #FAFAFA;">
-            <div style="text-align: center; padding: 60px 20px;">
-                <h4 style="color: #1E2228; margin-bottom: 8px;">Awaiting Configuration Selection</h4>
-                <p style="font-size: 13px; color: #64748B;">Select your properties on the left and run the scan to identify unused contract features and recommended add-ons.</p>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+<div class="akamai-card" style="height: 100%; display: flex; align-items: center; justify-content: center; background-color: #FAFAFA;">
+    <div style="text-align: center; padding: 60px 20px;">
+        <h4 style="color: #1E2228; margin-bottom: 8px;">Awaiting Configuration Selection</h4>
+        <p style="font-size: 13px; color: #64748B;">Select your properties on the left and run the scan to identify unused contract features and recommended add-ons.</p>
+    </div>
+</div>
+""", unsafe_allow_html=True)

@@ -275,12 +275,12 @@ st.caption("Akamai EI - Akamai EdgeIntelligence Marketplace")
 st.markdown("""
 <div style="background-color: #E6F4EA; border-left: 4px solid #137333; padding: 15px; margin-bottom: 25px; border-radius: 4px;">
     <h4 style="margin-top: 0; margin-bottom: 10px; color: #137333;">✨ Early Access: Explore Akamai's Latest Innovations</h4>
-    <p style="font-size: 13px; color: #2B313A; margin-bottom: 10px;">Discover our newest products designed to protect and optimize your environment in the AI era.</p>
+    <p style="font-size: 13px; color: #2B313A; margin-bottom: 10px;">Discover our newest LA (Limited Availability) products designed to protect and optimize your environment in the AI era.</p>
     <ul style="font-size: 13px; color: #2B313A; padding-left: 20px; margin-bottom: 0;">
-        <li style="margin-bottom: 8px;"><b>AI Brand Presence:</b> AI Brand Presence ensures a brand's content is accurately represented and discoverable across AI-driven experiences and agentic workflows. It optimizes how AI systems access, interpret, and present content, preserving brand integrity and visibility as AI increasingly intermediates user interactions. <a href="#">Read or initiate trial here!</a></li>
-        <li style="margin-bottom: 8px;"><b>Akamai Guardicore Segmentation:</b> Akamai Guardicore Segmentation is the first AI-powered segmentation platform with built-in Exposure Analysis & Response capabilities. By understanding asset and application exposure, detecting real threats, and automatically enforcing containment that continuously reduces risk, we help customers stay ahead of the AI-accelerated threat landscape. We've operationalized Zero Trust as a continuous risk containment platform, delivering measurable attack surface reduction, faster response, and durable protection across hybrid enterprise environments. <a href="#">Read or initiate trial here!</a></li>
-        <li style="margin-bottom: 8px;"><b>API Security:</b> Protect APIs throughout their entire lifecycle to reduce the risk of data breaches. <a href="#">Read or initiate trial here!</a></li>
-        <li style="margin-bottom: 0;"><b>Brand Guardian:</b> Brand Guardian is Akamai's new, AI-powered solution for protecting organizations from modern, AI-driven brand abuse. It continuously detects and takes down threats across the digital ecosystem, including phishing, impersonation, fraudulent domains, fake social profiles and malicious content. Brand Guardian goes beyond alerting to actively disrupt and remove abuse, helping reduce risk, protect customers and preserve brand trust at scale. <a href="#">Read or initiate trial here!</a></li>
+        <li style="margin-bottom: 8px;"><b>AI Brand Presence:</b> AI Brand Presence ensures a brand's content is accurately represented and discoverable across AI-driven experiences and agentic workflows. It optimizes how AI systems access, interpret, and present content, preserving brand integrity and visibility as AI increasingly intermediates user interactions. <a href="#">Read or initiate try here!</a></li>
+        <li style="margin-bottom: 8px;"><b>Akamai Guardicore Segmentation:</b> Akamai Guardicore Segmentation is the first AI-powered segmentation platform with built-in Exposure Analysis & Response capabilities. By understanding asset and application exposure, detecting real threats, and automatically enforcing containment that continuously reduces risk, we help customers stay ahead of the AI-accelerated threat landscape. We've operationalized Zero Trust as a continuous risk containment platform, delivering measurable attack surface reduction, faster response, and durable protection across hybrid enterprise environments. <a href="#">Read or initiate try here!</a></li>
+        <li style="margin-bottom: 8px;"><b>API Security:</b> Protect APIs throughout their entire lifecycle to reduce the risk of data breaches. <a href="#">Read or initiate try here!</a></li>
+        <li style="margin-bottom: 0;"><b>Brand Guardian:</b> Brand Guardian is Akamai's new, AI-powered solution for protecting organizations from modern, AI-driven brand abuse. It continuously detects and takes down threats across the digital ecosystem, including phishing, impersonation, fraudulent domains, fake social profiles and malicious content. Brand Guardian goes beyond alerting to actively disrupt and remove abuse, helping reduce risk, protect customers and preserve brand trust at scale. <a href="#">Read or initiate try here!</a></li>
     </ul>
 </div>
 """, unsafe_allow_html=True)
@@ -309,10 +309,18 @@ else:
         st.markdown('<div class="akamai-card-title">1. Scope the Environment</div>', unsafe_allow_html=True)
         
         st.markdown("<span style='font-size: 14px; font-weight: 600; color: #1E2228;'>Data Privacy & Analysis Track:</span>", unsafe_allow_html=True)
+        
+        # Adding captions (acting as a 1-line explainer under each option) and a help tooltip (the "i")
         track_choice = st.radio("Privacy Track", [
             "Track 1: Deep-Insight Mode (Automated Config Scan)", 
             "Track 2: Contextual-Match Mode (Industry Benchmarks Only)"
-        ], label_visibility="collapsed")
+        ], 
+        captions=[
+            "AI securely parses your active configurations to provide hyper-personalized recommendations.",
+            "No config scan. AI suggests products based on external global industry and regional threat benchmarks."
+        ],
+        help="Choose Track 1 for personalized insights based on your configuration, or Track 2 to maintain strict data privacy while utilizing global benchmarks.",
+        label_visibility="collapsed")
         
         st.markdown("<hr style='margin: 10px 0; border: none; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
         
@@ -343,7 +351,8 @@ else:
         st.markdown('<div class="akamai-card-title" style="margin-top:20px;">2. Business Context (Copilot)</div>', unsafe_allow_html=True)
         issue_input = st.text_area("Describe what you are looking to enhance or any issues you are currently facing:", placeholder="e.g., Credential stuffing attacks are locking out real users, or looking to reduce origin latency.", height=80)
         
-        run_scan = st.button("Run Contextual Audit", type="primary")
+        # Text update to "Scan my configs"
+        run_scan = st.button("Scan my configs", type="primary")
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
@@ -380,7 +389,15 @@ else:
                 st.markdown("**Auto-Generated 90% Pre-Configured Trial Blueprint (HCL):**")
                 st.code(tf_code, language="hcl")
                 
-                st.button("Activate Pre-Configured Trial (Shadow Mode)", type="primary")
+                # Adding the 3 action buttons horizontally
+                st.markdown("<br>", unsafe_allow_html=True)
+                b1, b2, b3 = st.columns(3)
+                with b1:
+                    st.button("Activate Trial (Shadow Mode)", type="primary", use_container_width=True)
+                with b2:
+                    st.button("Initiate 1-Click Trial", use_container_width=True)
+                with b3:
+                    st.button("Reach out to your IAT", use_container_width=True)
             
             st.markdown('</div>', unsafe_allow_html=True)
                 

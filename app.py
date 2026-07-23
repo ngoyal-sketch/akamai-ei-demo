@@ -80,7 +80,7 @@ SVG_HELP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="
 SVG_BELL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'
 SVG_ALERT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
 
-# Topbar (Using Flat String for perfect rendering)
+# Topbar
 topbar_html = (
     "<div class='akamai-topbar'>"
     "<div class='akamai-brand'>akamai</div>"
@@ -114,13 +114,23 @@ SECURITY_CATALOG = [
 # ==========================================
 # 3. DIAGNOSTIC ENGINE LOGIC
 # ==========================================
-def analyze_infrastructure(del_env, sec_env, context):
-    """Simulates a background scan of selected configs to identify used vs unused modules."""
+def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
+    """Simulates a background scan identifying used vs unused modules based on Track."""
     
+    # Text changes dynamically if Track 2 is selected (no config scan)
+    if track == "Track 1":
+        sec_issue = "Config Scan: Basic rate limits are inactive on your selected policy, leaving endpoints exposed."
+        rel_issue = "Config Scan: No active health checks configured for the primary origin in your property."
+        perf_issue = "Config Scan: Static assets in your delivery property lack edge compression."
+    else:
+        sec_issue = f"Industry Benchmark: 72% of {industry} in {region} face Layer-7 exposure without rate limits."
+        rel_issue = f"Industry Benchmark: Failover latency for {industry} requires advanced health checks."
+        perf_issue = f"Industry Benchmark: {region} mobile users experience high LCP without edge compression."
+
     pillars = {
         "Security": {
             "icon": "🛡️", "color": "#0072CE",
-            "free_issue": "Basic rate limits are inactive, leaving endpoints completely exposed to volumetric scraping.",
+            "free_issue": sec_issue,
             "free_enh": "Enabling these contracted modules instantly sheds junk traffic and reduces unnecessary origin compute costs.",
             "free_unused": ["Rate Controls", "Slow POST Protection", "IP Geo-Blocking"],
             "addon_name": "Bot Manager Premier",
@@ -129,7 +139,7 @@ def analyze_infrastructure(del_env, sec_env, context):
         },
         "Reliability": {
             "icon": "⚙️", "color": "#10B981",
-            "free_issue": "No active health checks configured for the primary origin.",
+            "free_issue": rel_issue,
             "free_enh": "Activating these modules prevents dropped connections by gracefully handling timeout spikes.",
             "free_unused": ["Origin Health Checks", "Advanced Retry Logic", "Stale-While-Revalidate"],
             "addon_name": "Global Traffic Management (GTM)",
@@ -138,7 +148,7 @@ def analyze_infrastructure(del_env, sec_env, context):
         },
         "Performance": {
             "icon": "🚀", "color": "#F59E0B",
-            "free_issue": "Static assets are missing edge compression, resulting in inflated payloads.",
+            "free_issue": perf_issue,
             "free_enh": "Enabling these configurations will actively bypass internet congestion and reduce overall delivery time.",
             "free_unused": ["Brotli Compression", "SureRoute Advanced", "Predictive Prefetching"],
             "addon_name": "Image & Video Manager (IVM)",
@@ -189,10 +199,29 @@ with col1:
     st.markdown('<div class="akamai-card" style="height: 100%;">', unsafe_allow_html=True)
     st.markdown('<div class="akamai-card-title">1. Target Infrastructure</div>', unsafe_allow_html=True)
     
-    st.markdown("<p style='font-size: 12px; color: #475569; margin-bottom: 10px;'>Select active configurations from your catalog for analysis.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 12px; color: #475569; margin-bottom: 10px; font-weight: 600;'>Select Privacy & Analysis Track:</p>", unsafe_allow_html=True)
     
-    del_env = st.selectbox("Delivery Property:", DELIVERY_CATALOG)
-    sec_env = st.selectbox("Security Policy (AppSec):", SECURITY_CATALOG)
+    # 🔥 RE-ADDED THE DUAL TRACK RADIO BUTTON
+    track_choice = st.radio("Privacy Track", [
+        "Track 1: Deep-Insight Mode (Config Scan)", 
+        "Track 2: Contextual-Match Mode (Industry Benchmark)"
+    ], label_visibility="collapsed")
+    
+    st.markdown("<hr style='margin: 10px 0; border: none; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
+
+    del_env = None
+    sec_env = None
+    industry_input = None
+    region_input = None
+
+    if "Track 1" in track_choice:
+        st.markdown("<p style='font-size: 12px; color: #0072CE; margin-bottom: 10px;'>Select active configurations from your catalog for deep analysis.</p>", unsafe_allow_html=True)
+        del_env = st.selectbox("Delivery Property:", DELIVERY_CATALOG)
+        sec_env = st.selectbox("Security Policy (AppSec):", SECURITY_CATALOG)
+    else:
+        st.markdown("<p style='font-size: 12px; color: #0072CE; margin-bottom: 10px;'>Deep scanning disabled. Analysis will use macro-industry telemetry.</p>", unsafe_allow_html=True)
+        industry_input = st.selectbox("Industry Sector:", ["Financial Services", "Retail & E-Commerce", "Media & Entertainment", "Public Sector"])
+        region_input = st.selectbox("Primary Region:", ["North America", "EMEA", "Asia Pacific", "LATAM"])
     
     st.markdown('<div class="akamai-card-title" style="margin-top:20px;">2. Business Context <span style="font-size:12px; color:#64748B; font-weight:normal;">(Optional)</span></div>', unsafe_allow_html=True)
     issue_input = st.text_area("Describe specific issues or use cases:", placeholder="e.g., We need to stop automated credential stuffing on our login endpoints...", height=80, label_visibility="collapsed")
@@ -204,10 +233,11 @@ with col1:
 # --- RIGHT PANE: DIAGNOSTICS & STATUS CARDS ---
 with col2:
     if run_scan:
-        pillars, bundle, context_insight = analyze_infrastructure(del_env, sec_env, issue_input)
+        track_str = "Track 1" if "Track 1" in track_choice else "Track 2"
+        pillars, bundle, context_insight = analyze_infrastructure(track_str, del_env, sec_env, industry_input, region_input, issue_input)
         
         st.markdown('<div class="akamai-card" style="background-color: #FAFAFA;">', unsafe_allow_html=True)
-        st.markdown('<div class="akamai-card-title">Infrastructure Gap Analysis</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="akamai-card-title">Infrastructure Gap Analysis ({track_str})</div>', unsafe_allow_html=True)
         
         # 1. THREE-PILLAR STATUS CARDS
         p_cols = st.columns(3)
@@ -223,7 +253,7 @@ with col2:
                     # Contracted / Free Section
                     f"<div class='section-label' style='color:#166534;'>✅ Contracted (Enable for Free)</div>"
                     f"<div class='info-box free'>"
-                    f"<div class='info-issue free-text'>Scan Result: {data['free_issue']}</div>"
+                    f"<div class='info-issue free-text'>Result: {data['free_issue']}</div>"
                     f"<div class='info-desc free-text'>Enhancement: {data['free_enh']}</div>"
                     f"<ul class='free-list'>{free_items_html}</ul>"
                     f"</div>"
@@ -283,7 +313,7 @@ with col2:
             "<div class='akamai-card' style='height: 100%; display: flex; align-items: center; justify-content: center; background-color: #FAFAFA;'>"
             "<div style='text-align: center; padding: 60px 20px;'>"
             "<h4 style='color: #1E2228; margin-bottom: 8px;'>Awaiting Configuration Selection</h4>"
-            "<p style='font-size: 13px; color: #64748B;'>Select your properties on the left and run the scan to identify unused contract features and recommended add-ons.</p>"
+            "<p style='font-size: 13px; color: #64748B;'>Select your tracking mode on the left and run the scan to identify unused contract features and recommended add-ons.</p>"
             "</div>"
             "</div>"
         )

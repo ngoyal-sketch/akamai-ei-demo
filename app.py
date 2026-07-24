@@ -402,7 +402,7 @@ with col2:
                 f"<p style='margin: 0 0 16px 0; font-size: 13px; color: #475569; line-height: 1.5;'>{custom_insight['desc']}</p>"
                 "<div style='display: flex; gap: 10px;'>"
                 "<button title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.' style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 8px 16px; font-weight: 600; font-size: 12px; cursor: pointer;'>Try / Buy Solution</button>"
-                "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 8px 16px; font-weight: 600; font-size: 12px; cursor: pointer;'>Contact Sales Rep</button>"
+                "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 8px 16px; font-weight: 600; font-size: 12px; cursor: pointer;'>Contact IAT</button>"
                 "</div>"
                 "</div>"
             )

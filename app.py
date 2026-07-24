@@ -418,7 +418,7 @@ with col2:
         # ----------------------------------------
         else:
             custom_insight = result["custom_insight"]
-            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 16px;">🎯 Tailored Solution Architecture</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 16px;">🎯 Akamai EI Recommendation</div>', unsafe_allow_html=True)
             
             # Dynamic styling based on whether product is existing (Needs PS) or new (Needs Upsell)
             if custom_insight.get("is_existing"):

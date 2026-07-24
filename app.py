@@ -78,7 +78,7 @@ AKAMAI_CSS = """
     .rec-card p { margin: 0; font-size: 11px; color: #475569; line-height: 1.4; }
 
     /* Streamlit overrides for tighter buttons & inputs */
-    .stButton > button { font-size: 11.5px !important; padding: 6px 12px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
+    .stButton > button { font-size: 11.5px !important; padding: 4px 10px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
     .btn-primary > button { background-color: #0072CE !important; color: white !important; border: none !important; }
     .btn-secondary > button { background-color: white !important; color: #0072CE !important; border: 1px solid #0072CE !important; }
     
@@ -119,12 +119,12 @@ SECURITY_CATALOG = ["AAP Baseline Security", "App & API Protector (No Bot Protec
 # ==========================================
 # 3. DIAGNOSTIC ENGINE LOGIC
 # ==========================================
-def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
+def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, context):
     
     # ----------------------------------------
     # TRACK 1: DEEP CONFIG SCAN
     # ----------------------------------------
-    if track == "Track 1":
+    if track_internal == "Track 1":
         pillars = {
             "Security": {
                 "icon": "🛡️", "color": "#0072CE",
@@ -158,76 +158,12 @@ def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
             "name": "AAP Ultimate Extension Bundle",
             "desc": "Based on the scan, upgrade to unlock all premium add-on features in a single, unified contract."
         }
-        return pillars, bundle, None
+        return {"track": "Track 1", "pillars": pillars, "bundle": bundle}
 
     # ----------------------------------------
     # TRACK 2: INDUSTRY BENCHMARK (MACRO-TELEMETRY)
     # ----------------------------------------
-    elif track == "Track 2":
-        industry_trends = {
-            "Financial Services": {
-                "sec_trend": f"Akamai SOTI reports 83% of API endpoint attacks target Financial Services. {region} is seeing a massive surge in AI-powered credential stuffing.",
-                "sec_peer": "Peers are rapidly adopting Behavioral Bot Mitigation and dedicated API Discovery tools.",
-                "sec_rec": "Bot Manager Premier & API Security",
-                "rel_trend": f"DDoS campaigns by geopolitical hacktivists are targeting payment gateways to cause prolonged downtime. Global Layer 3 and 4 DDoS attack durations increased by 738% since 2024.",
-                "rel_peer": "Top banks utilize global DNS-level load balancing and automated origin cloaking.",
-                "rel_rec": "Global Traffic Management (GTM) & Edge DNS",
-                "perf_trend": f"Mobile banking app usage in {region} demands ultra-low latency, but heavy API payloads cause severe rendering delays.",
-                "perf_peer": "Industry leaders offload API routing logic and caching directly to the edge.",
-                "perf_rec": "API Acceleration"
-            },
-            "Retail & E-Commerce": {
-                "sec_trend": f"Retail is a highly targeted sector for credential stuffing, absorbing over 10 billion malicious login attempts. In {region}, advanced scraper bots compose up to 42% of overall web traffic, degrading inventory systems.",
-                "sec_peer": "Leading retailers deploy cryptographic bot challenges and Account Takeover (ATO) protections.",
-                "sec_rec": "Bot Manager Premier",
-                "rel_trend": f"High-traffic sales events in {region} frequently overwhelm origin databases, leading to transaction failures.",
-                "rel_peer": "E-commerce giants utilize waiting rooms and advanced failover topologies.",
-                "rel_rec": "EdgeWorkers (Waiting Room) & Cloud Wrapper",
-                "perf_trend": f"Heavy, unoptimized product images and video assets severely impact Core Web Vitals and conversion rates for {region} shoppers.",
-                "perf_peer": "Top retailers automate media optimization and next-gen format conversion (WebP/AVIF) at the edge.",
-                "perf_rec": "Image & Video Manager (IVM)"
-            }
-        }
-        
-        default_trend = {
-            "sec_trend": f"In {region}, {industry} organizations are experiencing a 257% year-over-year increase in web application and API attacks.",
-            "sec_peer": "Industry peers are consolidating WAF, Bot, and API protections into single-pass edge architectures.",
-            "sec_rec": "App & API Protector (AAP)",
-            "rel_trend": f"Ransomware and extortion-driven DDoS attacks are threatening operational uptime for {industry} in {region}.",
-            "rel_peer": "Leaders are adopting Zero Trust microsegmentation and resilient edge failover.",
-            "rel_rec": "Prolexic & Guardicore Segmentation",
-            "perf_trend": f"End-users in {region} expect sub-second load times, but legacy infrastructure struggles with dynamic content delivery.",
-            "perf_peer": "Peers are shifting compute and custom routing logic to edge nodes to bypass internet congestion.",
-            "perf_rec": "Akamai Ion & EdgeWorkers"
-        }
-        
-        trends = industry_trends.get(industry, default_trend)
-
-        pillars = {
-            "Security": {
-                "icon": "🛡️", "color": "#0072CE",
-                "trend": trends["sec_trend"],
-                "peer": trends["sec_peer"],
-                "rec_name": trends["sec_rec"],
-                "rec_desc": "Proactively secure your perimeter against the specific threat vectors targeting your sector."
-            },
-            "Reliability": {
-                "icon": "⚙️", "color": "#10B981",
-                "trend": trends["rel_trend"],
-                "peer": trends["rel_peer"],
-                "rec_name": trends["rel_rec"],
-                "rec_desc": "Ensure maximum availability and operational resilience even during peak traffic or active attacks."
-            },
-            "Performance": {
-                "icon": "🚀", "color": "#F59E0B",
-                "trend": trends["perf_trend"],
-                "peer": trends["perf_peer"],
-                "rec_name": trends["perf_rec"],
-                "rec_desc": "Accelerate dynamic delivery and offload origin compute to improve end-user experience."
-            }
-        }
-        
-        # We pass industry stats explicitly for Track 2's visual dashboard
+    elif track_internal == "Track 2":
         if industry == "Financial Services":
             ind_data = {
                 "metrics": [
@@ -346,7 +282,7 @@ with col1:
 # --- RIGHT PANE ---
 with col2:
     if run_scan:
-        result = analyze_infrastructure(track_choice, del_env, sec_env, industry_input, region_input, issue_input)
+        result = analyze_infrastructure(track_internal, del_env, sec_env, industry_input, region_input, issue_input)
         
         st.markdown('<div class="akamai-card" style="background-color: #FAFAFA; padding: 12px 16px;">', unsafe_allow_html=True)
         

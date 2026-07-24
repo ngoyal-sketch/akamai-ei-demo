@@ -353,7 +353,7 @@ with col2:
         # UI RENDER FOR TRACK 2 (INDUSTRY TRENDS)
         # ----------------------------------------
         elif track_internal == "Track 2":
-            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Industry Benchmark Analysis ({industry} - {region})</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Industry Benchmark Analysis ({industry_input} - {region_input})</div>', unsafe_allow_html=True)
             p_cols = st.columns(3)
             for idx, (pillar_name, data) in enumerate(pillars.items()):
                 with p_cols[idx]:

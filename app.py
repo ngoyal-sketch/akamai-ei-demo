@@ -35,7 +35,10 @@ AKAMAI_CSS = """
     
     /* 4. Three-Pillar Status Cards */
     .pillar-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; height: 100%; }
-    .pillar-header { font-size: 13px; font-weight: 700; color: #1E2228; text-transform: uppercase; border-bottom: 2px solid #E2E8F0; padding-bottom: 6px; margin-bottom: 8px; }
+    .pillar-header { font-size: 13px; font-weight: 700; color: #1E2228; text-transform: uppercase; border-bottom: 2px solid #E2E8F0; padding-bottom: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    
+    .mini-buy-btn { background-color: #0072CE; color: #FFFFFF; border: none; border-radius: 3px; padding: 3px 8px; font-size: 9px; font-weight: 700; cursor: pointer; text-transform: none; letter-spacing: 0; }
+    .mini-buy-btn:hover { background-color: #005A9E; }
     
     .section-label { font-size: 10px; font-weight: 800; color: #0072CE; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
     
@@ -55,16 +58,13 @@ AKAMAI_CSS = """
     .free-list { margin: 0; padding-left: 16px; font-size: 10.5px; color: #166534; font-weight: 600; }
     .free-list li { margin-bottom: 2px; }
 
-    /* 5. Context Insight Box (Tighter) */
+    /* 5. Context Insight Box */
     .context-box { background-color: #F4F6F8; border-left: 4px solid #10B981; padding: 10px 14px; margin-top: 10px; border-radius: 4px; }
     .context-box h4 { margin: 0 0 4px 0; color: #10B981; font-size: 12.5px; }
     .context-box p { margin: 0; font-size: 11.5px; color: #2B313A; }
 
-    /* Streamlit overrides for tighter buttons & inputs */
-    .stButton > button { font-size: 11.5px !important; padding: 4px 10px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
-    .btn-primary > button { background-color: #0072CE !important; color: white !important; border: none !important; }
-    .btn-secondary > button { background-color: white !important; color: #0072CE !important; border: 1px solid #0072CE !important; }
-    
+    /* Streamlit overrides for inputs */
+    .stButton > button { font-size: 11.5px !important; padding: 4px 10px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important; background-color: #0072CE !important; color: white !important; border: none !important;}
     div[data-testid="stVerticalBlock"] > div { padding-bottom: 0.1rem !important; }
     .stTextArea textarea { font-size: 12px !important; }
     .stSelectbox div { font-size: 12px !important; }
@@ -202,7 +202,7 @@ with col1:
     st.markdown('<div class="akamai-card-title" style="margin-top:12px; margin-bottom: 6px;">2. Business Context <span style="font-size:11px; color:#64748B; font-weight:normal;">(Optional)</span></div>', unsafe_allow_html=True)
     issue_input = st.text_area("Describe specific issues:", placeholder="e.g., We need to stop automated credential stuffing...", height=65, label_visibility="collapsed")
     
-    run_scan = st.button("Analyze Configurations", type="primary", use_container_width=True)
+    run_scan = st.button("Analyze Configurations", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 # --- RIGHT PANE ---
@@ -214,14 +214,17 @@ with col2:
         st.markdown('<div class="akamai-card" style="background-color: #FAFAFA; padding: 12px 16px;">', unsafe_allow_html=True)
         st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Configuration Gap Analysis ({track_str})</div>', unsafe_allow_html=True)
         
-        # 1. THREE-PILLAR CARDS
+        # 1. THREE-PILLAR CARDS WITH NEW HEADER TRY/BUY BUTTON
         p_cols = st.columns(3)
         for idx, (pillar_name, data) in enumerate(pillars.items()):
             with p_cols[idx]:
                 free_items_html = "".join([f"<li>{item}</li>" for item in data['free_unused']])
                 card_html = (
                     f"<div class='pillar-card' style='border-top: 3px solid {data['color']};'>"
-                    f"<div class='pillar-header'>{data['icon']} {pillar_name}</div>"
+                    f"<div class='pillar-header'>"
+                    f"<span>{data['icon']} {pillar_name}</span>"
+                    f"<button class='mini-buy-btn'>Try/Buy</button>"
+                    f"</div>"
                     f"<div class='section-label' style='color:#166534;'>✅ Contracted (Enable for Free)</div>"
                     f"<div class='info-box free'>"
                     f"<div class='info-issue free-text'>{data['free_issue']}</div>"
@@ -238,30 +241,22 @@ with col2:
                 )
                 st.markdown(card_html, unsafe_allow_html=True)
                 
-        # 2. CONSOLIDATED ACTION ROW (Bundle Note + Buttons)
-        st.markdown("<br>", unsafe_allow_html=True)
-        btn_col1, btn_col2, btn_col3 = st.columns([2.5, 1.3, 1.3], gap="small")
-        with btn_col1:
-            st.markdown(f"""
-            <div style="padding-top: 2px; padding-left: 4px;">
-                <div style="font-size: 12px; font-weight: 700; color: #0072CE; margin-bottom: 2px;">
-                    💡 Contract Consolidation: {bundle['name']}
-                </div>
-                <div style="font-size: 10.5px; color: #475569; line-height: 1.2;">
-                    {bundle['desc']}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-        with btn_col2:
-            st.markdown('<div class="btn-primary" style="margin-top: 4px;">', unsafe_allow_html=True)
-            st.button("1-Click Try/Buy Add-ons", use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-        with btn_col3:
-            st.markdown('<div class="btn-secondary" style="margin-top: 4px;">', unsafe_allow_html=True)
-            st.button("Ask IAT for Assistance", use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+        # 2. UNIFIED CONTRACT CONSOLIDATION BOX WITH TRY/BUY
+        bundle_html = (
+            "<div style='background-color: #F0F7FF; border: 1px solid #CCE3FD; border-radius: 4px; padding: 10px 14px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between;'>"
+            "<div>"
+            f"<div style='font-size: 13px; font-weight: 700; color: #0072CE; margin-bottom: 2px;'>💡 Contract Consolidation: {bundle['name']}</div>"
+            f"<div style='font-size: 11px; color: #475569;'>{bundle['desc']}</div>"
+            "</div>"
+            "<div style='display: flex; gap: 8px;'>"
+            "<button style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Try/Buy Bundle</button>"
+            "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Ask IAT</button>"
+            "</div>"
+            "</div>"
+        )
+        st.markdown(bundle_html, unsafe_allow_html=True)
 
-        # 3. OPTIONAL BUSINESS CONTEXT INSIGHT (Only bottom box)
+        # 3. OPTIONAL BUSINESS CONTEXT INSIGHT
         if context_insight:
             insight_html = (
                 "<div class='context-box'>"

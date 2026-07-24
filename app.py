@@ -326,7 +326,7 @@ with col2:
                         f"<button class='mini-enable-btn' title='View documentation on how to enable these contracted features.'>Learn How to Enable</button>"
                         f"</div>"
                         
-                        f"<div class='section-label' style='color:#D93025; margin-top: 4px;'>🚀 Recommended Add-on</div>"
+                        f"<div class='section-label' style='color:#D93025; margin-top: 4px;'>🚀 Recommended Add-on(Paid)</div>"
                         f"<div class='info-box addon'>"
                         f"<div style='flex-grow: 1;'>"
                         f"<div class='tag-container'>"

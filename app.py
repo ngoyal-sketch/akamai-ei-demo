@@ -165,11 +165,7 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
                 "addon_compliance": "Global SLA Benchmark"
             }
         }
-        bundle = {
-            "name": "AAP Ultimate Extension Bundle",
-            "desc": "Based on the scan, upgrade to unlock all premium add-on features in a single, unified contract."
-        }
-        return {"track": "Track 1", "pillars": pillars, "bundle": bundle}
+        return {"track": "Track 1", "pillars": pillars}
 
     # ----------------------------------------
     # TRACK 2: INDUSTRY BENCHMARK (MACRO-TELEMETRY)
@@ -344,21 +340,6 @@ with col2:
                         f"</div>"
                     )
                     st.markdown(card_html, unsafe_allow_html=True)
-                    
-            bundle = result["bundle"]
-            bundle_html = (
-                "<div style='background-color: #F0F7FF; border: 1px solid #CCE3FD; border-radius: 4px; padding: 10px 14px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between;'>"
-                "<div>"
-                f"<div style='font-size: 13px; font-weight: 700; color: #0072CE; margin-bottom: 2px;'>💡 Contract Consolidation: {bundle['name']}</div>"
-                f"<div style='font-size: 11px; color: #475569;'>{bundle['desc']}</div>"
-                "</div>"
-                "<div style='display: flex; gap: 8px;'>"
-                "<button title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.' style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Try/Buy Bundle</button>"
-                "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Ask IAT</button>"
-                "</div>"
-                "</div>"
-            )
-            st.markdown(bundle_html, unsafe_allow_html=True)
 
         # ----------------------------------------
         # UI RENDER FOR TRACK 2 (Industry Dashboard)

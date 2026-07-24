@@ -37,13 +37,16 @@ AKAMAI_CSS = """
     .pillar-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; height: 100%; }
     .pillar-header { font-size: 13px; font-weight: 700; color: #1E2228; text-transform: uppercase; border-bottom: 2px solid #E2E8F0; padding-bottom: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
     
-    .mini-buy-btn { background-color: #0072CE; color: #FFFFFF; border: none; border-radius: 3px; padding: 3px 8px; font-size: 9px; font-weight: 700; cursor: pointer; text-transform: none; letter-spacing: 0; }
+    .mini-enable-btn { background-color: #10B981; color: #FFFFFF; border: none; border-radius: 3px; padding: 3px 8px; font-size: 9px; font-weight: 700; cursor: pointer; text-transform: none; letter-spacing: 0; }
+    .mini-enable-btn:hover { background-color: #059669; }
+    
+    .mini-buy-btn { background-color: #0072CE; color: #FFFFFF; border: none; border-radius: 3px; padding: 4px 10px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: none; margin-top: 6px; width: 100%; }
     .mini-buy-btn:hover { background-color: #005A9E; }
     
     .section-label { font-size: 10px; font-weight: 800; color: #0072CE; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
     
     /* Info Boxes inside Cards */
-    .info-box { border-radius: 4px; padding: 8px; margin-bottom: 8px; border: 1px solid transparent; flex-grow: 1; }
+    .info-box { border-radius: 4px; padding: 8px; margin-bottom: 8px; border: 1px solid transparent; flex-grow: 1; display: flex; flex-direction: column;}
     .info-box.free { background-color: #F0FDF4; border-color: #BBF7D0; }
     .info-box.addon { background-color: #F8FAFC; border-color: #E2E8F0; }
     
@@ -58,13 +61,11 @@ AKAMAI_CSS = """
     .free-list { margin: 0; padding-left: 16px; font-size: 10.5px; color: #166534; font-weight: 600; }
     .free-list li { margin-bottom: 2px; }
 
-    /* 5. Context Insight Box */
-    .context-box { background-color: #F4F6F8; border-left: 4px solid #10B981; padding: 10px 14px; margin-top: 10px; border-radius: 4px; }
-    .context-box h4 { margin: 0 0 4px 0; color: #10B981; font-size: 12.5px; }
-    .context-box p { margin: 0; font-size: 11.5px; color: #2B313A; }
-
-    /* Streamlit overrides for inputs */
-    .stButton > button { font-size: 11.5px !important; padding: 4px 10px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important; background-color: #0072CE !important; color: white !important; border: none !important;}
+    /* Streamlit overrides for tighter buttons & inputs */
+    .stButton > button { font-size: 11.5px !important; padding: 4px 10px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
+    .btn-primary > button { background-color: #0072CE !important; color: white !important; border: none !important; }
+    .btn-secondary > button { background-color: white !important; color: #0072CE !important; border: 1px solid #0072CE !important; }
+    
     div[data-testid="stVerticalBlock"] > div { padding-bottom: 0.1rem !important; }
     .stTextArea textarea { font-size: 12px !important; }
     .stSelectbox div { font-size: 12px !important; }
@@ -107,11 +108,29 @@ def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
         sec_issue = "Config Scan: Essential Adaptive Rate Controls and Bot Visibility are inactive on this policy."
         rel_issue = "Config Scan: No Site Failover or Site Shield origin cloaking configured for the primary backend."
         perf_issue = "Config Scan: Edge caching and SureRoute optimizations are severely underutilized."
-    else:
+    elif track == "Track 2":
         sec_issue = f"Industry Benchmark: 72% of {industry} in {region} suffer without Adaptive Rate Controls and Bot Visibility."
         rel_issue = f"Industry Benchmark: Failover latency for {industry} requires advanced Site Failover topologies."
         perf_issue = f"Industry Benchmark: {region} users experience high latency without SureRoute and optimal caching."
+    
+    # Logic for Track 3 (Custom Context)
+    if track == "Track 3":
+        c_lower = context.lower()
+        if any(k in c_lower for k in ["file", "upload", "malware", "virus"]):
+            rec_title = "Malware Protection (Add-on)"
+            rec_desc = "Based on your requirement regarding file uploads, Malware Protection seamlessly integrates with AAP to intercept and block malicious files from reaching your backend."
+        elif any(k in c_lower for k in ["api", "data breach", "shadow"]):
+            rec_title = "API Protections - Basic (Included)"
+            rec_desc = "To address your API concerns, ensure the 'API Protections - Basic' module (included in your current AAP contract) is fully configured for endpoint enforcement."
+        elif any(k in c_lower for k in ["bot", "scraper", "credential", "stuffing"]):
+            rec_title = "Bot Visibility and Mitigation (Included)"
+            rec_desc = "Your current AAP contract includes 'Bot Visibility'. Enabling this will immediately provide actionable intelligence on the credential stuffing you are facing. For advanced behavioral blocking, Bot Manager Premier is recommended."
+        else:
+            rec_title = "Adaptive Security Engine (ASE)"
+            rec_desc = "Based on your use case, our AI recommends reviewing your active AAP ruleset and ensuring Adaptive Security Engine (ASE) is operating in automatic mode to optimize your posture."
+        return None, None, {"title": rec_title, "desc": rec_desc}
 
+    # Logic for Track 1 & 2
     pillars = {
         "Security": {
             "icon": "🛡️", "color": "#0072CE",
@@ -144,22 +163,10 @@ def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
 
     bundle = {
         "name": "AAP Ultimate Extension Bundle",
-        "desc": "Based on the scan, you can upgrade to a new and better product to unlock these premium features in a single, unified contract."
+        "desc": "Based on the scan, upgrade to unlock all premium add-on features in a single, unified contract."
     }
 
-    context_insight = None
-    if context.strip():
-        c_lower = context.lower()
-        if any(k in c_lower for k in ["file", "upload", "malware", "virus"]):
-            context_insight = ("Malware Protection Add-on", "Based on your context regarding file uploads, Malware Protection will scan all inbound user-generated content at the edge before it reaches your servers.")
-        elif any(k in c_lower for k in ["api", "data breach", "shadow"]):
-            context_insight = ("API Protections - Basic", "To address your API concerns, ensure the 'API Protections - Basic' module (included in your current AAP contract) is fully configured for endpoint enforcement.")
-        elif any(k in c_lower for k in ["bot", "scraper", "credential"]):
-            context_insight = ("Bot Visibility and Mitigation", "Your current AAP contract includes 'Bot Visibility'. Enabling this will immediately provide actionable intelligence on the credential stuffing you are facing.")
-        else:
-            context_insight = ("Architect AI Recommendation", "Based on your specific use case, our AI recommends reviewing your active AAP ruleset and ensuring Adaptive Security Engine (ASE) is in automatic mode.")
-
-    return pillars, bundle, context_insight
+    return pillars, bundle, None
 
 # ==========================================
 # 4. MAIN UI LAYOUT
@@ -181,87 +188,101 @@ col1, col2 = st.columns([1, 2.3], gap="medium")
 # --- LEFT PANE ---
 with col1:
     st.markdown('<div class="akamai-card" style="height: 100%;">', unsafe_allow_html=True)
-    st.markdown('<div class="akamai-card-title">1. Target Configurations</div>', unsafe_allow_html=True)
+    st.markdown('<div class="akamai-card-title">1. Target Parameters</div>', unsafe_allow_html=True)
     
     st.markdown("<p style='font-size: 11px; color: #475569; margin-bottom: 6px; font-weight: 600;'>Select Privacy & Analysis Track:</p>", unsafe_allow_html=True)
-    track_choice = st.radio("Privacy Track", ["Track 1: Deep-Insight Mode (Config Scan)", "Track 2: Contextual-Match Mode (Industry Benchmark)"], label_visibility="collapsed")
+    track_choice = st.radio("Privacy Track", [
+        "Track 1: Deep-Insight Mode (Config Scan)", 
+        "Track 2: Contextual-Match Mode (Industry Benchmark)",
+        "Track 3: Custom Business Context (Use Case)"
+    ], label_visibility="collapsed")
     
     st.markdown("<hr style='margin: 8px 0; border: none; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
 
-    del_env, sec_env, industry_input, region_input = None, None, None, None
+    del_env, sec_env, industry_input, region_input, issue_input = None, None, None, None, ""
 
     if "Track 1" in track_choice:
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Select active AAP configs for deep analysis.</p>", unsafe_allow_html=True)
         del_env = st.selectbox("Delivery Config:", DELIVERY_CATALOG)
         sec_env = st.selectbox("Security Config:", SECURITY_CATALOG)
-    else:
+    elif "Track 2" in track_choice:
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Deep scanning disabled. Using macro-telemetry.</p>", unsafe_allow_html=True)
         industry_input = st.selectbox("Industry Sector:", ["Financial Services", "Retail & E-Commerce", "Media & Entertainment", "Public Sector"])
         region_input = st.selectbox("Primary Region:", ["North America", "EMEA", "Asia Pacific", "LATAM"])
+    else:
+        st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Describe your specific business context, issue, or requirement below.</p>", unsafe_allow_html=True)
+        issue_input = st.text_area("Business Context:", placeholder="e.g., We need to stop automated credential stuffing...", height=100, label_visibility="collapsed")
     
-    st.markdown('<div class="akamai-card-title" style="margin-top:12px; margin-bottom: 6px;">2. Business Context <span style="font-size:11px; color:#64748B; font-weight:normal;">(Optional)</span></div>', unsafe_allow_html=True)
-    issue_input = st.text_area("Describe specific issues:", placeholder="e.g., We need to stop automated credential stuffing...", height=65, label_visibility="collapsed")
-    
-    run_scan = st.button("Analyze Configurations", use_container_width=True)
+    run_scan = st.button("Analyze Requirements", type="primary", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 # --- RIGHT PANE ---
 with col2:
     if run_scan:
-        track_str = "Track 1" if "Track 1" in track_choice else "Track 2"
-        pillars, bundle, context_insight = analyze_infrastructure(track_str, del_env, sec_env, industry_input, region_input, issue_input)
+        track_str = track_choice.split(":")[0]
+        pillars, bundle, custom_insight = analyze_infrastructure(track_str, del_env, sec_env, industry_input, region_input, issue_input)
         
         st.markdown('<div class="akamai-card" style="background-color: #FAFAFA; padding: 12px 16px;">', unsafe_allow_html=True)
-        st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Configuration Gap Analysis ({track_str})</div>', unsafe_allow_html=True)
         
-        # 1. THREE-PILLAR CARDS WITH NEW HEADER TRY/BUY BUTTON
-        p_cols = st.columns(3)
-        for idx, (pillar_name, data) in enumerate(pillars.items()):
-            with p_cols[idx]:
-                free_items_html = "".join([f"<li>{item}</li>" for item in data['free_unused']])
-                card_html = (
-                    f"<div class='pillar-card' style='border-top: 3px solid {data['color']};'>"
-                    f"<div class='pillar-header'>"
-                    f"<span>{data['icon']} {pillar_name}</span>"
-                    f"<button class='mini-buy-btn'>Try/Buy</button>"
-                    f"</div>"
-                    f"<div class='section-label' style='color:#166534;'>✅ Contracted (Enable for Free)</div>"
-                    f"<div class='info-box free'>"
-                    f"<div class='info-issue free-text'>{data['free_issue']}</div>"
-                    f"<div class='info-desc free-text'><b>Enhancement:</b> {data['free_enh']}</div>"
-                    f"<ul class='free-list'>{free_items_html}</ul>"
-                    f"</div>"
-                    f"<div class='section-label' style='color:#D93025; margin-top: 2px;'>🚀 Recommended Add-on</div>"
-                    f"<div class='info-box addon'>"
-                    f"<div class='info-title'>{data['addon_name']}</div>"
-                    f"<div class='info-issue addon-text'>Issue: {data['addon_issue']}</div>"
-                    f"<div class='info-desc addon-text'>{data['addon_desc']}</div>"
-                    f"</div>"
-                    f"</div>"
-                )
-                st.markdown(card_html, unsafe_allow_html=True)
-                
-        # 2. UNIFIED CONTRACT CONSOLIDATION BOX WITH TRY/BUY
-        bundle_html = (
-            "<div style='background-color: #F0F7FF; border: 1px solid #CCE3FD; border-radius: 4px; padding: 10px 14px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between;'>"
-            "<div>"
-            f"<div style='font-size: 13px; font-weight: 700; color: #0072CE; margin-bottom: 2px;'>💡 Contract Consolidation: {bundle['name']}</div>"
-            f"<div style='font-size: 11px; color: #475569;'>{bundle['desc']}</div>"
-            "</div>"
-            "<div style='display: flex; gap: 8px;'>"
-            "<button style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Try/Buy Bundle</button>"
-            "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Ask IAT</button>"
-            "</div>"
-            "</div>"
-        )
-        st.markdown(bundle_html, unsafe_allow_html=True)
-
-        # 3. OPTIONAL BUSINESS CONTEXT INSIGHT
-        if context_insight:
+        if track_str in ["Track 1", "Track 2"]:
+            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Configuration Gap Analysis ({track_str})</div>', unsafe_allow_html=True)
+            
+            # 1. THREE-PILLAR CARDS WITH ENABLE & TRY/BUY BUTTONS
+            p_cols = st.columns(3)
+            for idx, (pillar_name, data) in enumerate(pillars.items()):
+                with p_cols[idx]:
+                    free_items_html = "".join([f"<li>{item}</li>" for item in data['free_unused']])
+                    card_html = (
+                        f"<div class='pillar-card' style='border-top: 3px solid {data['color']};'>"
+                        f"<div class='pillar-header'>"
+                        f"<span>{data['icon']} {pillar_name}</span>"
+                        f"<button class='mini-enable-btn' title='View documentation on how to enable these contracted features.'>Enable</button>"
+                        f"</div>"
+                        f"<div class='section-label' style='color:#166534;'>✅ Contracted (Free)</div>"
+                        f"<div class='info-box free'>"
+                        f"<div class='info-issue free-text'>{data['free_issue']}</div>"
+                        f"<div class='info-desc free-text'><b>Enhancement:</b> {data['free_enh']}</div>"
+                        f"<ul class='free-list'>{free_items_html}</ul>"
+                        f"</div>"
+                        f"<div class='section-label' style='color:#D93025; margin-top: 2px;'>🚀 Recommended Add-on</div>"
+                        f"<div class='info-box addon' style='display: flex; flex-direction: column;'>"
+                        f"<div style='flex-grow: 1;'>"
+                        f"<div class='info-title'>{data['addon_name']}</div>"
+                        f"<div class='info-issue addon-text'>Issue: {data['addon_issue']}</div>"
+                        f"<div class='info-desc addon-text'>{data['addon_desc']}</div>"
+                        f"</div>"
+                        f"<button class='mini-buy-btn' title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.'>Try / Buy</button>"
+                        f"</div>"
+                        f"</div>"
+                    )
+                    st.markdown(card_html, unsafe_allow_html=True)
+                    
+            # 2. UNIFIED CONTRACT CONSOLIDATION BOX
+            bundle_html = (
+                "<div style='background-color: #F0F7FF; border: 1px solid #CCE3FD; border-radius: 4px; padding: 10px 14px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between;'>"
+                "<div>"
+                f"<div style='font-size: 13px; font-weight: 700; color: #0072CE; margin-bottom: 2px;'>💡 Contract Consolidation: {bundle['name']}</div>"
+                f"<div style='font-size: 11px; color: #475569;'>{bundle['desc']}</div>"
+                "</div>"
+                "<div style='display: flex; gap: 8px;'>"
+                "<button title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.' style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Try/Buy Bundle</button>"
+                "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Ask IAT</button>"
+                "</div>"
+                "</div>"
+            )
+            st.markdown(bundle_html, unsafe_allow_html=True)
+            
+        else:
+            # Output specifically for Track 3
+            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">🎯 Tailored Solution Architecture</div>', unsafe_allow_html=True)
             insight_html = (
-                "<div class='context-box'>"
-                f"<h4>🎯 Recommendation based on your Business Context: {context_insight[0]}</h4>"
-                f"<p>{context_insight[1]}</p>"
+                "<div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 20px; border-radius: 6px; border-top: 4px solid #10B981;'>"
+                f"<h4 style='margin: 0 0 8px 0; color: #1E2228; font-size: 16px;'>Recommended Fit: <span style='color:#10B981;'>{custom_insight['title']}</span></h4>"
+                f"<p style='margin: 0 0 16px 0; font-size: 13px; color: #475569; line-height: 1.5;'>{custom_insight['desc']}</p>"
+                "<div style='display: flex; gap: 10px;'>"
+                "<button title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.' style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 8px 16px; font-weight: 600; font-size: 12px; cursor: pointer;'>Try / Buy Solution</button>"
+                "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 8px 16px; font-weight: 600; font-size: 12px; cursor: pointer;'>Contact Sales Rep</button>"
+                "</div>"
                 "</div>"
             )
             st.markdown(insight_html, unsafe_allow_html=True)
@@ -273,7 +294,7 @@ with col2:
             "<div class='akamai-card' style='height: 100%; display: flex; align-items: center; justify-content: center; background-color: #FAFAFA;'>"
             "<div style='text-align: center; padding: 60px 20px;'>"
             "<h4 style='color: #1E2228; margin-bottom: 8px;'>Awaiting Configuration Selection</h4>"
-            "<p style='font-size: 12px; color: #64748B;'>Select your tracking mode on the left and run the scan to identify unused contract features and recommended add-ons.</p>"
+            "<p style='font-size: 12px; color: #64748B;'>Select your tracking mode on the left and run the scan to identify unused contract features, recommended add-ons, or custom solutions.</p>"
             "</div>"
             "</div>"
         )

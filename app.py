@@ -8,96 +8,94 @@ st.set_page_config(page_title="Akamai Marketplace | Control Center", layout="wid
 AKAMAI_CSS = """
 <style>
     /* 1. Ultra-Tight Padding to pull everything up into one view */
-    .block-container { padding: 1.5rem 2rem 0.5rem 2rem !important; max-width: 100% !important; }
+    .block-container { padding: 1.5rem 2rem 1rem 2rem !important; max-width: 100% !important; }
     header { display: none !important; }
     
-    .stApp { background-color: #F4F6F9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    /* 2. Global Typography & Background */
+    .stApp { 
+        background-color: #F4F6F9; 
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; 
+        color: #1E2228;
+    }
     
-    /* 2. Topbar */
+    /* 3. Topbar */
     .akamai-topbar {
-        background-color: #1E2228; color: #FFFFFF; padding: 10px 24px; 
-        margin-top: -1.5rem; margin-left: -2rem; margin-right: -2rem; margin-bottom: 12px;
+        background-color: #1E2228; color: #FFFFFF; padding: 12px 24px; 
+        margin-top: -1.5rem; margin-left: -2rem; margin-right: -2rem; margin-bottom: 20px;
         display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2B313A;
     }
-    .akamai-brand { font-weight: 800; font-size: 17px; letter-spacing: 0.5px; color: #0072CE; white-space: nowrap; }
-    .akamai-search-box { background-color: #2B313A; border: 1px solid #3A424D; border-radius: 4px; padding: 5px 12px; color: #C0C7D0; width: 30vw; min-width: 250px; max-width: 400px; font-size: 11px; }
-    .akamai-top-right { display: flex; align-items: center; gap: 16px; font-size: 11px; color: #E2E8F0; white-space: nowrap; }
+    .akamai-brand { font-weight: 800; font-size: 18px; letter-spacing: 0.5px; color: #0072CE; white-space: nowrap; }
+    .akamai-search-box { background-color: #2B313A; border: 1px solid #3A424D; border-radius: 4px; padding: 6px 16px; color: #C0C7D0; width: 35vw; min-width: 250px; max-width: 500px; font-size: 12px; }
+    .akamai-top-right { display: flex; align-items: center; gap: 20px; font-size: 12px; color: #E2E8F0; white-space: nowrap; }
     
     .icon-container { position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .notification-badge { 
         position: absolute; top: -5px; right: -6px; background-color: #D93025; color: white; 
-        font-size: 8px; font-weight: 700; padding: 2px 4px; border-radius: 10px; border: 2px solid #1E2228;
+        font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 10px; border: 2px solid #1E2228;
     }
     
-    /* 3. Base Cards */
-    .akamai-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 12px 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
-    .akamai-card-title { font-size: 15px; font-weight: 700; color: #1E2228; margin-bottom: 10px; }
+    /* 4. Base Cards */
+    .akamai-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 20px 24px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .akamai-card-title { font-size: 18px; font-weight: 700; color: #1E2228; margin-bottom: 16px; }
     
-    /* 4. Three-Pillar Status Cards */
-    .pillar-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; height: 100%; }
-    .pillar-header { font-size: 13px; font-weight: 700; color: #1E2228; text-transform: uppercase; border-bottom: 2px solid #E2E8F0; padding-bottom: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    /* 5. Three-Pillar Status Cards */
+    .pillar-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; height: 100%; }
+    .pillar-header { font-size: 14px; font-weight: 700; color: #1E2228; text-transform: uppercase; border-bottom: 1px solid #E2E8F0; padding-bottom: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
     
-    .mini-enable-btn { background-color: #10B981; color: #FFFFFF; border: none; border-radius: 3px; padding: 5px 10px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: none; margin-top: 6px; width: 100%; }
-    .mini-enable-btn:hover { background-color: #059669; }
+    /* Buttons - Corporate Theme */
+    .mini-enable-btn { background-color: #FFFFFF; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; text-transform: none; margin-top: 10px; width: 100%; transition: background-color 0.2s ease; }
+    .mini-enable-btn:hover { background-color: #F0F7FF; }
     
-    .mini-buy-btn { background-color: #0072CE; color: #FFFFFF; border: none; border-radius: 3px; padding: 5px 10px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: none; margin-top: 6px; width: 100%; }
+    .mini-buy-btn { background-color: #0072CE; color: #FFFFFF; border: none; border-radius: 4px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; text-transform: none; margin-top: 10px; width: 100%; transition: background-color 0.2s ease; }
     .mini-buy-btn:hover { background-color: #005A9E; }
     
-    .section-label { font-size: 10px; font-weight: 800; color: #0072CE; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
+    .section-label { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
     
-    /* Info Boxes inside Cards */
-    .info-box { border-radius: 4px; padding: 8px; margin-bottom: 8px; border: 1px solid transparent; flex-grow: 1; display: flex; flex-direction: column;}
-    .info-box.free { background-color: #F0FDF4; border-color: #BBF7D0; }
-    .info-box.addon { background-color: #F8FAFC; border-color: #E2E8F0; }
-    .info-box.peer { background-color: #F0F7FF; border-color: #CCE3FD; }
+    /* Info Boxes inside Cards - Cleaned up to Corporate palette */
+    .info-box { border-radius: 6px; padding: 14px; margin-bottom: 16px; border: 1px solid transparent; flex-grow: 1; display: flex; flex-direction: column;}
+    .info-box.free { background-color: #F8FAFC; border-color: #E2E8F0; } /* Soft corporate gray/blue instead of bright green */
+    .info-box.addon { background-color: #FFFFFF; border-color: #E2E8F0; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
     
-    .info-title { font-size: 12px; font-weight: 700; color: #1E2228; margin-bottom: 3px; }
-    .info-issue { font-size: 10.5px; font-weight: 600; margin-bottom: 3px; line-height: 1.3;}
-    .info-issue.free-text { color: #166534; }
-    .info-issue.addon-text { color: #D93025; }
-    .info-desc { font-size: 10.5px; line-height: 1.3; margin-bottom: 6px; }
-    .info-desc.free-text { color: #15803D; }
-    .info-desc.addon-text { color: #475569; }
-    .info-desc.peer-text { color: #0072CE; }
+    .info-title { font-size: 14px; font-weight: 700; color: #1E2228; margin-bottom: 6px; }
+    .info-issue { font-size: 12px; font-weight: 600; margin-bottom: 6px; line-height: 1.5; color: #1E2228;}
+    .info-desc { font-size: 12px; line-height: 1.5; margin-bottom: 10px; color: #475569; }
 
-    .free-list { margin: 0; padding-left: 16px; font-size: 10.5px; color: #166534; font-weight: 600; margin-bottom: 6px; }
-    .free-list li { margin-bottom: 2px; }
+    .free-list { margin: 0; padding-left: 20px; font-size: 12px; color: #1E2228; font-weight: 500; margin-bottom: 10px; line-height: 1.6;}
+    .free-list li { margin-bottom: 4px; }
 
-    /* Tags for Compliance */
-    .tag-container { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
-    .tag-badge { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; line-height: 1.2; }
-    .tag-compliance { background-color: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+    /* Tags for Compliance - Corporate Blue Style */
+    .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .tag-badge { font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 4px; line-height: 1.2; }
+    .tag-compliance { background-color: #F0F7FF; color: #0072CE; border: 1px solid #CCE3FD; }
 
     /* Track 2 specific UI (Industry Dashboard) */
-    .metric-box { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 12px; text-align: center; }
-    .metric-val { font-size: 20px; font-weight: 800; color: #1E2228; margin-bottom: 2px; }
-    .metric-label { font-size: 10.5px; color: #64748B; font-weight: 700; text-transform: uppercase; }
+    .metric-box { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 16px; text-align: center; }
+    .metric-val { font-size: 24px; font-weight: 800; color: #1E2228; margin-bottom: 4px; }
+    .metric-label { font-size: 11px; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
     
-    .visual-bar-container { background-color: #E2E8F0; border-radius: 4px; height: 16px; width: 100%; display: flex; overflow: hidden; margin-top: 10px; margin-bottom: 6px;}
-    .visual-segment { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: white; font-weight: 700; }
-    .visual-legend { display: flex; gap: 12px; font-size: 10.5px; color: #475569; font-weight: 600; justify-content: center; }
-    .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+    .visual-bar-container { background-color: #E2E8F0; border-radius: 6px; height: 20px; width: 100%; display: flex; overflow: hidden; margin-top: 16px; margin-bottom: 10px;}
+    .visual-segment { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white; font-weight: 700; }
+    .visual-legend { display: flex; gap: 16px; font-size: 12px; color: #475569; font-weight: 600; justify-content: center; }
+    .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
 
-    .rec-card { background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px; height: 100%; border-top: 3px solid #0072CE; }
-    .rec-card h4 { margin: 0 0 6px 0; font-size: 13px; color: #1E2228; }
-    .rec-card p { margin: 0; font-size: 11px; color: #475569; line-height: 1.4; }
+    .rec-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 16px; height: 100%; border-top: 3px solid #0072CE; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .rec-card h4 { margin: 0 0 8px 0; font-size: 14px; color: #1E2228; }
+    .rec-card p { margin: 0; font-size: 12px; color: #475569; line-height: 1.5; }
 
-    /* Streamlit overrides for tighter buttons & inputs */
-    .stButton > button { font-size: 11.5px !important; padding: 6px 12px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
-    .btn-primary > button { background-color: #0072CE !important; color: white !important; border: none !important; }
-    .btn-secondary > button { background-color: white !important; color: #0072CE !important; border: 1px solid #0072CE !important; }
-    
-    div[data-testid="stVerticalBlock"] > div { padding-bottom: 0.1rem !important; }
-    .stTextArea textarea { font-size: 12px !important; }
-    .stSelectbox div { font-size: 12px !important; }
+    /* Streamlit overrides for inputs */
+    div[data-testid="stVerticalBlock"] > div { padding-bottom: 0.2rem !important; }
+    .stTextArea textarea { font-size: 13px !important; padding: 10px !important; }
+    .stSelectbox div { font-size: 13px !important; }
+    .stRadio label { font-size: 13px !important; color: #1E2228 !important; }
+    .stButton > button { padding: 6px 16px !important; font-weight: 600 !important; font-size: 13px !important; border-radius: 4px !important; transition: all 0.2s ease;}
 </style>
 """
 st.markdown(AKAMAI_CSS, unsafe_allow_html=True)
 
 # SVG Icons
-SVG_HELP = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
-SVG_BELL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'
-SVG_ALERT = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
+SVG_HELP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
+SVG_BELL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'
+SVG_ALERT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
 
 # Topbar
 topbar_html = (
@@ -109,7 +107,7 @@ topbar_html = (
     f"<div class='icon-container'>{SVG_HELP}</div>"
     f"<div class='icon-container'>{SVG_BELL}<span class='notification-badge'>3</span></div>"
     f"<div class='icon-container'>{SVG_ALERT}<span class='notification-badge'>1</span></div>"
-    "<div style='text-align: right; margin-left: 10px;'><strong>Nikhil Goyal</strong><br><span style='font-size: 9px; color: #9DA7B3;'>AKAMAI TECHNOLOGIES - ASSETS ⌄</span></div>"
+    "<div style='text-align: right; margin-left: 10px; line-height: 1.2;'><strong>Nikhil Goyal</strong><br><span style='font-size: 10px; color: #9DA7B3;'>AKAMAI TECHNOLOGIES - ASSETS ⌄</span></div>"
     "</div>"
     "</div>"
 )
@@ -143,7 +141,7 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
                 "addon_compliance": "SOC 2 Type II"
             },
             "Reliability": {
-                "icon": "⚙️", "color": "#10B981",
+                "icon": "⚙️", "color": "#0072CE",
                 "free_issue": "Config Scan: No Site Failover or Site Shield origin cloaking configured for the primary backend.",
                 "free_enh": "Activating these AAP modules cloaks your origin from direct internet attacks and gracefully handles timeout spikes.",
                 "free_unused": ["Site Failover", "SureRoute for Failover", "Site Shield"],
@@ -154,7 +152,7 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
                 "addon_compliance": "SIEM Audit Readiness"
             },
             "Performance": {
-                "icon": "🚀", "color": "#F59E0B",
+                "icon": "🚀", "color": "#0072CE",
                 "free_issue": "Config Scan: Edge caching and SureRoute optimizations are severely underutilized.",
                 "free_enh": "Applying these included features actively bypasses internet congestion and maximizes origin offload.",
                 "free_unused": ["Caching", "SureRoute for Performance", "TCP Optimization"],
@@ -174,9 +172,9 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
         if industry == "Financial Services":
             ind_data = {
                 "metrics": [
-                    {"label": "YoY Attack Volume", "val": "+257%", "color": "#D93025"},
-                    {"label": "Primary Vector", "val": "API Abuse", "color": "#F59E0B"},
-                    {"label": "Peer Zero-Trust Adoption", "val": "83%", "color": "#10B981"}
+                    {"label": "YoY Attack Volume", "val": "+257%", "color": "#1E2228"},
+                    {"label": "Primary Vector", "val": "API Abuse", "color": "#0072CE"},
+                    {"label": "Peer Zero-Trust Adoption", "val": "83%", "color": "#1E2228"}
                 ],
                 "visual": [
                     {"label": "Credential Stuffing", "pct": 55, "color": "#D93025"},
@@ -193,9 +191,9 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
         else:
             ind_data = {
                 "metrics": [
-                    {"label": "Scraper Bot Traffic", "val": "42%", "color": "#D93025"},
-                    {"label": "Avg. Page Load Goal", "val": "< 2.0s", "color": "#10B981"},
-                    {"label": "Peer Edge Adoption", "val": "78%", "color": "#0072CE"}
+                    {"label": "Scraper Bot Traffic", "val": "42%", "color": "#1E2228"},
+                    {"label": "Avg. Page Load Goal", "val": "< 2.0s", "color": "#0072CE"},
+                    {"label": "Peer Edge Adoption", "val": "78%", "color": "#1E2228"}
                 ],
                 "visual": [
                     {"label": "Scraping & ATO", "pct": 45, "color": "#D93025"},
@@ -239,55 +237,58 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
 # ==========================================
 # 4. MAIN UI LAYOUT
 # ==========================================
-st.markdown("<h2 style='margin-top:-15px; margin-bottom: 8px; color:#1E2228;'>Akamai EI - EdgeIntelligence Marketplace</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='margin-top:-10px; margin-bottom: 12px; font-weight: 800; color:#1E2228;'>Akamai EI - EdgeIntelligence Marketplace</h2>", unsafe_allow_html=True)
 
 # Compact LA Banner
 banner_html = (
-    "<div style='background-color: #E6F4EA; border-left: 3px solid #137333; padding: 6px 10px; margin-bottom: 12px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;'>"
-    "<span style='font-size: 11px; color: #137333; font-weight: 700;'>✨ New Solutions Available:</span>"
-    "<span style='font-size: 11px; color: #2B313A; margin-left: 8px; flex-grow: 1;'>Explore our latest AI-era defenses including <b>Brand Guardian</b>, <b>AI Brand Presence</b>, and <b>Guardicore Segmentation</b>.</span>"
-    "<a href='#' style='font-size: 11px; font-weight: 700; color: #137333; text-decoration: none; white-space: nowrap;'>View Catalog →</a>"
+    "<div style='background-color: #E6F4EA; border-left: 4px solid #137333; padding: 10px 16px; margin-bottom: 20px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);'>"
+    "<span style='font-size: 13px; color: #137333; font-weight: 700;'>✨ New Solutions Available:</span>"
+    "<span style='font-size: 13px; color: #2B313A; margin-left: 12px; flex-grow: 1;'>Explore our latest AI-era defenses including <b>Brand Guardian</b>, <b>AI Brand Presence</b>, and <b>Guardicore Segmentation</b>.</span>"
+    "<a href='#' style='font-size: 13px; font-weight: 700; color: #137333; text-decoration: none; white-space: nowrap;'>View Catalog →</a>"
     "</div>"
 )
 st.markdown(banner_html, unsafe_allow_html=True)
 
-col1, col2 = st.columns([1, 2.3], gap="medium")
+# Adjusting column ratios to give the right side much more breathing room
+col1, col2 = st.columns([0.8, 2.5], gap="large")
 
 # --- LEFT PANE ---
 with col1:
     st.markdown('<div class="akamai-card" style="height: 100%;">', unsafe_allow_html=True)
     st.markdown('<div class="akamai-card-title">1. Analysis Approach</div>', unsafe_allow_html=True)
     
-    st.markdown("<p style='font-size: 11px; color: #475569; margin-bottom: 6px; font-weight: 600;'>Select how you want us to evaluate your needs:</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 13px; color: #475569; margin-bottom: 12px; font-weight: 600;'>Select how you want us to evaluate your needs:</p>", unsafe_allow_html=True)
     track_choice = st.radio("Privacy Track", [
         "Scan My Configurations (Deep Analysis)", 
         "Use Industry Benchmarks (No Scan Required)",
         "Describe a Specific Challenge (Custom Input)"
     ], label_visibility="collapsed")
     
-    st.markdown("<hr style='margin: 8px 0; border: none; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin: 16px 0; border: none; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
 
     del_env, sec_env, industry_input, region_input, issue_input = None, None, None, None, ""
 
     if track_choice == "Scan My Configurations (Deep Analysis)":
         track_internal = "Track 1"
         header_str = "Config Scan"
-        st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Select active AAP configs for deep analysis.</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 13px; color: #0072CE; font-weight: 500; margin-bottom: 10px;'>Select active AAP configs for deep analysis.</p>", unsafe_allow_html=True)
         del_env = st.selectbox("Delivery Config:", DELIVERY_CATALOG)
+        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
         sec_env = st.selectbox("Security Config:", SECURITY_CATALOG)
     elif track_choice == "Use Industry Benchmarks (No Scan Required)":
         track_internal = "Track 2"
         header_str = "Industry Benchmark"
-        st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Deep scanning disabled. Using macro-telemetry.</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 13px; color: #0072CE; font-weight: 500; margin-bottom: 10px;'>Deep scanning disabled. Using macro-telemetry.</p>", unsafe_allow_html=True)
         industry_input = st.selectbox("Industry Sector:", ["Financial Services", "Retail & E-Commerce", "Media & Entertainment", "Public Sector"])
+        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
         region_input = st.selectbox("Primary Region:", ["North America", "EMEA", "Asia Pacific", "LATAM"])
     else:
         track_internal = "Track 3"
         header_str = "Custom Context"
-        st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Describe your specific business context, issue, or requirement below.</p>", unsafe_allow_html=True)
-        issue_input = st.text_area("Business Context:", placeholder="e.g., We need to stop automated credential stuffing...", height=100, label_visibility="collapsed")
+        st.markdown("<p style='font-size: 13px; color: #0072CE; font-weight: 500; margin-bottom: 10px;'>Describe your specific business context or challenge below.</p>", unsafe_allow_html=True)
+        issue_input = st.text_area("Business Context:", placeholder="e.g., We need to stop automated credential stuffing...", height=120, label_visibility="collapsed")
     
-    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: 24px;'></div>", unsafe_allow_html=True)
     run_scan = st.button("Analyze Requirements", type="primary", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -296,46 +297,46 @@ with col2:
     if run_scan:
         result = analyze_infrastructure(track_internal, del_env, sec_env, industry_input, region_input, issue_input)
         
-        st.markdown('<div class="akamai-card" style="background-color: #FAFAFA; padding: 12px 16px;">', unsafe_allow_html=True)
+        st.markdown('<div class="akamai-card" style="background-color: #FAFAFA; padding: 24px;">', unsafe_allow_html=True)
         
         # ----------------------------------------
         # UI RENDER FOR TRACK 1 (Config Scan)
         # ----------------------------------------
         if result["track"] == "Track 1":
-            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Configuration Gap Analysis (Config Scan)</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 16px;">Configuration Gap Analysis ({header_str})</div>', unsafe_allow_html=True)
             
-            p_cols = st.columns(3)
+            p_cols = st.columns(3, gap="medium")
             for idx, (pillar_name, data) in enumerate(result["pillars"].items()):
                 with p_cols[idx]:
                     free_items_html = "".join([f"<li>{item}</li>" for item in data['free_unused']])
                     card_html = (
-                        f"<div class='pillar-card' style='border-top: 3px solid {data['color']};'>"
+                        f"<div class='pillar-card' style='border-top: 4px solid {data['color']};'>"
                         f"<div class='pillar-header'><span>{data['icon']} {pillar_name}</span></div>"
                         
-                        f"<div class='section-label' style='color:#166534;'>✅ Contracted (Free)</div>"
-                        f"<div class='info-box free' style='display: flex; flex-direction: column;'>"
+                        f"<div class='section-label' style='color:#0072CE;'>✅ Contracted (Free)</div>"
+                        f"<div class='info-box free'>"
                         f"<div style='flex-grow: 1;'>"
                         f"<div class='tag-container'>"
                         f"<span class='tag-badge tag-compliance'>🔒 {data['free_compliance']}</span>"
                         f"</div>"
-                        f"<div class='info-issue free-text'>{data['free_issue']}</div>"
-                        f"<div class='info-desc free-text'><b>Enhancement:</b> {data['free_enh']}</div>"
+                        f"<div class='info-issue'>{data['free_issue']}</div>"
+                        f"<div class='info-desc'><b>Enhancement:</b> {data['free_enh']}</div>"
                         f"<ul class='free-list'>{free_items_html}</ul>"
                         f"</div>"
                         f"<button class='mini-enable-btn' title='View documentation on how to enable these contracted features.'>Learn How to Enable</button>"
                         f"</div>"
                         
-                        f"<div class='section-label' style='color:#D93025; margin-top: 2px;'>🚀 Recommended Add-on</div>"
-                        f"<div class='info-box addon' style='display: flex; flex-direction: column;'>"
+                        f"<div class='section-label' style='color:#D93025; margin-top: 4px;'>🚀 Recommended Add-on</div>"
+                        f"<div class='info-box addon'>"
                         f"<div style='flex-grow: 1;'>"
                         f"<div class='tag-container'>"
                         f"<span class='tag-badge tag-compliance'>🔒 {data['addon_compliance']}</span>"
                         f"</div>"
                         f"<div class='info-title'>{data['addon_name']}</div>"
-                        f"<div class='info-issue addon-text'>Issue: {data['addon_issue']}</div>"
-                        f"<div class='info-desc addon-text'>{data['addon_desc']}</div>"
+                        f"<div class='info-issue' style='color:#D93025;'>Issue: {data['addon_issue']}</div>"
+                        f"<div class='info-desc'>{data['addon_desc']}</div>"
                         f"</div>"
-                        f"<button class='mini-buy-btn' title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.'>Try / Buy</button>"
+                        f"<button class='mini-buy-btn' title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.'>Try / Buy Add-on</button>"
                         f"</div>"
                         f"</div>"
                     )
@@ -346,10 +347,10 @@ with col2:
         # ----------------------------------------
         elif result["track"] == "Track 2":
             ind_data = result["industry_data"]
-            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Industry Threat Landscape ({industry_input} - {region_input})</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 16px;">Industry Threat Landscape ({industry_input} - {region_input})</div>', unsafe_allow_html=True)
             
             # Top Metrics Row
-            m_cols = st.columns(3)
+            m_cols = st.columns(3, gap="medium")
             for i, metric in enumerate(ind_data["metrics"]):
                 with m_cols[i]:
                     st.markdown(f"""
@@ -364,54 +365,58 @@ with col2:
             v_legend = "".join([f"<div><span class='legend-dot' style='background-color: {v['color']};'></span>{v['label']}</div>" for v in ind_data["visual"]])
             
             st.markdown(f"""
-            <div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 12px; border-radius: 6px; margin-top: 10px; margin-bottom: 12px;'>
-                <div style='font-size: 11.5px; color: #2B313A; font-weight: 600;'>{ind_data["fact"]}</div>
+            <div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 20px; border-radius: 8px; margin-top: 16px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);'>
+                <div style='font-size: 13px; color: #1E2228; font-weight: 600; line-height: 1.5;'>{ind_data["fact"]}</div>
                 <div class='visual-bar-container'>{v_bars}</div>
                 <div class='visual-legend'>{v_legend}</div>
             </div>
-            <div class="akamai-card-title" style="margin-bottom: 8px; font-size: 14px;">Strategic Solution Recommendations</div>
+            <div class="akamai-card-title" style="margin-bottom: 12px; font-size: 16px;">Strategic Solution Recommendations</div>
             """, unsafe_allow_html=True)
             
             # Bottom Recommendations Row
-            r_cols = st.columns(len(ind_data["recs"]))
+            r_cols = st.columns(len(ind_data["recs"]), gap="medium")
             for i, rec in enumerate(ind_data["recs"]):
                 with r_cols[i]:
                     st.markdown(f"""
-                    <div class='rec-card' style='display: flex; flex-direction: column; padding-bottom: 8px; min-height: 120px;'>
+                    <div class='rec-card' style='display: flex; flex-direction: column; padding-bottom: 12px; min-height: 130px;'>
                         <div style='flex-grow: 1;'>
                             <div class='tag-container'>
                                 <span class='tag-badge tag-compliance'>🔒 {rec['compliance']}</span>
                             </div>
-                            <h4 style='font-size: 12.5px; margin-bottom: 4px;'>{rec['icon']} {rec['title']}</h4>
-                            <p style='font-size: 11px;'>{rec['desc']}</p>
+                            <h4 style='font-size: 14px; margin-bottom: 6px;'>{rec['icon']} {rec['title']}</h4>
+                            <p style='font-size: 12px;'>{rec['desc']}</p>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
                     
             # UNIFIED ACTION ROW FOR ALL TRACK 2 RECOMMENDATIONS
-            st.markdown("<div style='margin-top: 12px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
             b_spacer1, b_btn1, b_btn2, b_spacer2 = st.columns([1, 1.5, 1.5, 1])
             with b_btn1:
                 st.button("Try / Buy Solutions", type="primary", use_container_width=True, key="t2_buy")
             with b_btn2:
-                st.button("Ask IAT for Assistance", use_container_width=True, key="t2_iat")
+                # Custom secondary button styling via markdown for alignment
+                st.markdown("""
+                <style>.btn-outline { width: 100%; text-align: center; display: inline-block; padding: 6px 16px; font-weight: 600; font-size: 13px; border: 1px solid #0072CE; color: #0072CE; border-radius: 4px; background-color: #FFFFFF; text-decoration: none; transition: 0.2s ease; cursor: pointer;}</style>
+                <button class="btn-outline">Ask IAT for Assistance</button>
+                """, unsafe_allow_html=True)
             
         # ----------------------------------------
         # UI RENDER FOR TRACK 3 (Custom Context)
         # ----------------------------------------
         else:
             custom_insight = result["custom_insight"]
-            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">🎯 Tailored Solution Architecture</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 16px;">🎯 Tailored Solution Architecture</div>', unsafe_allow_html=True)
             insight_html = (
-                "<div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 20px; border-radius: 6px; border-top: 4px solid #10B981;'>"
-                "<div class='tag-container' style='margin-bottom: 10px;'>"
-                f"<span class='tag-badge tag-compliance' style='font-size:11px; padding: 4px 8px;'>🔒 {custom_insight['comp']}</span>"
+                "<div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 24px; border-radius: 8px; border-top: 4px solid #0072CE; box-shadow: 0 1px 3px rgba(0,0,0,0.04);'>"
+                "<div class='tag-container' style='margin-bottom: 12px;'>"
+                f"<span class='tag-badge tag-compliance' style='font-size:12px; padding: 6px 10px;'>🔒 {custom_insight['comp']}</span>"
                 "</div>"
-                f"<h4 style='margin: 0 0 8px 0; color: #1E2228; font-size: 16px;'>Recommended Fit: <span style='color:#10B981;'>{custom_insight['title']}</span></h4>"
-                f"<p style='margin: 0 0 16px 0; font-size: 13px; color: #475569; line-height: 1.5;'>{custom_insight['desc']}</p>"
-                "<div style='display: flex; gap: 10px;'>"
-                "<button title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.' style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 8px 16px; font-weight: 600; font-size: 12px; cursor: pointer;'>Try / Buy Solution</button>"
-                "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 8px 16px; font-weight: 600; font-size: 12px; cursor: pointer;'>Contact Sales Rep</button>"
+                f"<h4 style='margin: 0 0 12px 0; color: #1E2228; font-size: 18px;'>Recommended Fit: <span style='color:#0072CE;'>{custom_insight['title']}</span></h4>"
+                f"<p style='margin: 0 0 20px 0; font-size: 14px; color: #475569; line-height: 1.6;'>{custom_insight['desc']}</p>"
+                "<div style='display: flex; gap: 16px;'>"
+                "<button style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 10px 20px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s ease;'>Try / Buy Solution</button>"
+                "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 10px 20px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s ease;'>Contact Sales Rep</button>"
                 "</div>"
                 "</div>"
             )
@@ -421,10 +426,10 @@ with col2:
             
     else:
         empty_state_html = (
-            "<div class='akamai-card' style='height: 100%; display: flex; align-items: center; justify-content: center; background-color: #FAFAFA;'>"
-            "<div style='text-align: center; padding: 60px 20px;'>"
-            "<h4 style='color: #1E2228; margin-bottom: 8px;'>Awaiting Analysis Parameters</h4>"
-            "<p style='font-size: 12px; color: #64748B;'>Select your evaluation method on the left and run the scan to identify unused contract features, view industry benchmarks, or receive custom solutions.</p>"
+            "<div class='akamai-card' style='height: 100%; display: flex; align-items: center; justify-content: center; background-color: #FAFAFA; min-height: 400px;'>"
+            "<div style='text-align: center; padding: 60px 20px; max-width: 400px;'>"
+            "<h4 style='color: #1E2228; margin-bottom: 12px; font-size: 18px;'>Awaiting Analysis Parameters</h4>"
+            "<p style='font-size: 13px; color: #64748B; line-height: 1.6;'>Select your evaluation method on the left and run the scan to identify unused contract features, view industry benchmarks, or receive custom solutions.</p>"
             "</div>"
             "</div>"
         )

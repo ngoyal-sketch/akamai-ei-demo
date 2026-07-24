@@ -49,6 +49,7 @@ AKAMAI_CSS = """
     .info-box { border-radius: 4px; padding: 8px; margin-bottom: 8px; border: 1px solid transparent; flex-grow: 1; display: flex; flex-direction: column;}
     .info-box.free { background-color: #F0FDF4; border-color: #BBF7D0; }
     .info-box.addon { background-color: #F8FAFC; border-color: #E2E8F0; }
+    .info-box.peer { background-color: #F0F7FF; border-color: #CCE3FD; }
     
     .info-title { font-size: 12px; font-weight: 700; color: #1E2228; margin-bottom: 3px; }
     .info-issue { font-size: 10.5px; font-weight: 600; margin-bottom: 3px; line-height: 1.3;}
@@ -57,6 +58,7 @@ AKAMAI_CSS = """
     .info-desc { font-size: 10.5px; line-height: 1.3; margin-bottom: 6px; }
     .info-desc.free-text { color: #15803D; }
     .info-desc.addon-text { color: #475569; }
+    .info-desc.peer-text { color: #0072CE; }
 
     .free-list { margin: 0; padding-left: 16px; font-size: 10.5px; color: #166534; font-weight: 600; margin-bottom: 6px; }
     .free-list li { margin-bottom: 2px; }
@@ -239,7 +241,7 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
         elif any(k in c_lower for k in ["bot", "scraper", "credential", "stuffing"]):
             rec_title = "Bot Manager Premier"
             rec_desc = "Your requirement specifically targets credential stuffing. Bot Manager Premier utilizes behavioral telemetry and advanced cryptographics to identify and drop malicious login attempts without CAPTCHAs."
-            rec_roi": "99.2% Bot Mitigation Rate"
+            rec_roi = "99.2% Bot Mitigation Rate"
             rec_comp = "Account Takeover Protection"
         else:
             rec_title = "Adaptive Security Engine (ASE)"

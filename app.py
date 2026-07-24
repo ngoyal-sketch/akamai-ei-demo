@@ -49,6 +49,7 @@ AKAMAI_CSS = """
     .info-box { border-radius: 4px; padding: 8px; margin-bottom: 8px; border: 1px solid transparent; flex-grow: 1; display: flex; flex-direction: column;}
     .info-box.free { background-color: #F0FDF4; border-color: #BBF7D0; }
     .info-box.addon { background-color: #F8FAFC; border-color: #E2E8F0; }
+    .info-box.peer { background-color: #F0F7FF; border-color: #CCE3FD; }
     
     .info-title { font-size: 12px; font-weight: 700; color: #1E2228; margin-bottom: 3px; }
     .info-issue { font-size: 10.5px; font-weight: 600; margin-bottom: 3px; line-height: 1.3;}
@@ -57,6 +58,7 @@ AKAMAI_CSS = """
     .info-desc { font-size: 10.5px; line-height: 1.3; margin-bottom: 6px; }
     .info-desc.free-text { color: #15803D; }
     .info-desc.addon-text { color: #475569; }
+    .info-desc.peer-text { color: #0072CE; }
 
     .free-list { margin: 0; padding-left: 16px; font-size: 10.5px; color: #166534; font-weight: 600; }
     .free-list li { margin-bottom: 2px; }
@@ -101,20 +103,126 @@ DELIVERY_CATALOG = ["api.retailstore.com (E-Commerce API)", "www.globalbank.com 
 SECURITY_CATALOG = ["AAP Baseline Security", "App & API Protector (No Bot Protection)", "Legacy WAF Ruleset"]
 
 # ==========================================
-# 3. AAP-SPECIFIC DIAGNOSTIC ENGINE LOGIC
+# 3. DIAGNOSTIC ENGINE LOGIC
 # ==========================================
 def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
-    if track == "Track 1":
-        sec_issue = "Config Scan: Essential Adaptive Rate Controls and Bot Visibility are inactive on this policy."
-        rel_issue = "Config Scan: No Site Failover or Site Shield origin cloaking configured for the primary backend."
-        perf_issue = "Config Scan: Edge caching and SureRoute optimizations are severely underutilized."
-    elif track == "Track 2":
-        sec_issue = f"Industry Benchmark: 72% of {industry} in {region} suffer without Adaptive Rate Controls and Bot Visibility."
-        rel_issue = f"Industry Benchmark: Failover latency for {industry} requires advanced Site Failover topologies."
-        perf_issue = f"Industry Benchmark: {region} users experience high latency without SureRoute and optimal caching."
     
-    # Logic for Custom Context (Track 3)
-    if track == "Track 3":
+    # ----------------------------------------
+    # TRACK 1: DEEP CONFIG SCAN
+    # ----------------------------------------
+    if track == "Track 1":
+        pillars = {
+            "Security": {
+                "icon": "🛡️", "color": "#0072CE",
+                "free_issue": "Config Scan: Essential Adaptive Rate Controls and Bot Visibility are inactive on this policy.",
+                "free_enh": "Enabling these contracted AAP features will instantly map bot traffic and mitigate volumetric spikes.",
+                "free_unused": ["Adaptive Rate Controls", "Bot Visibility and Mitigation", "IP Deny"],
+                "addon_name": "Malware Protection (Add-on)",
+                "addon_issue": "Vulnerability to malicious file uploads detected at the edge.",
+                "addon_desc": "Malware Protection seamlessly integrates with AAP to intercept and block malicious files from reaching your backend."
+            },
+            "Reliability": {
+                "icon": "⚙️", "color": "#10B981",
+                "free_issue": "Config Scan: No Site Failover or Site Shield origin cloaking configured for the primary backend.",
+                "free_enh": "Activating these AAP modules cloaks your origin from direct internet attacks and gracefully handles timeout spikes.",
+                "free_unused": ["Site Failover", "SureRoute for Failover", "Site Shield"],
+                "addon_name": "DataStream (Add-on)",
+                "addon_issue": "Lack of real-time operational visibility into Edge events during critical outages.",
+                "addon_desc": "DataStream provides near real-time log delivery to your SIEM/analytics endpoints for rapid reliability incident response."
+            },
+            "Performance": {
+                "icon": "🚀", "color": "#F59E0B",
+                "free_issue": "Config Scan: Edge caching and SureRoute optimizations are severely underutilized.",
+                "free_enh": "Applying these included features actively bypasses internet congestion and maximizes origin offload.",
+                "free_unused": ["Caching", "SureRoute for Performance", "TCP Optimization"],
+                "addon_name": "API Acceleration (Add-on)",
+                "addon_issue": "Heavy dynamic API payloads are experiencing severe delivery latency.",
+                "addon_desc": "API Acceleration specifically optimizes routing and delivery for non-cacheable, heavy API traffic."
+            }
+        }
+        bundle = {
+            "name": "AAP Ultimate Extension Bundle",
+            "desc": "Based on the scan, upgrade to unlock all premium add-on features in a single, unified contract."
+        }
+        return pillars, bundle, None
+
+    # ----------------------------------------
+    # TRACK 2: INDUSTRY BENCHMARK (MACRO-TELEMETRY)
+    # ----------------------------------------
+    elif track == "Track 2":
+        industry_trends = {
+            "Financial Services": {
+                "sec_trend": f"Akamai SOTI reports 83% of API endpoint attacks target Financial Services. {region} is seeing a massive surge in AI-powered credential stuffing.",
+                "sec_peer": "Peers are rapidly adopting Behavioral Bot Mitigation and dedicated API Discovery tools.",
+                "sec_rec": "Bot Manager Premier & API Security",
+                "rel_trend": f"DDoS campaigns by geopolitical hacktivists are targeting payment gateways to cause prolonged downtime. Global Layer 3 and 4 DDoS attack durations increased by 738% since 2024.",
+                "rel_peer": "Top banks utilize global DNS-level load balancing and automated origin cloaking.",
+                "rel_rec": "Global Traffic Management (GTM) & Edge DNS",
+                "perf_trend": f"Mobile banking app usage in {region} demands ultra-low latency, but heavy API payloads cause severe rendering delays.",
+                "perf_peer": "Industry leaders offload API routing logic and caching directly to the edge.",
+                "perf_rec": "API Acceleration"
+            },
+            "Retail & E-Commerce": {
+                "sec_trend": f"Retail is a highly targeted sector for credential stuffing, absorbing over 10 billion malicious login attempts. In {region}, advanced scraper bots compose up to 42% of overall web traffic, degrading inventory systems.",
+                "sec_peer": "Leading retailers deploy cryptographic bot challenges and Account Takeover (ATO) protections.",
+                "sec_rec": "Bot Manager Premier",
+                "rel_trend": f"High-traffic sales events in {region} frequently overwhelm origin databases, leading to transaction failures.",
+                "rel_peer": "E-commerce giants utilize waiting rooms and advanced failover topologies.",
+                "rel_rec": "EdgeWorkers (Waiting Room) & Cloud Wrapper",
+                "perf_trend": f"Heavy, unoptimized product images and video assets severely impact Core Web Vitals and conversion rates for {region} shoppers.",
+                "perf_peer": "Top retailers automate media optimization and next-gen format conversion (WebP/AVIF) at the edge.",
+                "perf_rec": "Image & Video Manager (IVM)"
+            }
+        }
+        
+        default_trend = {
+            "sec_trend": f"In {region}, {industry} organizations are experiencing a 257% year-over-year increase in web application and API attacks.",
+            "sec_peer": "Industry peers are consolidating WAF, Bot, and API protections into single-pass edge architectures.",
+            "sec_rec": "App & API Protector (AAP)",
+            "rel_trend": f"Ransomware and extortion-driven DDoS attacks are threatening operational uptime for {industry} in {region}.",
+            "rel_peer": "Leaders are adopting Zero Trust microsegmentation and resilient edge failover.",
+            "rel_rec": "Prolexic & Guardicore Segmentation",
+            "perf_trend": f"End-users in {region} expect sub-second load times, but legacy infrastructure struggles with dynamic content delivery.",
+            "perf_peer": "Peers are shifting compute and custom routing logic to edge nodes to bypass internet congestion.",
+            "perf_rec": "Akamai Ion & EdgeWorkers"
+        }
+        
+        trends = industry_trends.get(industry, default_trend)
+
+        pillars = {
+            "Security": {
+                "icon": "🛡️", "color": "#0072CE",
+                "trend": trends["sec_trend"],
+                "peer": trends["sec_peer"],
+                "rec_name": trends["sec_rec"],
+                "rec_desc": "Proactively secure your perimeter against the specific threat vectors targeting your sector."
+            },
+            "Reliability": {
+                "icon": "⚙️", "color": "#10B981",
+                "trend": trends["rel_trend"],
+                "peer": trends["rel_peer"],
+                "rec_name": trends["rel_rec"],
+                "rec_desc": "Ensure maximum availability and operational resilience even during peak traffic or active attacks."
+            },
+            "Performance": {
+                "icon": "🚀", "color": "#F59E0B",
+                "trend": trends["perf_trend"],
+                "peer": trends["perf_peer"],
+                "rec_name": trends["perf_rec"],
+                "rec_desc": "Accelerate dynamic delivery and offload origin compute to improve end-user experience."
+            }
+        }
+        
+        bundle = {
+            "name": "Industry Leader Blueprint",
+            "desc": f"Upgrade to the exact architecture utilized by top-performing {industry} organizations in {region}."
+        }
+        return pillars, bundle, None
+
+    # ----------------------------------------
+    # TRACK 3: CUSTOM BUSINESS CONTEXT
+    # ----------------------------------------
+    elif track == "Track 3":
         c_lower = context.lower()
         if any(k in c_lower for k in ["file", "upload", "malware", "virus"]):
             rec_title = "Malware Protection (Add-on)"
@@ -130,43 +238,6 @@ def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
             rec_desc = "Based on your use case, our AI recommends reviewing your active AAP ruleset and ensuring Adaptive Security Engine (ASE) is operating in automatic mode to optimize your posture."
         return None, None, {"title": rec_title, "desc": rec_desc}
 
-    # Logic for Track 1 & 2
-    pillars = {
-        "Security": {
-            "icon": "🛡️", "color": "#0072CE",
-            "free_issue": sec_issue,
-            "free_enh": "Enabling these contracted AAP features will instantly map bot traffic and mitigate volumetric spikes.",
-            "free_unused": ["Adaptive Rate Controls", "Bot Visibility and Mitigation", "IP Deny"],
-            "addon_name": "Malware Protection (Add-on)",
-            "addon_issue": "Vulnerability to malicious file uploads detected at the edge.",
-            "addon_desc": "Malware Protection seamlessly integrates with AAP to intercept and block malicious files from reaching your backend."
-        },
-        "Reliability": {
-            "icon": "⚙️", "color": "#10B981",
-            "free_issue": rel_issue,
-            "free_enh": "Activating these AAP modules cloaks your origin from direct internet attacks and gracefully handles timeout spikes.",
-            "free_unused": ["Site Failover", "SureRoute for Failover", "Site Shield"],
-            "addon_name": "DataStream (Add-on)",
-            "addon_issue": "Lack of real-time operational visibility into Edge events during critical outages.",
-            "addon_desc": "DataStream provides near real-time log delivery to your SIEM/analytics endpoints for rapid reliability incident response."
-        },
-        "Performance": {
-            "icon": "🚀", "color": "#F59E0B",
-            "free_issue": perf_issue,
-            "free_enh": "Applying these included features actively bypasses internet congestion and maximizes origin offload.",
-            "free_unused": ["Caching", "SureRoute for Performance", "TCP Optimization"],
-            "addon_name": "API Acceleration (Add-on)",
-            "addon_issue": "Heavy dynamic API payloads are experiencing severe delivery latency.",
-            "addon_desc": "API Acceleration specifically optimizes routing and delivery for non-cacheable, heavy API traffic."
-        }
-    }
-
-    bundle = {
-        "name": "AAP Ultimate Extension Bundle",
-        "desc": "Based on the scan, upgrade to unlock all premium add-on features in a single, unified contract."
-    }
-
-    return pillars, bundle, None
 
 # ==========================================
 # 4. MAIN UI LAYOUT
@@ -219,7 +290,6 @@ with col1:
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Describe your specific business context, issue, or requirement below.</p>", unsafe_allow_html=True)
         issue_input = st.text_area("Business Context:", placeholder="e.g., We need to stop automated credential stuffing...", height=100, label_visibility="collapsed")
     
-    # Minor styling tweak for the button section
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     run_scan = st.button("Analyze Requirements", type="primary", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -231,10 +301,11 @@ with col2:
         
         st.markdown('<div class="akamai-card" style="background-color: #FAFAFA; padding: 12px 16px;">', unsafe_allow_html=True)
         
-        if track_internal in ["Track 1", "Track 2"]:
+        # ----------------------------------------
+        # UI RENDER FOR TRACK 1
+        # ----------------------------------------
+        if track_internal == "Track 1":
             st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Configuration Gap Analysis ({header_str})</div>', unsafe_allow_html=True)
-            
-            # 1. THREE-PILLAR CARDS WITH ENABLE & TRY/BUY BUTTONS
             p_cols = st.columns(3)
             for idx, (pillar_name, data) in enumerate(pillars.items()):
                 with p_cols[idx]:
@@ -264,7 +335,6 @@ with col2:
                     )
                     st.markdown(card_html, unsafe_allow_html=True)
                     
-            # 2. UNIFIED CONTRACT CONSOLIDATION BOX
             bundle_html = (
                 "<div style='background-color: #F0F7FF; border: 1px solid #CCE3FD; border-radius: 4px; padding: 10px 14px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between;'>"
                 "<div>"
@@ -278,9 +348,58 @@ with col2:
                 "</div>"
             )
             st.markdown(bundle_html, unsafe_allow_html=True)
+
+        # ----------------------------------------
+        # UI RENDER FOR TRACK 2 (INDUSTRY TRENDS)
+        # ----------------------------------------
+        elif track_internal == "Track 2":
+            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Industry Benchmark Analysis ({industry} - {region})</div>', unsafe_allow_html=True)
+            p_cols = st.columns(3)
+            for idx, (pillar_name, data) in enumerate(pillars.items()):
+                with p_cols[idx]:
+                    card_html = (
+                        f"<div class='pillar-card' style='border-top: 3px solid {data['color']};'>"
+                        f"<div class='pillar-header'>"
+                        f"<span>{data['icon']} {pillar_name}</span>"
+                        f"</div>"
+                        f"<div class='section-label' style='color:#166534;'>📊 Industry Trend</div>"
+                        f"<div class='info-box free'>"
+                        f"<div class='info-desc free-text' style='margin-bottom:0;'>{data['trend']}</div>"
+                        f"</div>"
+                        f"<div class='section-label' style='color:#0072CE; margin-top: 2px;'>💡 Peer Adoption</div>"
+                        f"<div class='info-box peer'>"
+                        f"<div class='info-desc peer-text' style='margin-bottom:0;'>{data['peer']}</div>"
+                        f"</div>"
+                        f"<div class='section-label' style='color:#D93025; margin-top: 2px;'>🚀 Recommended Solution</div>"
+                        f"<div class='info-box addon' style='display: flex; flex-direction: column;'>"
+                        f"<div style='flex-grow: 1;'>"
+                        f"<div class='info-title'>{data['rec_name']}</div>"
+                        f"<div class='info-desc addon-text'>{data['rec_desc']}</div>"
+                        f"</div>"
+                        f"<button class='mini-buy-btn' title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.'>Try / Buy</button>"
+                        f"</div>"
+                        f"</div>"
+                    )
+                    st.markdown(card_html, unsafe_allow_html=True)
+                    
+            bundle_html = (
+                "<div style='background-color: #F0F7FF; border: 1px solid #CCE3FD; border-radius: 4px; padding: 10px 14px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between;'>"
+                "<div>"
+                f"<div style='font-size: 13px; font-weight: 700; color: #0072CE; margin-bottom: 2px;'>💡 Architecture Recommendation: {bundle['name']}</div>"
+                f"<div style='font-size: 11px; color: #475569;'>{bundle['desc']}</div>"
+                "</div>"
+                "<div style='display: flex; gap: 8px;'>"
+                "<button title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.' style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Try/Buy Architecture</button>"
+                "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Ask IAT</button>"
+                "</div>"
+                "</div>"
+            )
+            st.markdown(bundle_html, unsafe_allow_html=True)
             
+        # ----------------------------------------
+        # UI RENDER FOR TRACK 3
+        # ----------------------------------------
         else:
-            # Output specifically for Track 3
             st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">🎯 Tailored Solution Architecture</div>', unsafe_allow_html=True)
             insight_html = (
                 "<div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 20px; border-radius: 6px; border-top: 4px solid #10B981;'>"

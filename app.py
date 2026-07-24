@@ -33,11 +33,11 @@ AKAMAI_CSS = """
     .akamai-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 12px 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
     .akamai-card-title { font-size: 15px; font-weight: 700; color: #1E2228; margin-bottom: 10px; }
     
-    /* 4. Three-Pillar Status Cards (Track 1) */
+    /* 4. Three-Pillar Status Cards */
     .pillar-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; height: 100%; }
     .pillar-header { font-size: 13px; font-weight: 700; color: #1E2228; text-transform: uppercase; border-bottom: 2px solid #E2E8F0; padding-bottom: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
     
-    .mini-enable-btn { background-color: #10B981; color: #FFFFFF; border: none; border-radius: 3px; padding: 4px 10px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: none; margin-top: 6px; width: 100%; }
+    .mini-enable-btn { background-color: #10B981; color: #FFFFFF; border: none; border-radius: 3px; padding: 3px 8px; font-size: 9px; font-weight: 700; cursor: pointer; text-transform: none; letter-spacing: 0; }
     .mini-enable-btn:hover { background-color: #059669; }
     
     .mini-buy-btn { background-color: #0072CE; color: #FFFFFF; border: none; border-radius: 3px; padding: 4px 10px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: none; margin-top: 6px; width: 100%; }
@@ -49,6 +49,7 @@ AKAMAI_CSS = """
     .info-box { border-radius: 4px; padding: 8px; margin-bottom: 8px; border: 1px solid transparent; flex-grow: 1; display: flex; flex-direction: column;}
     .info-box.free { background-color: #F0FDF4; border-color: #BBF7D0; }
     .info-box.addon { background-color: #F8FAFC; border-color: #E2E8F0; }
+    .info-box.peer { background-color: #F0F7FF; border-color: #CCE3FD; }
     
     .info-title { font-size: 12px; font-weight: 700; color: #1E2228; margin-bottom: 3px; }
     .info-issue { font-size: 10.5px; font-weight: 600; margin-bottom: 3px; line-height: 1.3;}
@@ -57,11 +58,12 @@ AKAMAI_CSS = """
     .info-desc { font-size: 10.5px; line-height: 1.3; margin-bottom: 6px; }
     .info-desc.free-text { color: #15803D; }
     .info-desc.addon-text { color: #475569; }
+    .info-desc.peer-text { color: #0072CE; }
 
     .free-list { margin: 0; padding-left: 16px; font-size: 10.5px; color: #166534; font-weight: 600; }
     .free-list li { margin-bottom: 2px; }
 
-    /* 5. Track 2 specific UI (Industry Dashboard) */
+    /* Track 2 specific UI (Industry Dashboard) */
     .metric-box { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 12px; text-align: center; }
     .metric-val { font-size: 20px; font-weight: 800; color: #1E2228; margin-bottom: 2px; }
     .metric-label { font-size: 10.5px; color: #64748B; font-weight: 700; text-transform: uppercase; }
@@ -76,7 +78,7 @@ AKAMAI_CSS = """
     .rec-card p { margin: 0; font-size: 11px; color: #475569; line-height: 1.4; }
 
     /* Streamlit overrides for tighter buttons & inputs */
-    .stButton > button { font-size: 11px !important; padding: 4px 8px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
+    .stButton > button { font-size: 11.5px !important; padding: 6px 12px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
     .btn-primary > button { background-color: #0072CE !important; color: white !important; border: none !important; }
     .btn-secondary > button { background-color: white !important; color: #0072CE !important; border: 1px solid #0072CE !important; }
     
@@ -117,12 +119,12 @@ SECURITY_CATALOG = ["AAP Baseline Security", "App & API Protector (No Bot Protec
 # ==========================================
 # 3. DIAGNOSTIC ENGINE LOGIC
 # ==========================================
-def analyze_infrastructure(track_choice, del_env, sec_env, industry, region, context):
+def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
     
     # ----------------------------------------
     # TRACK 1: DEEP CONFIG SCAN
     # ----------------------------------------
-    if track_choice == "Scan My Configurations (Deep Analysis)":
+    if track == "Track 1":
         pillars = {
             "Security": {
                 "icon": "🛡️", "color": "#0072CE",
@@ -156,13 +158,76 @@ def analyze_infrastructure(track_choice, del_env, sec_env, industry, region, con
             "name": "AAP Ultimate Extension Bundle",
             "desc": "Based on the scan, upgrade to unlock all premium add-on features in a single, unified contract."
         }
-        return {"track": "Track 1", "pillars": pillars, "bundle": bundle}
+        return pillars, bundle, None
 
     # ----------------------------------------
-    # TRACK 2: INDUSTRY BENCHMARK DASHBOARD
+    # TRACK 2: INDUSTRY BENCHMARK (MACRO-TELEMETRY)
     # ----------------------------------------
-    elif track_choice == "Use Industry Benchmarks (No Scan Required)":
-        # Dynamic data generation based on industry
+    elif track == "Track 2":
+        industry_trends = {
+            "Financial Services": {
+                "sec_trend": f"Akamai SOTI reports 83% of API endpoint attacks target Financial Services. {region} is seeing a massive surge in AI-powered credential stuffing.",
+                "sec_peer": "Peers are rapidly adopting Behavioral Bot Mitigation and dedicated API Discovery tools.",
+                "sec_rec": "Bot Manager Premier & API Security",
+                "rel_trend": f"DDoS campaigns by geopolitical hacktivists are targeting payment gateways to cause prolonged downtime. Global Layer 3 and 4 DDoS attack durations increased by 738% since 2024.",
+                "rel_peer": "Top banks utilize global DNS-level load balancing and automated origin cloaking.",
+                "rel_rec": "Global Traffic Management (GTM) & Edge DNS",
+                "perf_trend": f"Mobile banking app usage in {region} demands ultra-low latency, but heavy API payloads cause severe rendering delays.",
+                "perf_peer": "Industry leaders offload API routing logic and caching directly to the edge.",
+                "perf_rec": "API Acceleration"
+            },
+            "Retail & E-Commerce": {
+                "sec_trend": f"Retail is a highly targeted sector for credential stuffing, absorbing over 10 billion malicious login attempts. In {region}, advanced scraper bots compose up to 42% of overall web traffic, degrading inventory systems.",
+                "sec_peer": "Leading retailers deploy cryptographic bot challenges and Account Takeover (ATO) protections.",
+                "sec_rec": "Bot Manager Premier",
+                "rel_trend": f"High-traffic sales events in {region} frequently overwhelm origin databases, leading to transaction failures.",
+                "rel_peer": "E-commerce giants utilize waiting rooms and advanced failover topologies.",
+                "rel_rec": "EdgeWorkers (Waiting Room) & Cloud Wrapper",
+                "perf_trend": f"Heavy, unoptimized product images and video assets severely impact Core Web Vitals and conversion rates for {region} shoppers.",
+                "perf_peer": "Top retailers automate media optimization and next-gen format conversion (WebP/AVIF) at the edge.",
+                "perf_rec": "Image & Video Manager (IVM)"
+            }
+        }
+        
+        default_trend = {
+            "sec_trend": f"In {region}, {industry} organizations are experiencing a 257% year-over-year increase in web application and API attacks.",
+            "sec_peer": "Industry peers are consolidating WAF, Bot, and API protections into single-pass edge architectures.",
+            "sec_rec": "App & API Protector (AAP)",
+            "rel_trend": f"Ransomware and extortion-driven DDoS attacks are threatening operational uptime for {industry} in {region}.",
+            "rel_peer": "Leaders are adopting Zero Trust microsegmentation and resilient edge failover.",
+            "rel_rec": "Prolexic & Guardicore Segmentation",
+            "perf_trend": f"End-users in {region} expect sub-second load times, but legacy infrastructure struggles with dynamic content delivery.",
+            "perf_peer": "Peers are shifting compute and custom routing logic to edge nodes to bypass internet congestion.",
+            "perf_rec": "Akamai Ion & EdgeWorkers"
+        }
+        
+        trends = industry_trends.get(industry, default_trend)
+
+        pillars = {
+            "Security": {
+                "icon": "🛡️", "color": "#0072CE",
+                "trend": trends["sec_trend"],
+                "peer": trends["sec_peer"],
+                "rec_name": trends["sec_rec"],
+                "rec_desc": "Proactively secure your perimeter against the specific threat vectors targeting your sector."
+            },
+            "Reliability": {
+                "icon": "⚙️", "color": "#10B981",
+                "trend": trends["rel_trend"],
+                "peer": trends["rel_peer"],
+                "rec_name": trends["rel_rec"],
+                "rec_desc": "Ensure maximum availability and operational resilience even during peak traffic or active attacks."
+            },
+            "Performance": {
+                "icon": "🚀", "color": "#F59E0B",
+                "trend": trends["perf_trend"],
+                "peer": trends["perf_peer"],
+                "rec_name": trends["perf_rec"],
+                "rec_desc": "Accelerate dynamic delivery and offload origin compute to improve end-user experience."
+            }
+        }
+        
+        # We pass industry stats explicitly for Track 2's visual dashboard
         if industry == "Financial Services":
             ind_data = {
                 "metrics": [
@@ -177,12 +242,12 @@ def analyze_infrastructure(track_choice, del_env, sec_env, industry, region, con
                 ],
                 "fact": f"In {region}, Financial platforms face hyper-targeted scraper bots and complex DDoS attacks designed to mask unauthorized transactions.",
                 "recs": [
-                    {"title": "Bot Manager Premier", "desc": "Intercepts sophisticated credential stuffing and account takeover (ATO) attempts using advanced behavioral anomaly detection.", "icon": "🤖"},
-                    {"title": "API Security", "desc": "Continuously discovers shadow APIs and enforces strict endpoint governance to prevent data exfiltration.", "icon": "🔐"},
-                    {"title": "Prolexic DDoS Mitigation", "desc": "Provides a 100% SLA for scrubbing massive, multi-vector DDoS campaigns before they reach your data centers.", "icon": "🛡️"}
+                    {"title": "Bot Manager Premier & API Security", "desc": "Intercepts sophisticated credential stuffing and discovers shadow APIs.", "icon": "🤖"},
+                    {"title": "Global Traffic Management (GTM)", "desc": "Ensures continuous availability through global DNS-level failover routing.", "icon": "⚙️"},
+                    {"title": "API Acceleration", "desc": "Offloads origin compute and drastically improves heavy dynamic API latency.", "icon": "🚀"}
                 ]
             }
-        else: # Retail & Others
+        else:
             ind_data = {
                 "metrics": [
                     {"label": "Scraper Bot Traffic", "val": "42%", "color": "#D93025"},
@@ -194,11 +259,11 @@ def analyze_infrastructure(track_choice, del_env, sec_env, industry, region, con
                     {"label": "Web Exploits (SQLi/XSS)", "pct": 35, "color": "#F59E0B"},
                     {"label": "DDoS", "pct": 20, "color": "#0072CE"}
                 ],
-                "fact": f"For {industry} in {region}, competitive scraping degrades inventory systems, while heavy media payloads heavily impact Core Web Vitals and conversion rates.",
+                "fact": f"For {industry} in {region}, competitive scraping degrades inventory systems, while heavy media payloads impact conversion rates.",
                 "recs": [
-                    {"title": "Bot Manager Premier", "desc": "Stops inventory hoarding and pricing scrapers without degrading the experience for legitimate shoppers.", "icon": "🤖"},
-                    {"title": "App & API Protector", "desc": "Consolidates Layer-7 WAF protections and API governance to thwart application exploits.", "icon": "🛡️"},
-                    {"title": "Image & Video Manager", "desc": "Automatically converts media to next-gen formats (WebP/AVIF) at the edge, drastically reducing payload sizes.", "icon": "🖼️"}
+                    {"title": "Bot Manager Premier", "desc": "Stops inventory hoarding and pricing scrapers without degrading the shopper experience.", "icon": "🤖"},
+                    {"title": "App & API Protector", "desc": "Consolidates Layer-7 WAF protections and API governance to thwart exploits.", "icon": "🛡️"},
+                    {"title": "Image & Video Manager", "desc": "Automatically converts media to next-gen formats at the edge to reduce payloads.", "icon": "🖼️"}
                 ]
             }
         return {"track": "Track 2", "industry_data": ind_data}
@@ -257,14 +322,20 @@ with col1:
     del_env, sec_env, industry_input, region_input, issue_input = None, None, None, None, ""
 
     if track_choice == "Scan My Configurations (Deep Analysis)":
+        track_internal = "Track 1"
+        header_str = "Config Scan"
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Select active AAP configs for deep analysis.</p>", unsafe_allow_html=True)
         del_env = st.selectbox("Delivery Config:", DELIVERY_CATALOG)
         sec_env = st.selectbox("Security Config:", SECURITY_CATALOG)
     elif track_choice == "Use Industry Benchmarks (No Scan Required)":
+        track_internal = "Track 2"
+        header_str = "Industry Benchmark"
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Deep scanning disabled. Using macro-telemetry.</p>", unsafe_allow_html=True)
         industry_input = st.selectbox("Industry Sector:", ["Financial Services", "Retail & E-Commerce", "Media & Entertainment", "Public Sector"])
         region_input = st.selectbox("Primary Region:", ["North America", "EMEA", "Asia Pacific", "LATAM"])
     else:
+        track_internal = "Track 3"
+        header_str = "Custom Context"
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Describe your specific business context, issue, or requirement below.</p>", unsafe_allow_html=True)
         issue_input = st.text_area("Business Context:", placeholder="e.g., We need to stop automated credential stuffing...", height=100, label_visibility="collapsed")
     
@@ -362,28 +433,26 @@ with col2:
             <div class="akamai-card-title" style="margin-bottom: 8px; font-size: 14px;">Strategic Solution Recommendations</div>
             """, unsafe_allow_html=True)
             
-            # Bottom Recommendations Row
+            # Bottom Recommendations Row (NO BUTTONS INSIDE CARDS)
             r_cols = st.columns(len(ind_data["recs"]))
             for i, rec in enumerate(ind_data["recs"]):
                 with r_cols[i]:
                     st.markdown(f"""
-                    <div class='rec-card' style='display: flex; flex-direction: column; padding-bottom: 4px;'>
+                    <div class='rec-card' style='display: flex; flex-direction: column; padding-bottom: 8px; min-height: 110px;'>
                         <div style='flex-grow: 1;'>
-                            <h4>{rec['icon']} {rec['title']}</h4>
-                            <p>{rec['desc']}</p>
+                            <h4 style='font-size: 12.5px; margin-bottom: 4px;'>{rec['icon']} {rec['title']}</h4>
+                            <p style='font-size: 11px;'>{rec['desc']}</p>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
-                    # Native Streamlit buttons under each recommendation
-                    btn_col1, btn_col2 = st.columns(2)
-                    with btn_col1:
-                        st.markdown('<div class="btn-primary" style="margin-top:-6px;">', unsafe_allow_html=True)
-                        st.button("Try / Buy", key=f"t2_buy_{i}", help="Add a $0 trial for 30-60 days or contact sales.")
-                        st.markdown('</div>', unsafe_allow_html=True)
-                    with btn_col2:
-                        st.markdown('<div class="btn-secondary" style="margin-top:-6px;">', unsafe_allow_html=True)
-                        st.button("Ask IAT", key=f"t2_iat_{i}")
-                        st.markdown('</div>', unsafe_allow_html=True)
+                    
+            # UNIFIED ACTION ROW FOR ALL TRACK 2 RECOMMENDATIONS
+            st.markdown("<div style='margin-top: 12px;'></div>", unsafe_allow_html=True)
+            b_spacer1, b_btn1, b_btn2, b_spacer2 = st.columns([1, 1.5, 1.5, 1])
+            with b_btn1:
+                st.button("Try / Buy Solutions", type="primary", use_container_width=True, key="t2_buy")
+            with b_btn2:
+                st.button("Ask IAT for Assistance", use_container_width=True, key="t2_iat")
             
         # ----------------------------------------
         # UI RENDER FOR TRACK 3 (Custom Context)

@@ -63,12 +63,10 @@ AKAMAI_CSS = """
     .free-list { margin: 0; padding-left: 16px; font-size: 10.5px; color: #166534; font-weight: 600; margin-bottom: 6px; }
     .free-list li { margin-bottom: 2px; }
 
-    /* Tags for ROI & Compliance */
+    /* Tags for Compliance */
     .tag-container { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
     .tag-badge { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; line-height: 1.2; }
-    .tag-roi { background-color: #E0F2FE; color: #0369A1; border: 1px solid #BAE6FD; }
     .tag-compliance { background-color: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
-    .tag-safe { background-color: #F3E8FF; color: #6B21A8; border: 1px solid #E9D5FF; }
 
     /* Track 2 specific UI (Industry Dashboard) */
     .metric-box { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 12px; text-align: center; }
@@ -138,12 +136,10 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
                 "free_issue": "Config Scan: Essential Adaptive Rate Controls and Bot Visibility are inactive on this policy.",
                 "free_enh": "Enabling these contracted AAP features will instantly map bot traffic and mitigate volumetric spikes.",
                 "free_unused": ["Adaptive Rate Controls", "Bot Visibility and Mitigation", "IP Deny"],
-                "free_roi": "75% Risk Reduction",
                 "free_compliance": "PCI-DSS 4.0 Req 6.4",
                 "addon_name": "Malware Protection (Add-on)",
                 "addon_issue": "Vulnerability to malicious file uploads detected at the edge.",
                 "addon_desc": "Malware Protection seamlessly integrates with AAP to intercept and block malicious files from reaching your backend.",
-                "addon_roi": "Prevents Ransomware Exposure",
                 "addon_compliance": "SOC 2 Type II"
             },
             "Reliability": {
@@ -151,12 +147,10 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
                 "free_issue": "Config Scan: No Site Failover or Site Shield origin cloaking configured for the primary backend.",
                 "free_enh": "Activating these AAP modules cloaks your origin from direct internet attacks and gracefully handles timeout spikes.",
                 "free_unused": ["Site Failover", "SureRoute for Failover", "Site Shield"],
-                "free_roi": "99.99% Uptime SLA Guarantee",
                 "free_compliance": "ISO 27001 Availability",
                 "addon_name": "DataStream (Add-on)",
                 "addon_issue": "Lack of real-time operational visibility into Edge events during critical outages.",
                 "addon_desc": "DataStream provides near real-time log delivery to your SIEM/analytics endpoints for rapid reliability incident response.",
-                "addon_roi": "MTTR Reduced by 60%",
                 "addon_compliance": "SIEM Audit Readiness"
             },
             "Performance": {
@@ -164,12 +158,10 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
                 "free_issue": "Config Scan: Edge caching and SureRoute optimizations are severely underutilized.",
                 "free_enh": "Applying these included features actively bypasses internet congestion and maximizes origin offload.",
                 "free_unused": ["Caching", "SureRoute for Performance", "TCP Optimization"],
-                "free_roi": "Est. Egress Savings: ~$3,500/mo",
                 "free_compliance": "Core Web Vitals Pass",
                 "addon_name": "API Acceleration (Add-on)",
                 "addon_issue": "Heavy dynamic API payloads are experiencing severe delivery latency.",
                 "addon_desc": "API Acceleration specifically optimizes routing and delivery for non-cacheable, heavy API traffic.",
-                "addon_roi": "2.4x Faster API Latency",
                 "addon_compliance": "Global SLA Benchmark"
             }
         }
@@ -197,9 +189,9 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
                 ],
                 "fact": f"In {region}, Financial platforms face hyper-targeted scraper bots and complex DDoS attacks designed to mask unauthorized transactions.",
                 "recs": [
-                    {"title": "Bot Manager Premier & API Security", "desc": "Intercepts credential stuffing and discovers shadow APIs.", "icon": "🤖", "roi": "Saves ~$12K/mo Fraud Losses", "compliance": "PCI-DSS 4.0"},
-                    {"title": "Global Traffic Management (GTM)", "desc": "Ensures continuous availability through global DNS-level failover routing.", "icon": "⚙️", "roi": "Zero Unplanned Downtime", "compliance": "FSI Regulatory SLA"},
-                    {"title": "API Acceleration", "desc": "Offloads origin compute and drastically improves heavy dynamic API latency.", "icon": "🚀", "roi": "+18% App Conversion", "compliance": "Open Banking Standard"}
+                    {"title": "Bot Manager Premier & API Security", "desc": "Intercepts credential stuffing and discovers shadow APIs.", "icon": "🤖", "compliance": "PCI-DSS 4.0"},
+                    {"title": "Global Traffic Management (GTM)", "desc": "Ensures continuous availability through global DNS-level failover routing.", "icon": "⚙️", "compliance": "FSI Regulatory SLA"},
+                    {"title": "API Acceleration", "desc": "Offloads origin compute and drastically improves heavy dynamic API latency.", "icon": "🚀", "compliance": "Open Banking Standard"}
                 ]
             }
         else:
@@ -216,9 +208,9 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
                 ],
                 "fact": f"For {industry} in {region}, competitive scraping degrades inventory systems, while heavy media payloads impact conversion rates.",
                 "recs": [
-                    {"title": "Bot Manager Premier", "desc": "Stops inventory hoarding and pricing scrapers without degrading shopper experience.", "icon": "🤖", "roi": "Prevents Stockout Exploits", "compliance": "SOC 2 Type II"},
-                    {"title": "App & API Protector", "desc": "Consolidates Layer-7 WAF protections and API governance to thwart exploits.", "icon": "🛡️", "roi": "Saves ~$8K/mo Cloud WAF", "compliance": "PCI-DSS 4.0"},
-                    {"title": "Image & Video Manager", "desc": "Automatically converts media to next-gen formats at the edge to reduce payloads.", "icon": "🖼️", "roi": "35% Origin Egress Saved", "compliance": "SEO & Core Web Vitals"}
+                    {"title": "Bot Manager Premier", "desc": "Stops inventory hoarding and pricing scrapers without degrading shopper experience.", "icon": "🤖", "compliance": "SOC 2 Type II"},
+                    {"title": "App & API Protector", "desc": "Consolidates Layer-7 WAF protections and API governance to thwart exploits.", "icon": "🛡️", "compliance": "PCI-DSS 4.0"},
+                    {"title": "Image & Video Manager", "desc": "Automatically converts media to next-gen formats at the edge to reduce payloads.", "icon": "🖼️", "compliance": "SEO & Core Web Vitals"}
                 ]
             }
         return {"track": "Track 2", "industry_data": ind_data}
@@ -231,25 +223,21 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
         if any(k in c_lower for k in ["file", "upload", "malware", "virus"]):
             rec_title = "Malware Protection (Add-on)"
             rec_desc = "Based on your requirement regarding file uploads, Malware Protection seamlessly integrates with AAP to intercept and block malicious files from reaching your backend."
-            rec_roi = "Eliminates Malicious File Risk"
             rec_comp = "SOC 2 & HIPAA Compliant"
         elif any(k in c_lower for k in ["api", "data breach", "shadow"]):
             rec_title = "API Protections - Basic (Included)"
             rec_desc = "To address your API concerns, ensure the 'API Protections - Basic' module (included in your current AAP contract) is fully configured for endpoint enforcement."
-            rec_roi = "Zero-Cost Contract Feature"
             rec_comp = "PCI-DSS 4.0 API Mandate"
         elif any(k in c_lower for k in ["bot", "scraper", "credential", "stuffing"]):
             rec_title = "Bot Manager Premier"
             rec_desc = "Your requirement specifically targets credential stuffing. Bot Manager Premier utilizes behavioral telemetry and advanced cryptographics to identify and drop malicious login attempts without CAPTCHAs."
-            rec_roi = "99.2% Bot Mitigation Rate"
             rec_comp = "Account Takeover Protection"
         else:
             rec_title = "Adaptive Security Engine (ASE)"
             rec_desc = "Based on your use case, our AI recommends reviewing your active AAP ruleset and ensuring Adaptive Security Engine (ASE) is operating in automatic mode to optimize your posture."
-            rec_roi = "Automated Ruleset Tuning"
             rec_comp = "ISO 27001 Security Standard"
             
-        return {"track": "Track 3", "custom_insight": {"title": rec_title, "desc": rec_desc, "roi": rec_roi, "comp": rec_comp}}
+        return {"track": "Track 3", "custom_insight": {"title": rec_title, "desc": rec_desc, "comp": rec_comp}}
 
 
 # ==========================================
@@ -332,7 +320,6 @@ with col2:
                         f"<div class='info-box free' style='display: flex; flex-direction: column;'>"
                         f"<div style='flex-grow: 1;'>"
                         f"<div class='tag-container'>"
-                        f"<span class='tag-badge tag-roi'>💰 {data['free_roi']}</span>"
                         f"<span class='tag-badge tag-compliance'>🔒 {data['free_compliance']}</span>"
                         f"</div>"
                         f"<div class='info-issue free-text'>{data['free_issue']}</div>"
@@ -346,7 +333,6 @@ with col2:
                         f"<div class='info-box addon' style='display: flex; flex-direction: column;'>"
                         f"<div style='flex-grow: 1;'>"
                         f"<div class='tag-container'>"
-                        f"<span class='tag-badge tag-roi'>💰 {data['addon_roi']}</span>"
                         f"<span class='tag-badge tag-compliance'>🔒 {data['addon_compliance']}</span>"
                         f"</div>"
                         f"<div class='info-title'>{data['addon_name']}</div>"
@@ -413,7 +399,6 @@ with col2:
                     <div class='rec-card' style='display: flex; flex-direction: column; padding-bottom: 8px; min-height: 120px;'>
                         <div style='flex-grow: 1;'>
                             <div class='tag-container'>
-                                <span class='tag-badge tag-roi'>💰 {rec['roi']}</span>
                                 <span class='tag-badge tag-compliance'>🔒 {rec['compliance']}</span>
                             </div>
                             <h4 style='font-size: 12.5px; margin-bottom: 4px;'>{rec['icon']} {rec['title']}</h4>
@@ -439,9 +424,7 @@ with col2:
             insight_html = (
                 "<div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 20px; border-radius: 6px; border-top: 4px solid #10B981;'>"
                 "<div class='tag-container' style='margin-bottom: 10px;'>"
-                f"<span class='tag-badge tag-roi' style='font-size:11px; padding: 4px 8px;'>💰 {custom_insight['roi']}</span>"
                 f"<span class='tag-badge tag-compliance' style='font-size:11px; padding: 4px 8px;'>🔒 {custom_insight['comp']}</span>"
-                f"<span class='tag-badge tag-safe' style='font-size:11px; padding: 4px 8px;'>⚡ Safe Simulation Ready</span>"
                 "</div>"
                 f"<h4 style='margin: 0 0 8px 0; color: #1E2228; font-size: 16px;'>Recommended Fit: <span style='color:#10B981;'>{custom_insight['title']}</span></h4>"
                 f"<p style='margin: 0 0 16px 0; font-size: 13px; color: #475569; line-height: 1.5;'>{custom_insight['desc']}</p>"

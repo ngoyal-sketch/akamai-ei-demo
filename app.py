@@ -33,11 +33,11 @@ AKAMAI_CSS = """
     .akamai-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 12px 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
     .akamai-card-title { font-size: 15px; font-weight: 700; color: #1E2228; margin-bottom: 10px; }
     
-    /* 4. Three-Pillar Status Cards */
+    /* 4. Three-Pillar Status Cards (Track 1) */
     .pillar-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; height: 100%; }
     .pillar-header { font-size: 13px; font-weight: 700; color: #1E2228; text-transform: uppercase; border-bottom: 2px solid #E2E8F0; padding-bottom: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
     
-    .mini-enable-btn { background-color: #10B981; color: #FFFFFF; border: none; border-radius: 3px; padding: 3px 8px; font-size: 9px; font-weight: 700; cursor: pointer; text-transform: none; letter-spacing: 0; }
+    .mini-enable-btn { background-color: #10B981; color: #FFFFFF; border: none; border-radius: 3px; padding: 4px 10px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: none; margin-top: 6px; width: 100%; }
     .mini-enable-btn:hover { background-color: #059669; }
     
     .mini-buy-btn { background-color: #0072CE; color: #FFFFFF; border: none; border-radius: 3px; padding: 4px 10px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: none; margin-top: 6px; width: 100%; }
@@ -49,7 +49,6 @@ AKAMAI_CSS = """
     .info-box { border-radius: 4px; padding: 8px; margin-bottom: 8px; border: 1px solid transparent; flex-grow: 1; display: flex; flex-direction: column;}
     .info-box.free { background-color: #F0FDF4; border-color: #BBF7D0; }
     .info-box.addon { background-color: #F8FAFC; border-color: #E2E8F0; }
-    .info-box.peer { background-color: #F0F7FF; border-color: #CCE3FD; }
     
     .info-title { font-size: 12px; font-weight: 700; color: #1E2228; margin-bottom: 3px; }
     .info-issue { font-size: 10.5px; font-weight: 600; margin-bottom: 3px; line-height: 1.3;}
@@ -58,13 +57,26 @@ AKAMAI_CSS = """
     .info-desc { font-size: 10.5px; line-height: 1.3; margin-bottom: 6px; }
     .info-desc.free-text { color: #15803D; }
     .info-desc.addon-text { color: #475569; }
-    .info-desc.peer-text { color: #0072CE; }
 
     .free-list { margin: 0; padding-left: 16px; font-size: 10.5px; color: #166534; font-weight: 600; }
     .free-list li { margin-bottom: 2px; }
 
+    /* 5. Track 2 specific UI (Industry Dashboard) */
+    .metric-box { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 4px; padding: 12px; text-align: center; }
+    .metric-val { font-size: 20px; font-weight: 800; color: #1E2228; margin-bottom: 2px; }
+    .metric-label { font-size: 10.5px; color: #64748B; font-weight: 700; text-transform: uppercase; }
+    
+    .visual-bar-container { background-color: #E2E8F0; border-radius: 4px; height: 16px; width: 100%; display: flex; overflow: hidden; margin-top: 10px; margin-bottom: 6px;}
+    .visual-segment { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: white; font-weight: 700; }
+    .visual-legend { display: flex; gap: 12px; font-size: 10.5px; color: #475569; font-weight: 600; justify-content: center; }
+    .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+
+    .rec-card { background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 12px; height: 100%; border-top: 3px solid #0072CE; }
+    .rec-card h4 { margin: 0 0 6px 0; font-size: 13px; color: #1E2228; }
+    .rec-card p { margin: 0; font-size: 11px; color: #475569; line-height: 1.4; }
+
     /* Streamlit overrides for tighter buttons & inputs */
-    .stButton > button { font-size: 11.5px !important; padding: 4px 10px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
+    .stButton > button { font-size: 11px !important; padding: 4px 8px !important; min-height: 0 !important; font-weight: 600 !important; border-radius: 4px !important; width: 100% !important;}
     .btn-primary > button { background-color: #0072CE !important; color: white !important; border: none !important; }
     .btn-secondary > button { background-color: white !important; color: #0072CE !important; border: 1px solid #0072CE !important; }
     
@@ -105,12 +117,12 @@ SECURITY_CATALOG = ["AAP Baseline Security", "App & API Protector (No Bot Protec
 # ==========================================
 # 3. DIAGNOSTIC ENGINE LOGIC
 # ==========================================
-def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
+def analyze_infrastructure(track_choice, del_env, sec_env, industry, region, context):
     
     # ----------------------------------------
     # TRACK 1: DEEP CONFIG SCAN
     # ----------------------------------------
-    if track == "Track 1":
+    if track_choice == "Scan My Configurations (Deep Analysis)":
         pillars = {
             "Security": {
                 "icon": "🛡️", "color": "#0072CE",
@@ -144,85 +156,57 @@ def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
             "name": "AAP Ultimate Extension Bundle",
             "desc": "Based on the scan, upgrade to unlock all premium add-on features in a single, unified contract."
         }
-        return pillars, bundle, None
+        return {"track": "Track 1", "pillars": pillars, "bundle": bundle}
 
     # ----------------------------------------
-    # TRACK 2: INDUSTRY BENCHMARK (MACRO-TELEMETRY)
+    # TRACK 2: INDUSTRY BENCHMARK DASHBOARD
     # ----------------------------------------
-    elif track == "Track 2":
-        industry_trends = {
-            "Financial Services": {
-                "sec_trend": f"Akamai SOTI reports 83% of API endpoint attacks target Financial Services. {region} is seeing a massive surge in AI-powered credential stuffing.",
-                "sec_peer": "Peers are rapidly adopting Behavioral Bot Mitigation and dedicated API Discovery tools.",
-                "sec_rec": "Bot Manager Premier & API Security",
-                "rel_trend": f"DDoS campaigns by geopolitical hacktivists are targeting payment gateways to cause prolonged downtime. Global Layer 3 and 4 DDoS attack durations increased by 738% since 2024.",
-                "rel_peer": "Top banks utilize global DNS-level load balancing and automated origin cloaking.",
-                "rel_rec": "Global Traffic Management (GTM) & Edge DNS",
-                "perf_trend": f"Mobile banking app usage in {region} demands ultra-low latency, but heavy API payloads cause severe rendering delays.",
-                "perf_peer": "Industry leaders offload API routing logic and caching directly to the edge.",
-                "perf_rec": "API Acceleration"
-            },
-            "Retail & E-Commerce": {
-                "sec_trend": f"Retail is a highly targeted sector for credential stuffing, absorbing over 10 billion malicious login attempts. In {region}, advanced scraper bots compose up to 42% of overall web traffic, degrading inventory systems.",
-                "sec_peer": "Leading retailers deploy cryptographic bot challenges and Account Takeover (ATO) protections.",
-                "sec_rec": "Bot Manager Premier",
-                "rel_trend": f"High-traffic sales events in {region} frequently overwhelm origin databases, leading to transaction failures.",
-                "rel_peer": "E-commerce giants utilize waiting rooms and advanced failover topologies.",
-                "rel_rec": "EdgeWorkers (Waiting Room) & Cloud Wrapper",
-                "perf_trend": f"Heavy, unoptimized product images and video assets severely impact Core Web Vitals and conversion rates for {region} shoppers.",
-                "perf_peer": "Top retailers automate media optimization and next-gen format conversion (WebP/AVIF) at the edge.",
-                "perf_rec": "Image & Video Manager (IVM)"
+    elif track_choice == "Use Industry Benchmarks (No Scan Required)":
+        # Dynamic data generation based on industry
+        if industry == "Financial Services":
+            ind_data = {
+                "metrics": [
+                    {"label": "YoY Attack Volume", "val": "+257%", "color": "#D93025"},
+                    {"label": "Primary Vector", "val": "API Abuse", "color": "#F59E0B"},
+                    {"label": "Peer Zero-Trust Adoption", "val": "83%", "color": "#10B981"}
+                ],
+                "visual": [
+                    {"label": "Credential Stuffing", "pct": 55, "color": "#D93025"},
+                    {"label": "Volumetric DDoS", "pct": 25, "color": "#F59E0B"},
+                    {"label": "Web Exploits", "pct": 20, "color": "#0072CE"}
+                ],
+                "fact": f"In {region}, Financial platforms face hyper-targeted scraper bots and complex DDoS attacks designed to mask unauthorized transactions.",
+                "recs": [
+                    {"title": "Bot Manager Premier", "desc": "Intercepts sophisticated credential stuffing and account takeover (ATO) attempts using advanced behavioral anomaly detection.", "icon": "🤖"},
+                    {"title": "API Security", "desc": "Continuously discovers shadow APIs and enforces strict endpoint governance to prevent data exfiltration.", "icon": "🔐"},
+                    {"title": "Prolexic DDoS Mitigation", "desc": "Provides a 100% SLA for scrubbing massive, multi-vector DDoS campaigns before they reach your data centers.", "icon": "🛡️"}
+                ]
             }
-        }
-        
-        default_trend = {
-            "sec_trend": f"In {region}, {industry} organizations are experiencing a 257% year-over-year increase in web application and API attacks.",
-            "sec_peer": "Industry peers are consolidating WAF, Bot, and API protections into single-pass edge architectures.",
-            "sec_rec": "App & API Protector (AAP)",
-            "rel_trend": f"Ransomware and extortion-driven DDoS attacks are threatening operational uptime for {industry} in {region}.",
-            "rel_peer": "Leaders are adopting Zero Trust microsegmentation and resilient edge failover.",
-            "rel_rec": "Prolexic & Guardicore Segmentation",
-            "perf_trend": f"End-users in {region} expect sub-second load times, but legacy infrastructure struggles with dynamic content delivery.",
-            "perf_peer": "Peers are shifting compute and custom routing logic to edge nodes to bypass internet congestion.",
-            "perf_rec": "Akamai Ion & EdgeWorkers"
-        }
-        
-        trends = industry_trends.get(industry, default_trend)
-
-        pillars = {
-            "Security": {
-                "icon": "🛡️", "color": "#0072CE",
-                "trend": trends["sec_trend"],
-                "peer": trends["sec_peer"],
-                "rec_name": trends["sec_rec"],
-                "rec_desc": "Proactively secure your perimeter against the specific threat vectors targeting your sector."
-            },
-            "Reliability": {
-                "icon": "⚙️", "color": "#10B981",
-                "trend": trends["rel_trend"],
-                "peer": trends["rel_peer"],
-                "rec_name": trends["rel_rec"],
-                "rec_desc": "Ensure maximum availability and operational resilience even during peak traffic or active attacks."
-            },
-            "Performance": {
-                "icon": "🚀", "color": "#F59E0B",
-                "trend": trends["perf_trend"],
-                "peer": trends["perf_peer"],
-                "rec_name": trends["perf_rec"],
-                "rec_desc": "Accelerate dynamic delivery and offload origin compute to improve end-user experience."
+        else: # Retail & Others
+            ind_data = {
+                "metrics": [
+                    {"label": "Scraper Bot Traffic", "val": "42%", "color": "#D93025"},
+                    {"label": "Avg. Page Load Goal", "val": "< 2.0s", "color": "#10B981"},
+                    {"label": "Peer Edge Adoption", "val": "78%", "color": "#0072CE"}
+                ],
+                "visual": [
+                    {"label": "Scraping & ATO", "pct": 45, "color": "#D93025"},
+                    {"label": "Web Exploits (SQLi/XSS)", "pct": 35, "color": "#F59E0B"},
+                    {"label": "DDoS", "pct": 20, "color": "#0072CE"}
+                ],
+                "fact": f"For {industry} in {region}, competitive scraping degrades inventory systems, while heavy media payloads heavily impact Core Web Vitals and conversion rates.",
+                "recs": [
+                    {"title": "Bot Manager Premier", "desc": "Stops inventory hoarding and pricing scrapers without degrading the experience for legitimate shoppers.", "icon": "🤖"},
+                    {"title": "App & API Protector", "desc": "Consolidates Layer-7 WAF protections and API governance to thwart application exploits.", "icon": "🛡️"},
+                    {"title": "Image & Video Manager", "desc": "Automatically converts media to next-gen formats (WebP/AVIF) at the edge, drastically reducing payload sizes.", "icon": "🖼️"}
+                ]
             }
-        }
-        
-        bundle = {
-            "name": "Industry Leader Blueprint",
-            "desc": f"Upgrade to the exact architecture utilized by top-performing {industry} organizations in {region}."
-        }
-        return pillars, bundle, None
+        return {"track": "Track 2", "industry_data": ind_data}
 
     # ----------------------------------------
     # TRACK 3: CUSTOM BUSINESS CONTEXT
     # ----------------------------------------
-    elif track == "Track 3":
+    else:
         c_lower = context.lower()
         if any(k in c_lower for k in ["file", "upload", "malware", "virus"]):
             rec_title = "Malware Protection (Add-on)"
@@ -231,12 +215,12 @@ def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
             rec_title = "API Protections - Basic (Included)"
             rec_desc = "To address your API concerns, ensure the 'API Protections - Basic' module (included in your current AAP contract) is fully configured for endpoint enforcement."
         elif any(k in c_lower for k in ["bot", "scraper", "credential", "stuffing"]):
-            rec_title = "Bot Visibility and Mitigation (Included)"
-            rec_desc = "Your current AAP contract includes 'Bot Visibility'. Enabling this will immediately provide actionable intelligence on the credential stuffing you are facing. For advanced behavioral blocking, Bot Manager Premier is recommended."
+            rec_title = "Bot Manager Premier"
+            rec_desc = "Your requirement specifically targets credential stuffing. Bot Manager Premier utilizes behavioral telemetry and advanced cryptographics to identify and drop malicious login attempts without CAPTCHAs."
         else:
             rec_title = "Adaptive Security Engine (ASE)"
             rec_desc = "Based on your use case, our AI recommends reviewing your active AAP ruleset and ensuring Adaptive Security Engine (ASE) is operating in automatic mode to optimize your posture."
-        return None, None, {"title": rec_title, "desc": rec_desc}
+        return {"track": "Track 3", "custom_insight": {"title": rec_title, "desc": rec_desc}}
 
 
 # ==========================================
@@ -273,20 +257,14 @@ with col1:
     del_env, sec_env, industry_input, region_input, issue_input = None, None, None, None, ""
 
     if track_choice == "Scan My Configurations (Deep Analysis)":
-        track_internal = "Track 1"
-        header_str = "Config Scan"
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Select active AAP configs for deep analysis.</p>", unsafe_allow_html=True)
         del_env = st.selectbox("Delivery Config:", DELIVERY_CATALOG)
         sec_env = st.selectbox("Security Config:", SECURITY_CATALOG)
     elif track_choice == "Use Industry Benchmarks (No Scan Required)":
-        track_internal = "Track 2"
-        header_str = "Industry Benchmark"
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Deep scanning disabled. Using macro-telemetry.</p>", unsafe_allow_html=True)
         industry_input = st.selectbox("Industry Sector:", ["Financial Services", "Retail & E-Commerce", "Media & Entertainment", "Public Sector"])
         region_input = st.selectbox("Primary Region:", ["North America", "EMEA", "Asia Pacific", "LATAM"])
     else:
-        track_internal = "Track 3"
-        header_str = "Custom Context"
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Describe your specific business context, issue, or requirement below.</p>", unsafe_allow_html=True)
         issue_input = st.text_area("Business Context:", placeholder="e.g., We need to stop automated credential stuffing...", height=100, label_visibility="collapsed")
     
@@ -297,31 +275,34 @@ with col1:
 # --- RIGHT PANE ---
 with col2:
     if run_scan:
-        pillars, bundle, custom_insight = analyze_infrastructure(track_internal, del_env, sec_env, industry_input, region_input, issue_input)
+        result = analyze_infrastructure(track_choice, del_env, sec_env, industry_input, region_input, issue_input)
         
         st.markdown('<div class="akamai-card" style="background-color: #FAFAFA; padding: 12px 16px;">', unsafe_allow_html=True)
         
         # ----------------------------------------
-        # UI RENDER FOR TRACK 1
+        # UI RENDER FOR TRACK 1 (Config Scan)
         # ----------------------------------------
-        if track_internal == "Track 1":
-            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Configuration Gap Analysis ({header_str})</div>', unsafe_allow_html=True)
+        if result["track"] == "Track 1":
+            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Configuration Gap Analysis (Config Scan)</div>', unsafe_allow_html=True)
+            
             p_cols = st.columns(3)
-            for idx, (pillar_name, data) in enumerate(pillars.items()):
+            for idx, (pillar_name, data) in enumerate(result["pillars"].items()):
                 with p_cols[idx]:
                     free_items_html = "".join([f"<li>{item}</li>" for item in data['free_unused']])
                     card_html = (
                         f"<div class='pillar-card' style='border-top: 3px solid {data['color']};'>"
-                        f"<div class='pillar-header'>"
-                        f"<span>{data['icon']} {pillar_name}</span>"
-                        f"<button class='mini-enable-btn' title='View documentation on how to enable these contracted features.'>Enable</button>"
-                        f"</div>"
+                        f"<div class='pillar-header'><span>{data['icon']} {pillar_name}</span></div>"
+                        
                         f"<div class='section-label' style='color:#166534;'>✅ Contracted (Free)</div>"
-                        f"<div class='info-box free'>"
+                        f"<div class='info-box free' style='display: flex; flex-direction: column;'>"
+                        f"<div style='flex-grow: 1;'>"
                         f"<div class='info-issue free-text'>{data['free_issue']}</div>"
                         f"<div class='info-desc free-text'><b>Enhancement:</b> {data['free_enh']}</div>"
                         f"<ul class='free-list'>{free_items_html}</ul>"
                         f"</div>"
+                        f"<button class='mini-enable-btn' title='View documentation on how to enable these contracted features.'>Enable Features</button>"
+                        f"</div>"
+                        
                         f"<div class='section-label' style='color:#D93025; margin-top: 2px;'>🚀 Recommended Add-on</div>"
                         f"<div class='info-box addon' style='display: flex; flex-direction: column;'>"
                         f"<div style='flex-grow: 1;'>"
@@ -335,6 +316,7 @@ with col2:
                     )
                     st.markdown(card_html, unsafe_allow_html=True)
                     
+            bundle = result["bundle"]
             bundle_html = (
                 "<div style='background-color: #F0F7FF; border: 1px solid #CCE3FD; border-radius: 4px; padding: 10px 14px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between;'>"
                 "<div>"
@@ -350,56 +332,64 @@ with col2:
             st.markdown(bundle_html, unsafe_allow_html=True)
 
         # ----------------------------------------
-        # UI RENDER FOR TRACK 2 (INDUSTRY TRENDS)
+        # UI RENDER FOR TRACK 2 (Industry Dashboard)
         # ----------------------------------------
-        elif track_internal == "Track 2":
-            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Industry Benchmark Analysis ({industry_input} - {region_input})</div>', unsafe_allow_html=True)
-            p_cols = st.columns(3)
-            for idx, (pillar_name, data) in enumerate(pillars.items()):
-                with p_cols[idx]:
-                    card_html = (
-                        f"<div class='pillar-card' style='border-top: 3px solid {data['color']};'>"
-                        f"<div class='pillar-header'>"
-                        f"<span>{data['icon']} {pillar_name}</span>"
-                        f"</div>"
-                        f"<div class='section-label' style='color:#166534;'>📊 Industry Trend</div>"
-                        f"<div class='info-box free'>"
-                        f"<div class='info-desc free-text' style='margin-bottom:0;'>{data['trend']}</div>"
-                        f"</div>"
-                        f"<div class='section-label' style='color:#0072CE; margin-top: 2px;'>💡 Peer Adoption</div>"
-                        f"<div class='info-box peer'>"
-                        f"<div class='info-desc peer-text' style='margin-bottom:0;'>{data['peer']}</div>"
-                        f"</div>"
-                        f"<div class='section-label' style='color:#D93025; margin-top: 2px;'>🚀 Recommended Solution</div>"
-                        f"<div class='info-box addon' style='display: flex; flex-direction: column;'>"
-                        f"<div style='flex-grow: 1;'>"
-                        f"<div class='info-title'>{data['rec_name']}</div>"
-                        f"<div class='info-desc addon-text'>{data['rec_desc']}</div>"
-                        f"</div>"
-                        f"<button class='mini-buy-btn' title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.'>Try / Buy</button>"
-                        f"</div>"
-                        f"</div>"
-                    )
-                    st.markdown(card_html, unsafe_allow_html=True)
-                    
-            bundle_html = (
-                "<div style='background-color: #F0F7FF; border: 1px solid #CCE3FD; border-radius: 4px; padding: 10px 14px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between;'>"
-                "<div>"
-                f"<div style='font-size: 13px; font-weight: 700; color: #0072CE; margin-bottom: 2px;'>💡 Architecture Recommendation: {bundle['name']}</div>"
-                f"<div style='font-size: 11px; color: #475569;'>{bundle['desc']}</div>"
-                "</div>"
-                "<div style='display: flex; gap: 8px;'>"
-                "<button title='Try: Adds a $0 line item for 30-60 days. Buy: Routes to your sales rep.' style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Try/Buy Architecture</button>"
-                "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 6px 12px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap;'>Ask IAT</button>"
-                "</div>"
-                "</div>"
-            )
-            st.markdown(bundle_html, unsafe_allow_html=True)
+        elif result["track"] == "Track 2":
+            ind_data = result["industry_data"]
+            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Industry Threat Landscape ({industry_input} - {region_input})</div>', unsafe_allow_html=True)
+            
+            # Top Metrics Row
+            m_cols = st.columns(3)
+            for i, metric in enumerate(ind_data["metrics"]):
+                with m_cols[i]:
+                    st.markdown(f"""
+                    <div class='metric-box'>
+                        <div class='metric-val' style='color: {metric["color"]};'>{metric["val"]}</div>
+                        <div class='metric-label'>{metric["label"]}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            # Middle Visual Row (Traffic / Attack Graph)
+            v_bars = "".join([f"<div class='visual-segment' style='width: {v['pct']}%; background-color: {v['color']};'>{v['pct']}%</div>" for v in ind_data["visual"]])
+            v_legend = "".join([f"<div><span class='legend-dot' style='background-color: {v['color']};'></span>{v['label']}</div>" for v in ind_data["visual"]])
+            
+            st.markdown(f"""
+            <div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 12px; border-radius: 6px; margin-top: 10px; margin-bottom: 12px;'>
+                <div style='font-size: 11.5px; color: #2B313A; font-weight: 600;'>{ind_data["fact"]}</div>
+                <div class='visual-bar-container'>{v_bars}</div>
+                <div class='visual-legend'>{v_legend}</div>
+            </div>
+            <div class="akamai-card-title" style="margin-bottom: 8px; font-size: 14px;">Strategic Solution Recommendations</div>
+            """, unsafe_allow_html=True)
+            
+            # Bottom Recommendations Row
+            r_cols = st.columns(len(ind_data["recs"]))
+            for i, rec in enumerate(ind_data["recs"]):
+                with r_cols[i]:
+                    st.markdown(f"""
+                    <div class='rec-card' style='display: flex; flex-direction: column; padding-bottom: 4px;'>
+                        <div style='flex-grow: 1;'>
+                            <h4>{rec['icon']} {rec['title']}</h4>
+                            <p>{rec['desc']}</p>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    # Native Streamlit buttons under each recommendation
+                    btn_col1, btn_col2 = st.columns(2)
+                    with btn_col1:
+                        st.markdown('<div class="btn-primary" style="margin-top:-6px;">', unsafe_allow_html=True)
+                        st.button("Try / Buy", key=f"t2_buy_{i}", help="Add a $0 trial for 30-60 days or contact sales.")
+                        st.markdown('</div>', unsafe_allow_html=True)
+                    with btn_col2:
+                        st.markdown('<div class="btn-secondary" style="margin-top:-6px;">', unsafe_allow_html=True)
+                        st.button("Ask IAT", key=f"t2_iat_{i}")
+                        st.markdown('</div>', unsafe_allow_html=True)
             
         # ----------------------------------------
-        # UI RENDER FOR TRACK 3
+        # UI RENDER FOR TRACK 3 (Custom Context)
         # ----------------------------------------
         else:
+            custom_insight = result["custom_insight"]
             st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">🎯 Tailored Solution Architecture</div>', unsafe_allow_html=True)
             insight_html = (
                 "<div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 20px; border-radius: 6px; border-top: 4px solid #10B981;'>"
@@ -419,8 +409,8 @@ with col2:
         empty_state_html = (
             "<div class='akamai-card' style='height: 100%; display: flex; align-items: center; justify-content: center; background-color: #FAFAFA;'>"
             "<div style='text-align: center; padding: 60px 20px;'>"
-            "<h4 style='color: #1E2228; margin-bottom: 8px;'>Awaiting Configuration Selection</h4>"
-            "<p style='font-size: 12px; color: #64748B;'>Select your evaluation method on the left and run the scan to identify unused contract features, recommended add-ons, or custom solutions.</p>"
+            "<h4 style='color: #1E2228; margin-bottom: 8px;'>Awaiting Analysis Parameters</h4>"
+            "<p style='font-size: 12px; color: #64748B;'>Select your evaluation method on the left and run the scan to identify unused contract features, view industry benchmarks, or receive custom solutions.</p>"
             "</div>"
             "</div>"
         )

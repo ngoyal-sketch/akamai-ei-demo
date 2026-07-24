@@ -214,24 +214,36 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
     # ----------------------------------------
     else:
         c_lower = context.lower()
-        if any(k in c_lower for k in ["file", "upload", "malware", "virus"]):
+        
+        # Scenario 1: Covered by existing AAP Contract (Needs PS)
+        if any(k in c_lower for k in ["api", "data breach", "shadow", "sql", "xss"]):
+            rec_title = "App & API Protector (Already on Contract)"
+            rec_desc = "Our AI analysis indicates your current AAP contract already includes robust API discovery and WAF capabilities to address this challenge. However, they may not be fully optimized. To ensure you are utilizing 100% of these product capabilities, we recommend engaging Akamai Professional Services."
+            rec_comp = "PCI-DSS 4.0 API Mandate"
+            is_existing = True
+            
+        # Scenario 2: Upsell Required (Bot Manager)
+        elif any(k in c_lower for k in ["bot", "scraper", "credential", "stuffing"]):
+            rec_title = "Bot Manager Premier (New Solution)"
+            rec_desc = "Your requirement specifically targets credential stuffing. Bot Manager Premier integrates seamlessly with your existing edge deployment, utilizing behavioral telemetry and advanced cryptographics to identify and drop malicious login attempts without CAPTCHAs."
+            rec_comp = "Account Takeover Protection"
+            is_existing = False
+            
+        # Scenario 3: Upsell Required (Malware)
+        elif any(k in c_lower for k in ["file", "upload", "malware", "virus"]):
             rec_title = "Malware Protection (Add-on)"
             rec_desc = "Based on your requirement regarding file uploads, Malware Protection seamlessly integrates with AAP to intercept and block malicious files from reaching your backend."
             rec_comp = "SOC 2 & HIPAA Compliant"
-        elif any(k in c_lower for k in ["api", "data breach", "shadow"]):
-            rec_title = "API Protections - Basic (Included)"
-            rec_desc = "To address your API concerns, ensure the 'API Protections - Basic' module (included in your current AAP contract) is fully configured for endpoint enforcement."
-            rec_comp = "PCI-DSS 4.0 API Mandate"
-        elif any(k in c_lower for k in ["bot", "scraper", "credential", "stuffing"]):
-            rec_title = "Bot Manager Premier"
-            rec_desc = "Your requirement specifically targets credential stuffing. Bot Manager Premier utilizes behavioral telemetry and advanced cryptographics to identify and drop malicious login attempts without CAPTCHAs."
-            rec_comp = "Account Takeover Protection"
-        else:
-            rec_title = "Adaptive Security Engine (ASE)"
-            rec_desc = "Based on your use case, our AI recommends reviewing your active AAP ruleset and ensuring Adaptive Security Engine (ASE) is operating in automatic mode to optimize your posture."
-            rec_comp = "ISO 27001 Security Standard"
+            is_existing = False
             
-        return {"track": "Track 3", "custom_insight": {"title": rec_title, "desc": rec_desc, "comp": rec_comp}}
+        # Default Scenario: Covered by existing AAP Contract (Needs PS tuning)
+        else:
+            rec_title = "Adaptive Security Engine Optimization (Already on Contract)"
+            rec_desc = "Based on your description, your existing AAP Adaptive Security Engine (ASE) has the capability to mitigate this risk. We recommend engaging Akamai Professional Services to review your active ruleset and fine-tune ASE into automatic mode to maximize your current investment."
+            rec_comp = "ISO 27001 Security Standard"
+            is_existing = True
+            
+        return {"track": "Track 3", "custom_insight": {"title": rec_title, "desc": rec_desc, "comp": rec_comp, "is_existing": is_existing}}
 
 
 # ==========================================
@@ -326,7 +338,7 @@ with col2:
                         f"<button class='mini-enable-btn' title='View documentation on how to enable these contracted features.'>Learn How to Enable</button>"
                         f"</div>"
                         
-                        f"<div class='section-label' style='color:#D93025; margin-top: 4px;'>🚀 Recommended Add-on(Paid)</div>"
+                        f"<div class='section-label' style='color:#D93025; margin-top: 4px;'>🚀 Recommended Add-on</div>"
                         f"<div class='info-box addon'>"
                         f"<div style='flex-grow: 1;'>"
                         f"<div class='tag-container'>"
@@ -407,16 +419,27 @@ with col2:
         else:
             custom_insight = result["custom_insight"]
             st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 16px;">🎯 Tailored Solution Architecture</div>', unsafe_allow_html=True)
+            
+            # Dynamic styling based on whether product is existing (Needs PS) or new (Needs Upsell)
+            if custom_insight.get("is_existing"):
+                primary_btn = "Engage Akamai PS"
+                secondary_btn = "View Documentation"
+                tag_color = "#10B981" # Green for Existing/Optimization
+            else:
+                primary_btn = "Try / Buy Solution"
+                secondary_btn = "Contact Sales Rep"
+                tag_color = "#0072CE" # Blue for New Upsell
+            
             insight_html = (
-                "<div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 24px; border-radius: 8px; border-top: 4px solid #0072CE; box-shadow: 0 1px 3px rgba(0,0,0,0.04);'>"
+                f"<div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 24px; border-radius: 8px; border-top: 4px solid {tag_color}; box-shadow: 0 1px 3px rgba(0,0,0,0.04);'>"
                 "<div class='tag-container' style='margin-bottom: 12px;'>"
                 f"<span class='tag-badge tag-compliance' style='font-size:12px; padding: 6px 10px;'>🔒 {custom_insight['comp']}</span>"
                 "</div>"
-                f"<h4 style='margin: 0 0 12px 0; color: #1E2228; font-size: 18px;'>Recommended Fit: <span style='color:#0072CE;'>{custom_insight['title']}</span></h4>"
+                f"<h4 style='margin: 0 0 12px 0; color: #1E2228; font-size: 18px;'>Recommended Fit: <span style='color:{tag_color};'>{custom_insight['title']}</span></h4>"
                 f"<p style='margin: 0 0 20px 0; font-size: 14px; color: #475569; line-height: 1.6;'>{custom_insight['desc']}</p>"
                 "<div style='display: flex; gap: 16px;'>"
-                "<button style='background-color: #0072CE; color: white; border: none; border-radius: 4px; padding: 10px 20px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s ease;'>Try / Buy Solution</button>"
-                "<button style='background-color: white; color: #0072CE; border: 1px solid #0072CE; border-radius: 4px; padding: 10px 20px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s ease;'>Contact Sales Rep</button>"
+                f"<button style='background-color: {tag_color}; color: white; border: none; border-radius: 4px; padding: 10px 20px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s ease;'>{primary_btn}</button>"
+                f"<button style='background-color: white; color: {tag_color}; border: 1px solid {tag_color}; border-radius: 4px; padding: 10px 20px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s ease;'>{secondary_btn}</button>"
                 "</div>"
                 "</div>"
             )

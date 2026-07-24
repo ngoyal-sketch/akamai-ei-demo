@@ -313,7 +313,7 @@ with col2:
                         f"<div class='pillar-card' style='border-top: 4px solid {data['color']};'>"
                         f"<div class='pillar-header'><span>{data['icon']} {pillar_name}</span></div>"
                         
-                        f"<div class='section-label' style='color:#0072CE;'>✅ Contracted (Free)</div>"
+                        f"<div class='section-label' style='color:#0072CE;'>✅ Available on Contract</div>"
                         f"<div class='info-box free'>"
                         f"<div style='flex-grow: 1;'>"
                         f"<div class='tag-container'>"

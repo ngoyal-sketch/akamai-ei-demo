@@ -113,7 +113,7 @@ def analyze_infrastructure(track, del_env, sec_env, industry, region, context):
         rel_issue = f"Industry Benchmark: Failover latency for {industry} requires advanced Site Failover topologies."
         perf_issue = f"Industry Benchmark: {region} users experience high latency without SureRoute and optimal caching."
     
-    # Logic for Track 3 (Custom Context)
+    # Logic for Custom Context (Track 3)
     if track == "Track 3":
         c_lower = context.lower()
         if any(k in c_lower for k in ["file", "upload", "malware", "virus"]):
@@ -188,44 +188,51 @@ col1, col2 = st.columns([1, 2.3], gap="medium")
 # --- LEFT PANE ---
 with col1:
     st.markdown('<div class="akamai-card" style="height: 100%;">', unsafe_allow_html=True)
-    st.markdown('<div class="akamai-card-title">1. Target Parameters</div>', unsafe_allow_html=True)
+    st.markdown('<div class="akamai-card-title">1. Analysis Approach</div>', unsafe_allow_html=True)
     
-    st.markdown("<p style='font-size: 11px; color: #475569; margin-bottom: 6px; font-weight: 600;'>Select Privacy & Analysis Track:</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 11px; color: #475569; margin-bottom: 6px; font-weight: 600;'>Select how you want us to evaluate your needs:</p>", unsafe_allow_html=True)
     track_choice = st.radio("Privacy Track", [
-        "Track 1: Deep-Insight Mode (Config Scan)", 
-        "Track 2: Contextual-Match Mode (Industry Benchmark)",
-        "Track 3: Custom Business Context (Use Case)"
+        "Scan My Configurations (Deep Analysis)", 
+        "Use Industry Benchmarks (No Scan Required)",
+        "Describe a Specific Challenge (Custom Input)"
     ], label_visibility="collapsed")
     
     st.markdown("<hr style='margin: 8px 0; border: none; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
 
     del_env, sec_env, industry_input, region_input, issue_input = None, None, None, None, ""
 
-    if "Track 1" in track_choice:
+    if track_choice == "Scan My Configurations (Deep Analysis)":
+        track_internal = "Track 1"
+        header_str = "Config Scan"
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Select active AAP configs for deep analysis.</p>", unsafe_allow_html=True)
         del_env = st.selectbox("Delivery Config:", DELIVERY_CATALOG)
         sec_env = st.selectbox("Security Config:", SECURITY_CATALOG)
-    elif "Track 2" in track_choice:
+    elif track_choice == "Use Industry Benchmarks (No Scan Required)":
+        track_internal = "Track 2"
+        header_str = "Industry Benchmark"
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Deep scanning disabled. Using macro-telemetry.</p>", unsafe_allow_html=True)
         industry_input = st.selectbox("Industry Sector:", ["Financial Services", "Retail & E-Commerce", "Media & Entertainment", "Public Sector"])
         region_input = st.selectbox("Primary Region:", ["North America", "EMEA", "Asia Pacific", "LATAM"])
     else:
+        track_internal = "Track 3"
+        header_str = "Custom Context"
         st.markdown("<p style='font-size: 11.5px; color: #0072CE; margin-bottom: 6px;'>Describe your specific business context, issue, or requirement below.</p>", unsafe_allow_html=True)
         issue_input = st.text_area("Business Context:", placeholder="e.g., We need to stop automated credential stuffing...", height=100, label_visibility="collapsed")
     
+    # Minor styling tweak for the button section
+    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     run_scan = st.button("Analyze Requirements", type="primary", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 # --- RIGHT PANE ---
 with col2:
     if run_scan:
-        track_str = track_choice.split(":")[0]
-        pillars, bundle, custom_insight = analyze_infrastructure(track_str, del_env, sec_env, industry_input, region_input, issue_input)
+        pillars, bundle, custom_insight = analyze_infrastructure(track_internal, del_env, sec_env, industry_input, region_input, issue_input)
         
         st.markdown('<div class="akamai-card" style="background-color: #FAFAFA; padding: 12px 16px;">', unsafe_allow_html=True)
         
-        if track_str in ["Track 1", "Track 2"]:
-            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Configuration Gap Analysis ({track_str})</div>', unsafe_allow_html=True)
+        if track_internal in ["Track 1", "Track 2"]:
+            st.markdown(f'<div class="akamai-card-title" style="margin-bottom: 8px;">Configuration Gap Analysis ({header_str})</div>', unsafe_allow_html=True)
             
             # 1. THREE-PILLAR CARDS WITH ENABLE & TRY/BUY BUTTONS
             p_cols = st.columns(3)
@@ -294,7 +301,7 @@ with col2:
             "<div class='akamai-card' style='height: 100%; display: flex; align-items: center; justify-content: center; background-color: #FAFAFA;'>"
             "<div style='text-align: center; padding: 60px 20px;'>"
             "<h4 style='color: #1E2228; margin-bottom: 8px;'>Awaiting Configuration Selection</h4>"
-            "<p style='font-size: 12px; color: #64748B;'>Select your tracking mode on the left and run the scan to identify unused contract features, recommended add-ons, or custom solutions.</p>"
+            "<p style='font-size: 12px; color: #64748B;'>Select your evaluation method on the left and run the scan to identify unused contract features, recommended add-ons, or custom solutions.</p>"
             "</div>"
             "</div>"
         )

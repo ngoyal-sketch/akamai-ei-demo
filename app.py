@@ -1,10 +1,60 @@
 import streamlit as st
 
 # ==========================================
-# ⚙️ 1. PAGE SETUP & COMPACT ENTERPRISE STYLING
+# ⚙️ 1. PAGE SETUP
 # ==========================================
+# This MUST be the first Streamlit command
 st.set_page_config(page_title="Akamai Marketplace | Control Center", layout="wide", initial_sidebar_state="expanded")
 
+# ==========================================
+# 🔒 2. LOGIN LOGIC
+# ==========================================
+def check_password():
+    """Returns `True` if the user entered the correct password."""
+    
+    def password_entered():
+        # ⚠️ Hardcoded credentials for POC
+        if st.session_state["username"] == "admin" and st.session_state["password"] == "akamai2024":
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Security: don't keep password in session state
+        else:
+            st.session_state["password_correct"] = False
+
+    # First run / Not logged in yet
+    if "password_correct" not in st.session_state:
+        st.markdown("<br><br><h2 style='text-align: center; color: #0072CE;'>Akamai EI Marketplace</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #475569;'>Please log in to access the Control Center</p>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1.5, 1, 1.5])
+        with col2:
+            st.text_input("Username", key="username")
+            st.text_input("Password", type="password", key="password")
+            st.button("Login", on_click=password_entered, type="primary", use_container_width=True)
+        return False
+    
+    # Password incorrect
+    elif not st.session_state["password_correct"]:
+        st.markdown("<br><br><h2 style='text-align: center; color: #0072CE;'>Akamai EI Marketplace</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #475569;'>Please log in to access the Control Center</p>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1.5, 1, 1.5])
+        with col2:
+            st.text_input("Username", key="username")
+            st.text_input("Password", type="password", key="password")
+            st.button("Login", on_click=password_entered, type="primary", use_container_width=True)
+            st.error("😕 Username or password incorrect")
+        return False
+    
+    # Password correct
+    else:
+        return True
+
+# --- APP GATE ---
+if not check_password():
+    st.stop()  # Stops the rest of the app from loading until logged in
+
+
+# ==========================================
+# 🎨 3. COMPACT ENTERPRISE STYLING
+# ==========================================
 AKAMAI_CSS = """
 <style>
     /* 1. Ultra-Tight Padding to pull everything up into one view */
@@ -114,13 +164,13 @@ topbar_html = (
 st.markdown(topbar_html, unsafe_allow_html=True)
 
 # ==========================================
-# 2. MOCK CATALOG DATA
+# 4. MOCK CATALOG DATA
 # ==========================================
 DELIVERY_CATALOG = ["api.retailstore.com (E-Commerce API)", "www.globalbank.com (Main Site)", "media.streaming.net (Video Assets)"]
 SECURITY_CATALOG = ["AAP Baseline Security", "App & API Protector (No Bot Protection)", "Legacy WAF Ruleset"]
 
 # ==========================================
-# 3. DIAGNOSTIC ENGINE LOGIC
+# 5. DIAGNOSTIC ENGINE LOGIC
 # ==========================================
 def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, context):
     
@@ -247,7 +297,7 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
 
 
 # ==========================================
-# 4. MAIN UI LAYOUT
+# 6. MAIN UI LAYOUT
 # ==========================================
 st.markdown("<h2 style='margin-top:-10px; margin-bottom: 12px; font-weight: 800; color:#1E2228;'>Akamai EI - EdgeIntelligence Marketplace</h2>", unsafe_allow_html=True)
 

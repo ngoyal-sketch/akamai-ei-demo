@@ -13,8 +13,12 @@ def check_password():
     """Returns `True` if the user entered the correct password."""
     
     def password_entered():
-        # ⚠️ Hardcoded credentials for POC
-        if st.session_state["username"] == "admin" and st.session_state["password"] == "akamai2024":
+        # Clean up the inputs: remove spaces and make everything lowercase
+        user_input = st.session_state["username"].strip().lower()
+        pass_input = st.session_state["password"].strip().lower()
+        
+        # ⚠️ Hardcoded credentials for POC (checked against lowercase)
+        if user_input == "admin" and pass_input == "akamai2024":
             st.session_state["password_correct"] = True
             del st.session_state["password"]  # Security: don't keep password in session state
         else:

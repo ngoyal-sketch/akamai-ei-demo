@@ -1,5 +1,4 @@
 import streamlit as st
-import time
 
 # ==========================================
 # ⚙️ 1. PAGE SETUP
@@ -7,11 +6,9 @@ import time
 st.set_page_config(page_title="Akamai Marketplace | Control Center", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
-# 🔒 2. LOGIN LOGIC (Case & Space Insensitive)
+# 🔒 2. LOGIN LOGIC
 # ==========================================
 def check_password():
-    """Returns `True` if the user entered the correct password."""
-    
     def password_entered():
         user_input = st.session_state["username"].strip().lower()
         pass_input = st.session_state["password"].strip().lower()
@@ -31,7 +28,6 @@ def check_password():
             st.text_input("Password", type="password", key="password")
             st.button("Login", on_click=password_entered, type="primary", use_container_width=True)
         return False
-    
     elif not st.session_state["password_correct"]:
         st.markdown("<br><br><h2 style='text-align: center; color: #0072CE;'>Akamai EI Marketplace</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #475569;'>Please log in to access the Control Center</p>", unsafe_allow_html=True)
@@ -102,15 +98,6 @@ AKAMAI_CSS = """
     .tag-container { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
     .tag-badge { font-size: 9px; font-weight: 700; padding: 3px 6px; border-radius: 4px; line-height: 1.2; }
     .tag-compliance { background-color: #F0F7FF; color: #0072CE; border: 1px solid #CCE3FD; }
-    .tag-value { background-color: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
-
-    /* V2 ROI Banner */
-    .roi-banner { background-color: #1E2228; color: white; padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
-    .roi-score { font-size: 28px; font-weight: 800; color: #10B981; }
-    .roi-wasted { font-size: 28px; font-weight: 800; color: #EF4444; }
-
-    /* V2 Nudge Banner */
-    .nudge-alert { background-color: #FEF2F2; border-left: 4px solid #EF4444; padding: 10px 16px; margin-bottom: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; }
 
     .metric-box { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 14px; text-align: center; }
     .metric-val { font-size: 22px; font-weight: 800; color: #1E2228; margin-bottom: 4px; }
@@ -121,8 +108,8 @@ AKAMAI_CSS = """
     .visual-legend { display: flex; gap: 12px; font-size: 11px; color: #475569; font-weight: 600; justify-content: center; }
     .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
 
-    .rec-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px; height: 100%; border-top: 3px solid #0072CE; }
-
+    /* Custom styling for the top radio button to make it look like an enterprise toggle */
+    div[data-testid="stRadio"] > div { display: flex; flex-direction: row; gap: 20px; background-color: #FFFFFF; padding: 10px 20px; border-radius: 6px; border: 1px solid #E2E8F0; }
     div[data-testid="stVerticalBlock"] > div { padding-bottom: 0.2rem !important; }
 </style>
 """
@@ -150,41 +137,25 @@ topbar_html = (
 st.markdown(topbar_html, unsafe_allow_html=True)
 
 # ==========================================
-# 🎛️ 4. MODE & VERSION SELECTOR
+# 🎛️ 4. ENTERPRISE MODE TOGGLE & BANNER
 # ==========================================
-mode_col1, mode_col2 = st.columns([2, 1])
-with mode_col1:
-    st.markdown("<h2 style='margin-top:-5px; margin-bottom: 0px; font-weight: 800; color:#1E2228;'>Akamai EI - EdgeIntelligence Marketplace</h2>", unsafe_allow_html=True)
-with mode_col2:
-    app_version = st.selectbox("Marketplace Mode:", ["Standard GTM Engine (V1)", "Advanced Enterprise Engine (V2)"])
+st.markdown("<h2 style='margin-top:-5px; margin-bottom: 10px; font-weight: 800; color:#1E2228;'>Akamai EI - EdgeIntelligence Marketplace</h2>", unsafe_allow_html=True)
 
-is_v2 = "V2" in app_version
+app_version = st.radio("Platform Capability:", ["Standard Diagnostics", "Advanced Enterprise (Includes Compute & Staging)"], horizontal=True, label_visibility="collapsed")
+is_v2 = "Advanced" in app_version
 
-# ==========================================
-# 📣 5. BANNERS (V1 vs V2)
-# ==========================================
-if is_v2:
-    # V2 Feature 5: Event-Driven Proactive Threat Nudge
-    nudge_html = (
-        "<div class='nudge-alert'>"
-        "<div><span style='color:#EF4444; font-weight:800;'>⚠️ PROACTIVE THREAT ALERT:</span> "
-        "<span style='font-size:12px; color:#1E2228;'>Akamai Telemetry detected a <b>340% surge in API Scraping</b> across Retail peers in APAC in the last 24 hrs. Your active AAP rules are unshielded.</span></div>"
-        "<button style='background-color:#EF4444; color:white; border:none; padding:5px 12px; font-weight:700; border-radius:4px; font-size:11px; cursor:pointer;'>Auto-Apply $0 Trial Shield</button>"
-        "</div>"
-    )
-    st.markdown(nudge_html, unsafe_allow_html=True)
-else:
-    banner_html = (
-        "<div style='background-color: #E6F4EA; border-left: 4px solid #137333; padding: 10px 16px; margin-bottom: 16px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;'>"
-        "<span style='font-size: 12px; color: #137333; font-weight: 700;'>✨ New Solutions Available:</span>"
-        "<span style='font-size: 12px; color: #2B313A; margin-left: 12px; flex-grow: 1;'>Explore our latest AI-era defenses including <b>Brand Guardian</b> and <b>Guardicore Segmentation</b>.</span>"
-        "<a href='#' style='font-size: 12px; font-weight: 700; color: #137333; text-decoration: none;'>View Catalog →</a>"
-        "</div>"
-    )
-    st.markdown(banner_html, unsafe_allow_html=True)
+# Unified Banner for both versions
+banner_html = (
+    "<div style='background-color: #E6F4EA; border-left: 4px solid #137333; padding: 10px 16px; margin-bottom: 16px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;'>"
+    "<span style='font-size: 12px; color: #137333; font-weight: 700;'>✨ New Solutions Available:</span>"
+    "<span style='font-size: 12px; color: #2B313A; margin-left: 12px; flex-grow: 1;'>Explore our latest AI-era defenses including <b>Brand Guardian</b> and <b>Guardicore Segmentation</b>.</span>"
+    "<a href='#' style='font-size: 12px; font-weight: 700; color: #137333; text-decoration: none;'>View Catalog →</a>"
+    "</div>"
+)
+st.markdown(banner_html, unsafe_allow_html=True)
 
 # ==========================================
-# 📊 6. CATALOG & DIAGNOSTIC LOGIC
+# 📊 5. CATALOG & DIAGNOSTIC LOGIC
 # ==========================================
 DELIVERY_CATALOG = ["api.retailstore.com (E-Commerce API)", "www.globalbank.com (Main Site)", "media.streaming.net (Video Assets)"]
 SECURITY_CATALOG = ["AAP Baseline Security", "App & API Protector (No Bot Protection)", "Legacy WAF Ruleset"]
@@ -198,7 +169,6 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
                 "free_enh": "Enabling these contracted features maps bot traffic and mitigates volumetric spikes.",
                 "free_unused": ["Adaptive Rate Controls", "Bot Visibility", "IP Deny"],
                 "free_compliance": "PCI-DSS 4.0 Req 6.4",
-                "free_value": "$14,000 Included Value",
                 "addon_name": "Malware Protection",
                 "addon_issue": "Vulnerability to malicious file uploads detected at edge.",
                 "addon_desc": "Intercepts and blocks malicious files from reaching backend.",
@@ -210,7 +180,6 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
                 "free_enh": "Cloaks origin from direct attacks and gracefully handles timeout spikes.",
                 "free_unused": ["Site Failover", "SureRoute", "Site Shield"],
                 "free_compliance": "ISO 27001 Availability",
-                "free_value": "$18,000 Included Value",
                 "addon_name": "DataStream 2",
                 "addon_issue": "Lack of real-time operational log visibility during outages.",
                 "addon_desc": "Delivers sub-second logs to SIEM for rapid incident response.",
@@ -222,7 +191,6 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
                 "free_enh": "Bypasses internet congestion and maximizes origin offload.",
                 "free_unused": ["Dynamic Caching", "TCP Optimization", "Edge Compression"],
                 "free_compliance": "Core Web Vitals Pass",
-                "free_value": "$10,000 Included Value",
                 "addon_name": "API Acceleration",
                 "addon_issue": "Dynamic API payloads experiencing latency bottleneck.",
                 "addon_desc": "Optimizes routing for non-cacheable dynamic API traffic.",
@@ -230,18 +198,17 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
             }
         }
         
-        # V2 Feature 1: Add 4th Pillar (Cloud Compute)
+        # V2 specific pillar addition
         if v2_active:
             pillars["Cloud Compute"] = {
                 "icon": "☁️", "color": "#10B981",
-                "free_issue": "Config Scan: Heavy origin compute tasks executing on expensive AWS/GCP instances.",
+                "free_issue": "Config Scan: Heavy origin compute tasks executing on third-party instances.",
                 "free_enh": "Shift lightweight computing and header logic directly to Akamai EdgeWorkers.",
                 "free_unused": ["EdgeWorkers Basic", "EdgeKV Storage", "JWT Edge Auth"],
                 "free_compliance": "Origin Offload Standard",
-                "free_value": "$8,500 Included Value",
                 "addon_name": "Akamai Connected Cloud (Linode)",
                 "addon_issue": "High egress fee costs on third-party cloud origin infrastructure.",
-                "addon_desc": "Migrate core microservices to Akamai Cloud for 80% lower egress costs.",
+                "addon_desc": "Migrate core microservices to Akamai Cloud for significant egress cost reduction.",
                 "addon_compliance": "Multi-Cloud FinOps"
             }
         return {"track": "Track 1", "pillars": pillars}
@@ -275,7 +242,7 @@ def analyze_infrastructure(track_internal, del_env, sec_env, industry, region, c
         }}
 
 # ==========================================
-# 🖥️ 7. MAIN UI LAYOUT
+# 🖥️ 6. MAIN UI LAYOUT
 # ==========================================
 col1, col2 = st.columns([0.8, 2.5], gap="large")
 
@@ -319,26 +286,33 @@ with col2:
         
         st.markdown('<div class="akamai-card" style="background-color: #FAFAFA;">', unsafe_allow_html=True)
         
-        # V2 Feature 2: Financial ROI & "Wasted Value" Calculator
-        if is_v2 and result["track"] == "Track 1":
-            st.markdown("""
-            <div class='roi-banner'>
-                <div>
-                    <div style='font-size:11px; color:#9CA3AF; text-transform:uppercase; font-weight:700;'>Contract Utilization Score</div>
-                    <div class='roi-score'>58% <span style='font-size:14px; color:#E5E7EB;'>(Underutilized)</span></div>
+        # Contract Utilization Circle Block (Displays in both V1 and V2)
+        if result["track"] == "Track 1":
+            utilization_block = """
+            <div style="display: flex; align-items: center; justify-content: space-between; background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 16px 24px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="position: relative; width: 56px; height: 56px;">
+                        <svg width="56" height="56" viewBox="0 0 36 36" style="transform: rotate(-90deg);">
+                            <!-- Background Circle -->
+                            <path stroke="#E2E8F0" stroke-width="3.5" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <!-- Progress Circle (58%) -->
+                            <path stroke="#0072CE" stroke-width="3.5" stroke-dasharray="58, 100" stroke-linecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #1E2228;">58%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 14px; font-weight: 800; color: #1E2228;">Contract Utilization Score</div>
+                        <div style="font-size: 12px; color: #64748B; margin-top: 2px;">Your active contract contains underutilized capabilities and unmapped features.</div>
+                    </div>
                 </div>
                 <div>
-                    <div style='font-size:11px; color:#9CA3AF; text-transform:uppercase; font-weight:700;'>Unclaimed Contract Value</div>
-                    <div class='roi-wasted'>$50,500 <span style='font-size:12px; color:#FCA5A5;'>/ year left on table</span></div>
-                </div>
-                <div>
-                    <button style='background-color:#0072CE; color:white; border:none; padding:8px 14px; font-weight:700; border-radius:4px; font-size:11px; cursor:pointer;'>📄 Export CISO Board Report</button>
+                    <button style="background-color: #FFFFFF; border: 1px solid #CBD5E1; color: #1E2228; padding: 8px 16px; font-weight: 600; border-radius: 4px; font-size: 12px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">📄 Export Report</button>
                 </div>
             </div>
-            """, unsafe_allow_html=True)
-
-        if result["track"] == "Track 1":
-            st.markdown(f'<div class="akamai-card-title">Configuration Gap Analysis ({header_str})</div>', unsafe_allow_html=True)
+            """
+            st.markdown(utilization_block, unsafe_allow_html=True)
+            
+            st.markdown(f'<div class="akamai-card-title" style="margin-top: 10px;">Configuration Gap Analysis ({header_str})</div>', unsafe_allow_html=True)
             
             p_count = len(result["pillars"])
             p_cols = st.columns(p_count, gap="small")
@@ -347,9 +321,7 @@ with col2:
                 with p_cols[idx]:
                     free_items_html = "".join([f"<li>{item}</li>" for item in data['free_unused']])
                     
-                    value_tag = f"<span class='tag-badge tag-value'>💰 {data['free_value']}</span>" if is_v2 else ""
-                    
-                    # V2 Feature 3: "Push to Staging" button alongside TechDocs/PS
+                    # V2 specific feature: Push to Staging button
                     stage_btn_html = "<button class='mini-stage-btn' title='Safely test config on Akamai Staging Network.'>🧪 Push to Staging</button>" if is_v2 else ""
 
                     card_html = (
@@ -361,7 +333,6 @@ with col2:
                         f"<div style='flex-grow: 1;'>"
                         f"<div class='tag-container'>"
                         f"<span class='tag-badge tag-compliance'>🔒 {data['free_compliance']}</span>"
-                        f"{value_tag}"
                         f"</div>"
                         f"<div class='info-issue'>{data['free_issue']}</div>"
                         f"<ul class='free-list'>{free_items_html}</ul>"

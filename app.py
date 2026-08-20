@@ -146,11 +146,11 @@ topbar_html = (
 st.markdown(topbar_html, unsafe_allow_html=True)
 
 # ==========================================
-# 4. MOCK CATALOG DATA
+# 4. MOCK CATALOG DATA (REAL AKAMAI PRODUCTS)
 # ==========================================
-DELIVERY_CATALOG = ["api.retailstore.com (E-Commerce API)", "www.globalbank.com (Main Site)", "media.streaming.net (Video Assets)"]
-SECURITY_CATALOG = ["AAP Baseline Security", "App & API Protector (No Bot Protection)", "Legacy WAF Ruleset"]
-SECURITY_POLICIES = ["api_strict_policy (High)", "akamai_default (Standard)", "web_app_relaxed (Low)"]
+DELIVERY_CATALOG = ["shop.brand.com (Ion Delivery)", "api.globalbank.com (API Acceleration)", "media.streaming.net (Adaptive Media Delivery)"]
+SECURITY_CATALOG = ["App & API Protector - Standard", "App & API Protector - Advanced", "Kona Site Defender (Legacy)"]
+SECURITY_POLICIES = ["api_strict_enforcement (High)", "akamai_ase_default (Standard)", "web_app_monitor_only (Low)"]
 
 # ==========================================
 # 5. DIAGNOSTIC ENGINE LOGIC
@@ -168,39 +168,39 @@ def analyze_infrastructure(track_internal, del_env, sec_env, sec_policy, industr
         pillars = {
             "Security": {
                 "icon": "🛡️", "color": "#0072CE",
-                "free_issue": "Config Scan: Essential Adaptive Rate Controls and Bot Visibility are inactive on this policy.",
-                "free_enh": "Enabling these contracted AAP features will instantly map bot traffic and mitigate volumetric spikes.",
-                "free_unused": ["Adaptive Rate Controls", "Bot Visibility and Mitigation", "IP Deny"],
+                "free_issue": "Config Scan: App & API Protector's Adaptive Security Engine (ASE) and Bot Visibility are inactive.",
+                "free_enh": "Activating these AAP features maps bot traffic and leverages machine learning to adapt to zero-day WAF evasions.",
+                "free_unused": ["Adaptive Security Engine (ASE)", "Bot Visibility", "Slow POST Protection"],
                 "free_compliance": "PCI-DSS 4.0 Req 6.4",
-                "addon_name": "Malware Protection (Add-on)",
-                "addon_issue": "Vulnerability to malicious file uploads detected at the edge.",
-                "addon_reason": f"Analysis of <b>{policy_name}</b> shows zero active rule mappings for file upload inspection.",
-                "addon_desc": "Malware Protection seamlessly integrates with AAP to intercept and block malicious files from reaching your backend.",
-                "addon_compliance": "SOC 2 Type II"
+                "addon_name": "Account Protector (Add-on)",
+                "addon_issue": "High vulnerability to stealthy Account Takeover (ATO) and credential stuffing.",
+                "addon_reason": f"Analysis of <b>{policy_name}</b> shows zero active mappings for behavioral biometrics or credential stuffing telemetry.",
+                "addon_desc": "Account Protector extends AAP by analyzing behavioral anomalies to stop advanced ATO attacks at the edge.",
+                "addon_compliance": "Fraud Prevention SLA"
             },
             "Reliability": {
                 "icon": "⚙️", "color": "#0072CE",
-                "free_issue": "Config Scan: No Site Failover or Site Shield origin cloaking configured for the primary backend.",
-                "free_enh": "Activating these AAP modules cloaks your origin from direct internet attacks and gracefully handles timeout spikes.",
-                "free_unused": ["Site Failover", "SureRoute for Failover", "Site Shield"],
+                "free_issue": "Config Scan: No Site Shield origin cloaking or advanced failover configured.",
+                "free_enh": "Enabling Site Shield cloaks your origin infrastructure from direct-to-origin internet attacks.",
+                "free_unused": ["Site Shield", "SureRoute for Failover", "Phased Release"],
                 "free_compliance": "ISO 27001 Availability",
-                "addon_name": "DataStream (Add-on)",
-                "addon_issue": "Lack of real-time operational visibility into Edge events during critical outages.",
-                "addon_reason": f"No active log-delivery pipelines or SIEM integrations are attached to <b>{del_name}</b>.",
-                "addon_desc": "DataStream provides near real-time log delivery to your SIEM/analytics endpoints for rapid reliability incident response.",
-                "addon_compliance": "SIEM Audit Readiness"
+                "addon_name": "Edge DNS (Add-on)",
+                "addon_issue": "Primary DNS infrastructure lacks edge-based redundancy against volumetric attacks.",
+                "addon_reason": f"Zone delegations for the hostnames in <b>{del_name}</b> are routed to a single, unprotected origin DNS provider.",
+                "addon_desc": "Akamai Edge DNS offloads resolution to a globally distributed, highly resilient Anycast network to prevent DNS outages.",
+                "addon_compliance": "100% Uptime SLA"
             },
             "Performance": {
                 "icon": "🚀", "color": "#0072CE",
-                "free_issue": "Config Scan: Edge caching and SureRoute optimizations are severely underutilized.",
+                "free_issue": "Config Scan: Edge caching and Brotli compression are severely underutilized.",
                 "free_enh": "Applying these included features actively bypasses internet congestion and maximizes origin offload.",
-                "free_unused": ["Caching", "SureRoute for Performance", "TCP Optimization"],
+                "free_unused": ["Brotli Compression", "Tiered Distribution", "Adaptive Image Compression"],
                 "free_compliance": "Core Web Vitals Pass",
                 "addon_name": "API Acceleration (Add-on)",
                 "addon_issue": "Heavy dynamic API payloads are experiencing severe delivery latency.",
                 "addon_reason": f"Traffic profiles for <b>{del_name}</b> indicate >60% uncacheable dynamic API payloads bottlenecking at the origin.",
-                "addon_desc": "API Acceleration specifically optimizes routing and delivery for non-cacheable, heavy API traffic.",
-                "addon_compliance": "Global SLA Benchmark"
+                "addon_desc": "API Acceleration specifically optimizes routing and TLS handshakes for non-cacheable, heavy API traffic.",
+                "addon_compliance": "Global API Benchmark"
             }
         }
         return {"track": "Track 1", "pillars": pillars}
@@ -223,9 +223,9 @@ def analyze_infrastructure(track_internal, del_env, sec_env, sec_policy, industr
                 ],
                 "fact": f"In {region}, Financial platforms face hyper-targeted scraper bots and complex DDoS attacks designed to mask unauthorized transactions.",
                 "recs": [
-                    {"title": "Bot Manager Premier & API Security", "desc": "Intercepts credential stuffing and discovers shadow APIs.", "icon": "🤖", "compliance": "PCI-DSS 4.0"},
-                    {"title": "Global Traffic Management (GTM)", "desc": "Ensures continuous availability through global DNS-level failover routing.", "icon": "⚙️", "compliance": "FSI Regulatory SLA"},
-                    {"title": "API Acceleration", "desc": "Offloads origin compute and drastically improves heavy dynamic API latency.", "icon": "🚀", "compliance": "Open Banking Standard"}
+                    {"title": "Account Protector & BMP", "desc": "Analyzes behavioral biometrics to stop advanced credential stuffing and ATO attempts.", "icon": "🤖", "compliance": "FFIEC Guidelines"},
+                    {"title": "Prolexic (DDoS Protection)", "desc": "Stops volumetric network layer (L3/L4) DDoS attacks with a 0-second mitigation SLA.", "icon": "🛡️", "compliance": "FSI Regulatory SLA"},
+                    {"title": "API Acceleration", "desc": "Offloads origin compute and drastically improves heavy dynamic API latency for Open Banking.", "icon": "🚀", "compliance": "Open Banking Standard"}
                 ]
             }
         else:
@@ -236,15 +236,15 @@ def analyze_infrastructure(track_internal, del_env, sec_env, sec_policy, industr
                     {"label": "Peer Edge Adoption", "val": "78%", "color": "#1E2228"}
                 ],
                 "visual": [
-                    {"label": "Scraping & ATO", "pct": 45, "color": "#D93025"},
+                    {"label": "Scraping & Magecart", "pct": 45, "color": "#D93025"},
                     {"label": "Web Exploits (SQLi/XSS)", "pct": 35, "color": "#F59E0B"},
                     {"label": "DDoS", "pct": 20, "color": "#0072CE"}
                 ],
-                "fact": f"For {industry} in {region}, competitive scraping degrades inventory systems, while heavy media payloads impact conversion rates.",
+                "fact": f"For {industry} in {region}, competitive scraping degrades inventory systems, while Magecart attacks target checkout flows.",
                 "recs": [
-                    {"title": "Bot Manager Premier", "desc": "Stops inventory hoarding and pricing scrapers without degrading shopper experience.", "icon": "🤖", "compliance": "SOC 2 Type II"},
-                    {"title": "App & API Protector", "desc": "Consolidates Layer-7 WAF protections and API governance to thwart exploits.", "icon": "🛡️", "compliance": "PCI-DSS 4.0"},
-                    {"title": "Image & Video Manager", "desc": "Automatically converts media to next-gen formats at the edge to reduce payloads.", "icon": "🖼️", "compliance": "SEO & Core Web Vitals"}
+                    {"title": "Bot Manager Premier", "desc": "Stops inventory hoarding and pricing scrapers without degrading the shopper experience.", "icon": "🤖", "compliance": "SOC 2 Type II"},
+                    {"title": "Client-Side Protection & Compliance", "desc": "Detects compromised third-party scripts to stop Magecart attacks in the browser.", "icon": "🛡️", "compliance": "PCI-DSS 4.0 Req 6.4"},
+                    {"title": "Image & Video Manager (IVM)", "desc": "Automatically converts media to next-gen formats at the edge to reduce payload weight.", "icon": "🖼️", "compliance": "SEO & Core Web Vitals"}
                 ]
             }
         return {"track": "Track 2", "industry_data": ind_data}
@@ -258,28 +258,28 @@ def analyze_infrastructure(track_internal, del_env, sec_env, sec_policy, industr
         # Scenario 1: Covered by existing AAP Contract (Needs PS)
         if any(k in c_lower for k in ["api", "data breach", "shadow", "sql", "xss"]):
             rec_title = "App & API Protector (Already on Contract)"
-            rec_desc = "Our AI analysis indicates your current AAP contract already includes robust API discovery and WAF capabilities to address this challenge. However, they may not be fully optimized. To ensure you are utilizing 100% of these product capabilities, we recommend engaging Akamai Professional Services."
+            rec_desc = "Our AI analysis indicates your current AAP contract already includes robust API discovery and WAF capabilities to address this challenge. However, they may not be fully optimized. To ensure you are utilizing 100% of the Adaptive Security Engine (ASE), we recommend engaging Akamai Professional Services."
             rec_comp = "PCI-DSS 4.0 API Mandate"
             is_existing = True
             
-        # Scenario 2: Upsell Required (Bot Manager)
-        elif any(k in c_lower for k in ["bot", "scraper", "credential", "stuffing"]):
-            rec_title = "Bot Manager Premier (New Solution)"
-            rec_desc = "Your requirement specifically targets credential stuffing. Bot Manager Premier integrates seamlessly with your existing edge deployment, utilizing behavioral telemetry and advanced cryptographics to identify and drop malicious login attempts without CAPTCHAs."
+        # Scenario 2: Upsell Required (Bot Manager / Account Protector)
+        elif any(k in c_lower for k in ["bot", "scraper", "credential", "stuffing", "takeover"]):
+            rec_title = "Bot Manager Premier & Account Protector"
+            rec_desc = "Your requirement specifically targets bot-driven credential stuffing. Account Protector integrates seamlessly with your existing edge deployment, utilizing behavioral telemetry and advanced cryptographics to identify and drop malicious login attempts without serving CAPTCHAs."
             rec_comp = "Account Takeover Protection"
             is_existing = False
             
-        # Scenario 3: Upsell Required (Malware)
-        elif any(k in c_lower for k in ["file", "upload", "malware", "virus"]):
-            rec_title = "Malware Protection (Add-on)"
-            rec_desc = "Based on your requirement regarding file uploads, Malware Protection seamlessly integrates with AAP to intercept and block malicious files from reaching your backend."
-            rec_comp = "SOC 2 & HIPAA Compliant"
+        # Scenario 3: Upsell Required (Prolexic / DDoS)
+        elif any(k in c_lower for k in ["ddos", "volumetric", "layer 3", "layer 4", "ransomware"]):
+            rec_title = "Akamai Prolexic (Add-on)"
+            rec_desc = "Based on your requirement regarding volumetric attacks, Akamai Prolexic is purpose-built to stop L3/L4 DDoS attacks in the cloud before they reach your applications, backed by a 0-second SLA."
+            rec_comp = "100% Uptime SLA"
             is_existing = False
             
         # Default Scenario: Covered by existing AAP Contract (Needs PS tuning)
         else:
             rec_title = "Adaptive Security Engine Optimization (Already on Contract)"
-            rec_desc = "Based on your description, your existing AAP Adaptive Security Engine (ASE) has the capability to mitigate this risk. We recommend engaging Akamai Professional Services to review your active ruleset and fine-tune ASE into automatic mode to maximize your current investment."
+            rec_desc = "Based on your description, your existing App & API Protector (AAP) ruleset has the capability to mitigate this risk. We recommend engaging Akamai Professional Services to review your active ruleset and fine-tune ASE into automatic mode to maximize your current investment."
             rec_comp = "ISO 27001 Security Standard"
             is_existing = True
             
@@ -294,7 +294,7 @@ st.markdown("<h2 style='margin-top:-10px; margin-bottom: 12px; font-weight: 800;
 banner_html = (
     "<div style='background-color: #E6F4EA; border-left: 4px solid #137333; padding: 10px 16px; margin-bottom: 20px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);'>"
     "<span style='font-size: 13px; color: #137333; font-weight: 700;'>✨ New Solutions Available:</span>"
-    "<span style='font-size: 13px; color: #2B313A; margin-left: 12px; flex-grow: 1;'>Explore our latest AI-era defenses including <b>Brand Guardian</b>, <b>AI Brand Presence</b>, and <b>Guardicore Segmentation</b>.</span>"
+    "<span style='font-size: 13px; color: #2B313A; margin-left: 12px; flex-grow: 1;'>Explore our latest AI-era defenses including <b>Client-Side Protection</b>, <b>Account Protector</b>, and <b>Guardicore Segmentation</b>.</span>"
     "<a href='#' style='font-size: 13px; font-weight: 700; color: #137333; text-decoration: none; white-space: nowrap;'>View Catalog →</a>"
     "</div>"
 )
@@ -325,7 +325,7 @@ with col1:
         st.markdown("<p style='font-size: 13px; color: #0072CE; font-weight: 500; margin-bottom: 10px;'>Select active configs and policies for analysis.</p>", unsafe_allow_html=True)
         del_env = st.selectbox("Delivery Config:", DELIVERY_CATALOG)
         st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-        sec_env = st.selectbox("Security Config:", SECURITY_CATALOG)
+        sec_env = st.selectbox("Security Config (AAP):", SECURITY_CATALOG)
         st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
         sec_policy = st.selectbox("Security Policy:", SECURITY_POLICIES)
         
@@ -340,7 +340,7 @@ with col1:
         track_internal = "Track 3"
         header_str = "Custom Context"
         st.markdown("<p style='font-size: 13px; color: #0072CE; font-weight: 500; margin-bottom: 10px;'>Describe your specific business context or challenge below.</p>", unsafe_allow_html=True)
-        issue_input = st.text_area("Business Context:", placeholder="e.g., We need to stop automated credential stuffing...", height=120, label_visibility="collapsed")
+        issue_input = st.text_area("Business Context:", placeholder="e.g., We need to stop automated credential stuffing and ATOs...", height=120, label_visibility="collapsed")
     
     st.markdown("<div style='margin-top: 24px;'></div>", unsafe_allow_html=True)
     run_scan = st.button("Analyze Requirements", type="primary", use_container_width=True)
@@ -476,7 +476,6 @@ with col2:
             with b_btn1:
                 st.button("Try / Buy Solutions", type="primary", use_container_width=True, key="t2_buy")
             with b_btn2:
-                # Custom secondary button styling via markdown for alignment
                 st.markdown("""
                 <style>.btn-outline { width: 100%; text-align: center; display: inline-block; padding: 6px 16px; font-weight: 600; font-size: 13px; border: 1px solid #0072CE; color: #0072CE; border-radius: 4px; background-color: #FFFFFF; text-decoration: none; transition: 0.2s ease; cursor: pointer;}</style>
                 <button class="btn-outline">Ask IAT for Assistance</button>
@@ -526,5 +525,3 @@ with col2:
             "</div>"
         )
         st.markdown(empty_state_html, unsafe_allow_html=True)
-
-

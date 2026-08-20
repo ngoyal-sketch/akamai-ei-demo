@@ -526,3 +526,5 @@ with col2:
             "</div>"
         )
         st.markdown(empty_state_html, unsafe_allow_html=True)
+
+

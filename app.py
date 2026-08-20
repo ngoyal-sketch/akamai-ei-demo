@@ -107,6 +107,10 @@ AKAMAI_CSS = """
     .visual-legend { display: flex; gap: 12px; font-size: 11px; color: #475569; font-weight: 600; justify-content: center; }
     .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
 
+    .rec-card { background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 16px; height: 100%; border-top: 3px solid #0072CE; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .rec-card h4 { margin: 0 0 8px 0; font-size: 14px; color: #1E2228; }
+    .rec-card p { margin: 0; font-size: 12px; color: #475569; line-height: 1.5; }
+
     div[data-testid="stVerticalBlock"] > div { padding-bottom: 0.2rem !important; }
 </style>
 """
@@ -265,7 +269,7 @@ with col2:
         
         st.markdown('<div class="akamai-card" style="background-color: #FAFAFA;">', unsafe_allow_html=True)
         
-        # Enterprise Feature: Contract Utilization Circle & Export Report
+        # Enterprise Feature: Contract Utilization Circle & Export Report (Track 1)
         if result["track"] == "Track 1":
             utilization_block = """
             <div style="display: flex; align-items: center; justify-content: space-between; background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 16px 24px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
@@ -348,13 +352,42 @@ with col2:
             v_bars = "".join([f"<div class='visual-segment' style='width: {v['pct']}%; background-color: {v['color']};'>{v['pct']}%</div>" for v in ind_data["visual"]])
             v_legend = "".join([f"<div><span class='legend-dot' style='background-color: {v['color']};'></span>{v['label']}</div>" for v in ind_data["visual"]])
             
+            # Rendering Graph and Strategic Recommendations Section
             st.markdown(f"""
-            <div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 14px; border-radius: 6px; margin-top: 12px; margin-bottom: 16px;'>
-                <div style='font-size: 12px; color: #1E2228; font-weight: 600;'>{ind_data["fact"]}</div>
+            <div style='background-color: #FFFFFF; border: 1px solid #E2E8F0; padding: 20px; border-radius: 8px; margin-top: 16px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);'>
+                <div style='font-size: 13px; color: #1E2228; font-weight: 600; line-height: 1.5;'>{ind_data["fact"]}</div>
                 <div class='visual-bar-container'>{v_bars}</div>
                 <div class='visual-legend'>{v_legend}</div>
             </div>
+            <div class="akamai-card-title" style="margin-bottom: 12px; font-size: 16px;">Strategic Solution Recommendations</div>
             """, unsafe_allow_html=True)
+            
+            # Rendering the Recommendation Cards
+            r_cols = st.columns(len(ind_data["recs"]), gap="medium")
+            for i, rec in enumerate(ind_data["recs"]):
+                with r_cols[i]:
+                    st.markdown(f"""
+                    <div class='rec-card' style='display: flex; flex-direction: column; padding-bottom: 12px; min-height: 130px;'>
+                        <div style='flex-grow: 1;'>
+                            <div class='tag-container'>
+                                <span class='tag-badge tag-compliance'>🔒 {rec['compliance']}</span>
+                            </div>
+                            <h4 style='font-size: 14px; margin-bottom: 6px;'>{rec['icon']} {rec['title']}</h4>
+                            <p style='font-size: 12px;'>{rec['desc']}</p>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+            # Action Row
+            st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+            b_spacer1, b_btn1, b_btn2, b_spacer2 = st.columns([1, 1.5, 1.5, 1])
+            with b_btn1:
+                st.button("Try / Buy Solutions", type="primary", use_container_width=True, key="t2_buy")
+            with b_btn2:
+                st.markdown("""
+                <style>.btn-outline { width: 100%; text-align: center; display: inline-block; padding: 6px 16px; font-weight: 600; font-size: 13px; border: 1px solid #0072CE; color: #0072CE; border-radius: 4px; background-color: #FFFFFF; text-decoration: none; transition: 0.2s ease; cursor: pointer;}</style>
+                <button class="btn-outline">Ask IAT for Assistance</button>
+                """, unsafe_allow_html=True)
 
         else:
             custom_insight = result["custom_insight"]
